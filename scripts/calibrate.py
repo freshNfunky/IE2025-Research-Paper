@@ -40,11 +40,11 @@ def on_same_path(a, b):
 def collect(n):
     pipe = get_pipeline()
     tax, clip = pipe.taxonomy, pipe.clip
-    det = get_detector(pipe.weights, 0.25)
+    det = get_detector(pipe.weights, 0.20)
     samples = datasets.get_source("road_anomaly").load(n)
     boxes = []  # (feat, coco_name, true_node)
     for si, s in enumerate(samples):
-        for b in det.detect(s.image, conf=0.25):
+        for b in det.detect(s.image, conf=0.20):
             feat = clip.image_features(b.crop(s.image))
             boxes.append((feat, b.coco_name, tax.by_coco(b.coco_name)))
         print(f"    cached {si+1}/{len(samples)}  boxes={len(boxes)}", flush=True)
@@ -113,7 +113,12 @@ def main():
 
 def plot(results, flat_known_pct=None):
     fig, ax = plt.subplots(figsize=(7.5, 6))
-    best = max(results, key=lambda r: r["known_good_pct"] + r["novel_safe_pct"])
+    # Highlight the DEPLOYED default operating point (AbstractionConfig defaults),
+    # not the arg-max, so the figure matches the point reported in the paper.
+    deployed = [r for r in results
+                if abs(r["temp"] - 0.06) < 1e-6 and abs(r["commit_mass"] - 0.40) < 1e-6]
+    best = deployed[0] if deployed else max(
+        results, key=lambda r: r["known_good_pct"] + r["novel_safe_pct"])
     for r in results:
         is_best = r is best
         ax.scatter(r["known_good_pct"], r["novel_safe_pct"],
@@ -143,7 +148,8 @@ def plot(results, flat_known_pct=None):
     ax.grid(alpha=0.3)
     ax.set_title("Each dot = one config of the HIERARCHICAL system; "
                  "X = the FLAT baseline\n"
-                 "(hierarchy: 100% novel-safe at up to 70% known;  flat: 0% novel-safe)")
+                 f"(hierarchy: 100% novel-safe at up to {best['known_good_pct']:.0f}% "
+                 "known;  flat: 0% novel-safe)")
     ax.legend(loc="center right")
     fig.tight_layout()
     fig.savefig(OUT / "calibration_tradeoff.png", dpi=170, bbox_inches="tight")

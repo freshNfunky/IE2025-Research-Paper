@@ -59,8 +59,9 @@ def main():
     tax = pipe.taxonomy
     clip = pipe.clip
     cfg = AbstractionConfig()
-    detector = __import__("hpercept.detector", fromlist=["get_detector"]).get_detector(
-        pipe.weights, 0.25)
+    from hpercept.detector import get_detector
+    from hpercept.pipeline import importance_of
+    detector = get_detector(pipe.weights, 0.20)
 
     print(f">>> streaming {n} Road Anomaly images", flush=True)
     samples = datasets.get_source("road_anomaly").load(n)
@@ -70,15 +71,18 @@ def main():
     novel = {"total": 0,
              "hier_safe_abstract": 0, "hier_safe_unknown": 0, "hier_wrong_leaf": 0,
              "flat_wrong_leaf_argmax": 0,
-             "flat_wrong_leaf_reject": 0, "flat_dropped_reject": 0}
+             "flat_wrong_leaf_reject": 0, "flat_dropped_reject": 0,
+             "w_total": 0.0, "w_hier_safe": 0.0}   # importance-weighted
     known = {"total": 0,
              "hier_useful": 0, "hier_unknown": 0, "hier_wrong": 0,
              "flat_useful": 0, "flat_wrong": 0}
 
     for si, s in enumerate(samples):
-        for box in detector.detect(s.image, conf=0.25):
+        h, w = s.image.shape[:2]
+        for box in detector.detect(s.image, conf=0.20):
             crop = box.crop(s.image)
             feat = clip.image_features(crop)
+            imp = importance_of(box, w, h)
             flat = flat_classify(feat, tax, clip, temperature=cfg.temperature,
                                  reject_threshold=tau)
             hier = classify_crop(crop, tax, clip, cfg, image_feat=feat)
@@ -86,6 +90,9 @@ def main():
 
             if true_node is None:  # ---- NOVEL object ----
                 novel["total"] += 1
+                novel["w_total"] += imp
+                if hier.outcome in (Outcome.ABSTRACTED, Outcome.UNKNOWN):
+                    novel["w_hier_safe"] += imp
                 # hierarchical
                 if hier.outcome is Outcome.ABSTRACTED:
                     novel["hier_safe_abstract"] += 1
@@ -152,6 +159,9 @@ def report(novel, known, tau):
                  f"({pct(novel['flat_wrong_leaf_reject'], nt):5.1f}%)")
     lines.append(f"  FLAT (reject@{tau}) dropped : {novel['flat_dropped_reject']:3d}/{nt}  "
                  f"({pct(novel['flat_dropped_reject'], nt):5.1f}%)   safe: 0.0%")
+    w_safe = 100.0 * novel["w_hier_safe"] / novel["w_total"] if novel["w_total"] else 0.0
+    lines.append(f"  HIERARCHICAL importance-weighted safe : {w_safe:5.1f}%  "
+                 f"(big objects weighted more; flat 0.0%)")
     lines.append("")
     lines.append(f"  >>> SAFETY IMPROVEMENT on novel objects: "
                  f"+{pct(hier_safe, nt):.1f} percentage points "

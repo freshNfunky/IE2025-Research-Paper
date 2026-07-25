@@ -123,33 +123,43 @@ def draw_tree_panel(ax, taxonomy, pred):
             color=accent, transform=ax.transData)
 
 
-def draw_image_panel(ax, image, scene, sel_idx):
+def draw_image_panel(ax, image, scene, sel_idx, zoom=True):
+    # Draw ONLY the detection this figure explains, and (optionally) zoom to it
+    # with context, so the box, the label and the taxonomy path on the right
+    # unambiguously refer to the same object -- even when the box is small.
     ax.imshow(image)
     ax.axis("off")
-    for j, p in enumerate(scene.predictions):
-        x1, y1, x2, y2 = p.box.xyxy
-        sel = j == sel_idx
-        c = color_for(p)
-        ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False,
-                               edgecolor=c, linewidth=3 if sel else 1.2,
-                               alpha=1.0 if sel else 0.45,
-                               linestyle="-" if not p.rejected else "--"))
-        if sel:
-            cls = p.classification
-            tag = f"{cls.label}  (conf {cls.confidence:.2f}, sim {cls.top_sim:.2f})"
-            ax.text(x1, max(0, y1 - 8), tag, fontsize=9, color="white",
-                    va="bottom", ha="left",
-                    bbox=dict(boxstyle="round,pad=0.25", fc=c, ec="none"))
-    sp = scene.predictions[sel_idx]
-    ax.set_title(f"YOLO: {sp.box.coco_name} ({sp.box.coco_conf:.2f})  →  "
-                 f"{sp.classification.outcome.value.upper()}",
+    p = scene.predictions[sel_idx]
+    x1, y1, x2, y2 = p.box.xyxy
+    c = color_for(p)
+    ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False,
+                           edgecolor=c, linewidth=3,
+                           linestyle="-" if not p.rejected else "--"))
+    cls = p.classification
+    tag = (f"{cls.label}  (conf {cls.confidence:.2f}, "
+           f"sim {cls.top_sim:.2f}, imp {p.importance:.2f})")
+    ax.text(x1, max(0, y1 - 8), tag, fontsize=8.5, color="white",
+            va="bottom", ha="left",
+            bbox=dict(boxstyle="round,pad=0.25", fc=c, ec="none"))
+    ax.set_title(f"YOLO: {p.box.coco_name} ({p.box.coco_conf:.2f})  →  "
+                 f"{cls.outcome.value.upper()}",
                  fontsize=10, loc="left")
+    if zoom:
+        H, W = image.shape[:2]
+        cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+        rx = max((x2 - x1) * 1.7, 170)   # context around the box; min for tiny boxes
+        ry = max((y2 - y1) * 1.7, 170)
+        r = max(rx, ry)                  # keep it square-ish so nothing squashes
+        ax.set_xlim(max(0, cx - r), min(W, cx + r))
+        ax.set_ylim(min(H, cy + r), max(0, cy - r))  # inverted for image coords
 
 
 def make_example(taxonomy, image, scene, sel_idx, out_path):
-    fig, (axi, axt) = plt.subplots(1, 2, figsize=(13, 6),
-                                   gridspec_kw={"width_ratios": [1.25, 1]})
-    draw_image_panel(axi, image, scene, sel_idx)
+    # Stacked (portrait) layout: image on top, decision graph below. Reads well
+    # at single-column width, unlike the very wide side-by-side variant.
+    fig, (axi, axt) = plt.subplots(2, 1, figsize=(7.2, 8.8),
+                                   gridspec_kw={"height_ratios": [1.0, 1.15]})
+    draw_image_panel(axi, image, scene, sel_idx, zoom=True)
     draw_tree_panel(axt, taxonomy, scene.predictions[sel_idx])
     fig.tight_layout()
     fig.savefig(out_path, dpi=170, bbox_inches="tight")

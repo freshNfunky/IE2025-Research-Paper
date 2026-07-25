@@ -37,6 +37,7 @@ class Prediction:
     box: Box
     classification: Classification
     constraints: ConstraintResult
+    importance: float = 0.0   # size-based priority in [0,1]; bigger = more critical
 
     @property
     def rejected(self) -> bool:
@@ -48,6 +49,7 @@ class Prediction:
             "label": c.label,
             "outcome": c.outcome.value,
             "confidence": c.confidence,
+            "importance": round(self.importance, 3),
             "yolo_class": self.box.coco_name,
             "yolo_conf": round(self.box.coco_conf, 3),
             "path": " > ".join(n.name for n in c.path),
@@ -75,7 +77,7 @@ class Pipeline:
     def __init__(
         self,
         taxonomy: Optional[Taxonomy] = None,
-        weights: str = "yolov8n.pt",
+        weights: str = "yolov8s.pt",
         clip_model: str = "ViT-B-32-quickgelu",
         clip_pretrained: str = "openai",
     ) -> None:
@@ -95,7 +97,7 @@ class Pipeline:
         self,
         image_rgb: np.ndarray,
         mode: Mode = "clip",
-        det_conf: float = 0.25,
+        det_conf: float = 0.20,
         cfg: Optional[AbstractionConfig] = None,
     ) -> SceneResult:
         cfg = cfg or AbstractionConfig()
@@ -113,12 +115,22 @@ class Pipeline:
                     box.coco_name, box.coco_conf, self.taxonomy,
                 )
             cons = validate(box, cls.node, w, h)
-            preds.append(Prediction(box=box, classification=cls, constraints=cons))
+            preds.append(Prediction(box=box, classification=cls, constraints=cons,
+                                    importance=importance_of(box, w, h)))
 
         return SceneResult(predictions=preds, image_shape=(h, w))
 
 
+def importance_of(box: Box, img_w: int, img_h: int) -> float:
+    """Size-based importance in [0,1]: bigger (nearer) objects matter more.
+
+    A missed large object is the most dangerous perception failure, so we scale
+    with apparent linear size (sqrt of the area fraction). A box covering ~25%
+    of the frame reaches importance 1.0; distant specks stay near 0."""
+    return float(min(1.0, 2.0 * (box.area_frac(img_w, img_h) ** 0.5)))
+
+
 @lru_cache(maxsize=1)
-def get_pipeline(weights: str = "yolov8n.pt") -> Pipeline:
+def get_pipeline(weights: str = "yolov8s.pt") -> Pipeline:
     """Process-wide singleton so models load once."""
     return Pipeline(weights=weights)

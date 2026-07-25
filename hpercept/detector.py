@@ -63,9 +63,16 @@ class Detector:
         return self._model
 
     def detect(self, image: np.ndarray, conf: Optional[float] = None) -> list[Box]:
-        """Run detection on an RGB image and return boxes."""
+        """Run detection on an RGB image and return boxes.
+
+        We use class-agnostic NMS so that a novel object which weakly activates
+        several COCO heads still yields a single box (recall matters more than
+        the COCO label here -- the taxonomy decides the real category). A low
+        confidence keeps recall on out-of-distribution objects that no COCO
+        class fits well; the safety floor and constraints filter the noise."""
         results = self.model.predict(
-            image, conf=conf if conf is not None else self.conf, verbose=False
+            image, conf=conf if conf is not None else self.conf,
+            iou=0.5, agnostic_nms=True, verbose=False,
         )
         names = self.model.names
         boxes: list[Box] = []
@@ -87,6 +94,10 @@ class Detector:
 
 
 @lru_cache(maxsize=2)
-def get_detector(weights: str = "yolov8n.pt", conf: float = 0.25) -> Detector:
-    """Cached detector so the model is loaded at most once per weights file."""
+def get_detector(weights: str = "yolov8s.pt", conf: float = 0.20) -> Detector:
+    """Cached detector so the model is loaded at most once per weights file.
+
+    Default is YOLOv8s (not the nano model): its higher recall is what lets the
+    prominent, safety-critical novel objects (an atypical tractor, an overloaded
+    truck) get a box at all. Missing a large object is the worst failure."""
     return Detector(weights=weights, conf=conf)
