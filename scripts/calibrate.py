@@ -111,7 +111,7 @@ def main():
           flush=True)
 
 
-def plot(results):
+def plot(results, flat_known_pct=None):
     fig, ax = plt.subplots(figsize=(7.5, 6))
     best = max(results, key=lambda r: r["known_good_pct"] + r["novel_safe_pct"])
     for r in results:
@@ -127,16 +127,23 @@ def plot(results):
         (best["known_good_pct"], best["novel_safe_pct"]),
         fontsize=8, xytext=(-8, -34), textcoords="offset points",
         ha="right", color="#7a5c00")
-    # Flat baseline: 0% novel safety at ANY known accuracy -> a floor line.
-    ax.axhline(0, color="#e74c3c", lw=2, ls="--",
-               label="flat baseline: 0% novel-safe (cannot abstract)")
+    # Flat baseline: 0% novel-safety, and its known accuracy on the x-axis.
+    fx = flat_known_pct if flat_known_pct is not None else 0.0
+    ax.axhline(0, color="#e74c3c", lw=1, ls=":", alpha=0.5, zorder=1)
+    ax.scatter([fx], [0], marker="X", s=170, c="#e74c3c", edgecolors="k",
+               linewidths=0.5, zorder=5,
+               label=f"flat baseline ({fx:.0f}% known, 0% novel)")
+    ax.annotate("flat: can categorize known objects,\nbut 0% safe on novel ones",
+                (fx, 0), fontsize=8, xytext=(10, 18), textcoords="offset points",
+                color="#a5281b")
     ax.set_xlabel("KNOWN objects usefully classified (%)  →  more specific")
     ax.set_ylabel("NOVEL objects safely handled (%)  →  safer")
     ax.set_xlim(-3, 100)
     ax.set_ylim(-6, 106)
     ax.grid(alpha=0.3)
-    ax.set_title("Operating points: hierarchical taxonomy vs flat baseline\n"
-                 "(each dot = one config; the hierarchy dominates the flat floor)")
+    ax.set_title("Each dot = one config of the HIERARCHICAL system; "
+                 "X = the FLAT baseline\n"
+                 "(hierarchy: 100% novel-safe at up to 70% known;  flat: 0% novel-safe)")
     ax.legend(loc="center right")
     fig.tight_layout()
     fig.savefig(OUT / "calibration_tradeoff.png", dpi=170, bbox_inches="tight")
