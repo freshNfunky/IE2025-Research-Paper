@@ -406,10 +406,35 @@ precision, mAP), importance-weighted, to test whether semantic filtering of
 high-recall proposals measurably improves \emph{usable} detection of novel
 objects---a claim we deliberately do not assert here without that evidence.
 \emph{Third} (v2), add a second, independent perception path: \emph{semantic
-segmentation} as a parallel taxonomy and cross-validation layer, confirming or
-contradicting each box-level decision against its pixel context (e.g.\ rejecting
-a ``vehicle'' whose region segments as sky). Together these move the system
-toward the multi-level semantic validation argued for in~\cite{schaller2025}.
+segmentation} as a parallel taxonomy and cross-validation layer. Beyond rejecting
+implausible detections (a ``vehicle'' whose region segments as sky), segmentation
+supplies \emph{additional scene-context labels}---drivable lane, sidewalk,
+parking strip---that feed back into the taxonomy decision itself. Knowing that an
+object sits on the active carriageway rather than parked at the roadside is direct
+evidence for the \textsf{Moving~Object} versus \textsf{Static~Object} split at the
+top of the tree; a segmentation cue that the region is a moving road user thus
+sharpens exactly the coarse distinction the safety floor depends on. In other
+words, the second modality does not merely validate the first---it enriches the
+taxonomic evidence and can raise the level at which the system can safely commit.
+
+\emph{Fourth}, and as the culmination, add \emph{3D scene reconstruction}.
+Monocular reconstruction already recovers static structure, but its blind spot is
+precisely motion. The decisive step is \emph{stereo}: synchronous capture
+separates space from time, so that ego-motion (the whole scene sweeping past as
+parallax) can be factored out and any object whose displacement deviates from that
+parallax field is revealed as independently moving. Extracting such motion vectors
+makes dynamic objects pop out of the static background and provides direct,
+geometric evidence for the \textsf{Moving~Object} branch---the very split the
+safety floor rests on. This distinction is not academic: static objects need only
+be driven around, whereas a moving object may enter the ego-vehicle's trajectory,
+so it demands the most attention and, ultimately, \emph{prediction}---estimating
+its future from its present and past. A taxonomy that fuses appearance (CLIP),
+context (segmentation), and motion (stereo) could commit to \textsf{Moving
+Object} on geometry alone even when appearance is ambiguous, closing the loop from
+detection to safe, forward-looking behavior.
+
+Together these move the system toward the multi-level semantic validation argued
+for in~\cite{schaller2025}.
 
 \begin{thebibliography}{9}
 \bibitem{schaller2025}
