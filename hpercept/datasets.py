@@ -54,8 +54,9 @@ REGISTRY: dict[str, DatasetSource] = {
         "instances of common classes. The primary 'unknowns' set.",
         kind="hf",
         repo_id="KaiChen1998/coda-lm",
-        split="val",
-        note="If access is gated, run `huggingface-cli login` once.",
+        split="validation",
+        note="Public. Splits: validation/test. If a config is required, set "
+        "`config` in the registry entry.",
     ),
     "bdd100k": DatasetSource(
         id="bdd100k",
@@ -74,9 +75,10 @@ REGISTRY: dict[str, DatasetSource] = {
         description="Internet street scenes with anomalous objects on the "
         "road (animals, unknown vehicles). Strong novelty triggers.",
         kind="hf",
-        repo_id="scene-understanding/road-anomaly",
-        split="test",
-        note="Community mirror; repo id may need adjusting.",
+        repo_id="kumuji/roadanomaly21_roadobstacle21",
+        split="validation",
+        note="SegmentMeIfYouCan mirror. If the split errors, try 'test' or a "
+        "config name (roadanomaly21 / roadobstacle21).",
     ),
     "local": DatasetSource(
         id="local",
@@ -101,9 +103,21 @@ def get_source(source_id: str) -> DatasetSource:
 #  Loaders                                                                     #
 # --------------------------------------------------------------------------- #
 def _stream_hf(repo_id: str, split: str, config: Optional[str]) -> Iterator[Sample]:
-    from datasets import load_dataset
+    from datasets import get_dataset_config_names, load_dataset
 
-    ds = load_dataset(repo_id, name=config, split=split, streaming=True)
+    def _open(cfg: Optional[str]):
+        return load_dataset(repo_id, name=cfg, split=split, streaming=True)
+
+    try:
+        ds = _open(config)
+    except ValueError:
+        # Most commonly: "Config name is missing" for multi-subset datasets.
+        if config is not None:
+            raise
+        configs = get_dataset_config_names(repo_id)
+        if not configs:
+            raise
+        ds = _open(configs[0])
     for example in ds:
         img = _extract_image(example)
         if img is None:
