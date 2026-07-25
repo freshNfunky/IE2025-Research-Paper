@@ -55,7 +55,7 @@ def analyze(image: np.ndarray, mode_label: str, det_conf: float,
 
     mode = MODE_LABELS[mode_label]
     cfg = AbstractionConfig(
-        descend_threshold=float(descend),
+        commit_mass=float(descend),
         min_abs_sim=float(min_sim),
         enforce_floor=bool(enforce_floor),
     )
@@ -115,7 +115,7 @@ def build() -> gr.Blocks:
                 gr.Markdown("### 1 · Input")
                 source = gr.Dropdown(
                     choices=[(s.name, s.id) for s in datasets.list_sources()],
-                    value="coda", label="Dataset (lazy-streamed)",
+                    value="road_anomaly", label="Dataset (lazy-streamed)",
                 )
                 n_samples = gr.Slider(1, 24, value=8, step=1, label="Samples to fetch")
                 load_btn = gr.Button("Load samples", variant="secondary")
@@ -131,11 +131,11 @@ def build() -> gr.Blocks:
                 det_conf = gr.Slider(0.05, 0.9, value=0.25, step=0.05,
                                      label="YOLO detection confidence")
                 descend = gr.Slider(
-                    0.2, 0.95, value=0.55, step=0.05,
-                    label="Descend threshold (↑ = abstracts sooner / more cautious)",
+                    0.3, 0.9, value=0.55, step=0.05,
+                    label="Commit mass (↑ = abstracts sooner / more cautious)",
                 )
-                min_sim = gr.Slider(0.0, 0.4, value=0.20, step=0.01,
-                                    label="Min CLIP similarity to commit")
+                min_sim = gr.Slider(0.15, 0.35, value=0.22, step=0.01,
+                                    label="Min CLIP similarity (below = UNKNOWN)")
                 floor = gr.Checkbox(value=True, label="Enforce abstraction floor 🛡 (anti-paranoia)")
                 run_btn = gr.Button("Analyze", variant="primary")
 

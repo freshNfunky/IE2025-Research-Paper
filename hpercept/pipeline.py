@@ -76,7 +76,7 @@ class Pipeline:
         self,
         taxonomy: Optional[Taxonomy] = None,
         weights: str = "yolov8n.pt",
-        clip_model: str = "ViT-B-32",
+        clip_model: str = "ViT-B-32-quickgelu",
         clip_pretrained: str = "openai",
     ) -> None:
         self.taxonomy = taxonomy or Taxonomy.load(_TAXONOMY_PATH)
@@ -111,7 +111,6 @@ class Pipeline:
             else:
                 cls = classify_by_coco(
                     box.coco_name, box.coco_conf, self.taxonomy,
-                    leaf_threshold=cfg.descend_threshold,
                 )
             cons = validate(box, cls.node, w, h)
             preds.append(Prediction(box=box, classification=cls, constraints=cons))

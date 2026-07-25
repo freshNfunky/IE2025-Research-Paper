@@ -47,38 +47,43 @@ class DatasetSource:
 #  Registry -- edit / extend here.                                            #
 # --------------------------------------------------------------------------- #
 REGISTRY: dict[str, DatasetSource] = {
-    "coda": DatasetSource(
-        id="coda",
-        name="CODA (corner cases)",
-        description="Real-world road corner cases: novel classes & novel "
-        "instances of common classes. The primary 'unknowns' set.",
-        kind="hf",
-        repo_id="KaiChen1998/coda-lm",
-        split="validation",
-        note="Public. Splits: validation/test. If a config is required, set "
-        "`config` in the registry entry.",
-    ),
-    "bdd100k": DatasetSource(
-        id="bdd100k",
-        name="BDD100K (known baseline)",
-        description="Large, diverse driving scenes -- mostly in-taxonomy "
-        "objects. Good contrast to the corner-case sets.",
-        kind="hf",
-        repo_id="dgural/bdd100k",
-        split="validation",
-        note="Some mirrors are FiftyOne-formatted; if streaming fails, use "
-        "the local folder or another set.",
-    ),
+    # Primary "unknowns" set -- verified streaming. Thematically ideal: real
+    # street scenes with anomalous objects (animals, unknown vehicles) that
+    # have no proper flat class, exactly the paper's scenario.
     "road_anomaly": DatasetSource(
         id="road_anomaly",
-        name="Road Anomaly (unknown objects)",
+        name="Road Anomaly (unknowns) ⭐",
         description="Internet street scenes with anomalous objects on the "
         "road (animals, unknown vehicles). Strong novelty triggers.",
         kind="hf",
         repo_id="kumuji/roadanomaly21_roadobstacle21",
         split="validation",
-        note="SegmentMeIfYouCan mirror. If the split errors, try 'test' or a "
-        "config name (roadanomaly21 / roadobstacle21).",
+        note="SegmentMeIfYouCan mirror. Only the 'validation' split exists.",
+    ),
+    # Known-baseline set -- verified streaming. Mostly in-taxonomy objects, a
+    # good contrast to the corner cases.
+    "cityscapes": DatasetSource(
+        id="cityscapes",
+        name="Cityscapes (known baseline)",
+        description="Dense urban driving scenes with common, in-taxonomy "
+        "objects. Contrast set for the novelty triggers.",
+        kind="hf",
+        repo_id="Chris1/cityscapes",
+        split="train",
+        note="Streams cleanly (image + semantic_segmentation).",
+    ),
+    # Kept because the user asked for CODA, but the only HF mirror is the
+    # LM-annotation build whose nested text schema breaks streaming casts.
+    "coda": DatasetSource(
+        id="coda",
+        name="CODA (corner cases) ⚠ may fail",
+        description="Real-world road corner cases. The only HF mirror is the "
+        "CODA-LM (VQA) build; streaming often fails on its nested schema.",
+        kind="hf",
+        repo_id="KaiChen1998/coda-lm",
+        split="validation",
+        note="If this errors, use Road Anomaly, or download original CODA "
+        "images from coda-dataset.github.io into data/samples/.",
     ),
     "local": DatasetSource(
         id="local",

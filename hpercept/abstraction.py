@@ -37,8 +37,7 @@ class Step:
 
     parent: str
     chosen: str
-    prob: float          # softmax prob of the chosen child among its siblings
-    abs_sim: float       # raw CLIP cosine similarity to the chosen child
+    mass: float          # probability mass of the chosen child's subtree (0..1)
     committed: bool      # did we actually descend into `chosen`?
 
 
@@ -63,10 +62,15 @@ class Classification:
 
 @dataclass
 class AbstractionConfig:
-    descend_threshold: float = 0.55   # min sibling-softmax prob to go deeper
-    min_abs_sim: float = 0.20         # min raw CLIP similarity to commit
-    temperature: float = 0.01         # softmax temperature over siblings
-    enforce_floor: bool = True        # apply the anti-paranoia limit
+    # CLIP is scored ONLY on the concrete leaf prompts (where it is reliable);
+    # abstract-node scores are derived by summing leaf probability mass up the
+    # tree. We then descend as long as a single child subtree holds enough mass
+    # -- when mass splits across children (the crop is ambiguous between, say,
+    # "horse" and "bicycle"), we stop and report their common ancestor.
+    min_abs_sim: float = 0.22   # min best-leaf cosine; below this nothing matches
+    commit_mass: float = 0.55   # min child subtree mass to descend one level
+    temperature: float = 0.06   # softmax temperature over leaf similarities
+    enforce_floor: bool = True  # apply the anti-paranoia (floor) limit
 
 
 def classify_crop(
@@ -75,35 +79,49 @@ def classify_crop(
     clip: ClipClassifier,
     cfg: AbstractionConfig,
 ) -> Classification:
-    """Top-down hierarchical descent with confidence gating and floor fallback."""
+    """Leaf-scored, mass-aggregated hierarchical classification with floor."""
     image_feat = clip.image_features(crop_rgb)
+
+    leaves = [n for n in taxonomy.iter_nodes() if n.is_leaf]
+    sims = np.array(
+        [float(np.dot(image_feat, clip._text_feats[l.name])) for l in leaves]
+    )
+    top_sim = float(sims.max())
+
+    # Softmax over leaves -> a probability per concrete category.
+    z = sims / max(cfg.temperature, 1e-6)
+    z = z - z.max()
+    probs = np.exp(z)
+    probs /= probs.sum()
+
+    # Precompute each leaf's ancestor-name set so subtree mass is a fast sum.
+    leaf_anc = [{a.name for a in l.ancestors(include_self=True)} for l in leaves]
+
+    def mass(node: Node) -> float:
+        return float(sum(p for p, anc in zip(probs, leaf_anc) if node.name in anc))
 
     node = taxonomy.root
     path: list[Node] = [node]
     steps: list[Step] = []
-    committed_conf = 1.0
 
-    while node.children:
-        probs = clip.child_probs(image_feat, node.children, cfg.temperature)
-        best_child = max(node.children, key=lambda c: probs[c.name])
-        best_p = probs[best_child.name]
-        abs_sim = float(np.dot(image_feat, clip._text_feats[best_child.name]))
+    # If nothing matches even the best leaf, don't descend at all -> UNKNOWN.
+    if top_sim >= cfg.min_abs_sim:
+        while node.children:
+            best = max(node.children, key=mass)
+            bm = mass(best)
+            committed = bm >= cfg.commit_mass
+            steps.append(Step(node.name, best.name, round(bm, 3), committed))
+            if not committed:
+                break  # mass split across children -> ambiguous -> abstract here
+            node = best
+            path.append(node)
 
-        confident = best_p >= cfg.descend_threshold and abs_sim >= cfg.min_abs_sim
-        steps.append(
-            Step(node.name, best_child.name, best_p, abs_sim, committed=confident)
-        )
-        if not confident:
-            break  # ambiguous among children -> stop and abstract here
-        node = best_child
-        path.append(node)
-        committed_conf = min(committed_conf, best_p)
-
+    confidence = round(mass(node), 3) if top_sim >= cfg.min_abs_sim else 0.0
     outcome = _resolve_outcome(node, taxonomy, cfg)
     return Classification(
         node=node,
         outcome=outcome,
-        confidence=round(committed_conf, 3),
+        confidence=confidence,
         path=path,
         steps=steps,
     )

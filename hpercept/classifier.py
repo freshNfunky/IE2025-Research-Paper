@@ -22,7 +22,10 @@ class ClipClassifier:
     def __init__(
         self,
         taxonomy: Taxonomy,
-        model_name: str = "ViT-B-32",
+        # NOTE: OpenAI CLIP weights were trained with the QuickGELU activation.
+        # The plain "ViT-B-32" config uses nn.GELU and silently degrades
+        # accuracy, so we must pair the "-quickgelu" model with the openai tag.
+        model_name: str = "ViT-B-32-quickgelu",
         pretrained: str = "openai",
         device: Optional[str] = None,
     ) -> None:
