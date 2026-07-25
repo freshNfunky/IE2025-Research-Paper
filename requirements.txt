@@ -1,0 +1,15 @@
+# Core perception stack. Torch is the only heavy dependency (~2 GB on macOS);
+# everything else is small. Models are downloaded lazily on first use
+# (YOLOv8n ~6 MB, CLIP ViT-B-32 ~350 MB).
+numpy>=1.24
+pyyaml>=6.0
+pillow>=10.0
+
+# Detection + open-vocabulary classification
+ultralytics>=8.2          # YOLO (pulls torch, torchvision, opencv)
+open_clip_torch>=2.24     # CLIP zero-shot over taxonomy nodes
+
+# UI + lazy dataset streaming
+gradio>=4.44
+datasets>=2.19
+huggingface_hub>=0.23

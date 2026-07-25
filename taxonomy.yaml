@@ -1,0 +1,177 @@
+# Hierarchical object taxonomy for constrained perception in autonomous driving.
+#
+# Rationale (see paper "The Role of Semantic Models in Constraining Pattern
+# Recognition", F. Schaller, Intelligent Environments 2025):
+#   Instead of a flat class list, objects live in a tree. When a specific leaf
+#   cannot be confidently identified (a novel / out-of-distribution object such
+#   as a horse-drawn carriage), the system abstracts UP the tree until it finds
+#   a category that is still confident enough to be useful -- rather than
+#   dropping the object entirely ("falling into the void").
+#
+# The "paranoia" problem:
+#   The higher we abstract, the more trivial the category becomes ("it is an
+#   Object" -> everything is a potential hazard -> the planner over-reacts).
+#   To bound this, every safety-actionable node is flagged `floor: true`. The
+#   abstraction climb is NEVER allowed to stop ABOVE the nearest floor. If even
+#   the floor level is not confident, the detection is reported as
+#   UNKNOWN_OBSTACLE (a localized, conservatively-handled hazard) instead of
+#   being abstracted into a useless generic bucket.
+#
+# Node fields:
+#   name   : display label (also the default CLIP text prompt)
+#   prompt : optional override text for CLIP zero-shot matching
+#   coco   : COCO-80 class names that map DIRECTLY onto this node (used by the
+#            YOLO-only mode and to seed YOLO+CLIP detections)
+#   floor  : true  -> shallowest label still considered "safe/useful"
+#   size   : optional [min_frac, max_frac] plausible box-area fraction of the
+#            frame, used by the physical-constraint validator
+#   sky_ok : optional bool -> may this object plausibly appear high in the frame?
+#            (default false for ground objects; used by the position constraint)
+
+root:
+  name: Object
+  # The absolute root. Abstracting all the way to here == total novelty.
+  children:
+
+    - name: Moving Object
+      prompt: a moving object on or near the road
+      children:
+
+        # ---------------------------------------------------------------- #
+        #  LIVING BEINGS                                                    #
+        # ---------------------------------------------------------------- #
+        - name: Living Being
+          prompt: a living being
+          floor: true              # <-- safety floor: person vs. animal matters
+          children:
+            - name: Person
+              prompt: a person
+              size: [0.002, 0.6]
+              children:
+                - name: Pedestrian
+                  prompt: a pedestrian walking
+                  coco: [person]
+                - name: Rider
+                  prompt: a person riding a bike or motorcycle
+            - name: Animal
+              prompt: an animal
+              size: [0.002, 0.5]
+              children:
+                - name: Dog
+                  prompt: a dog
+                  coco: [dog]
+                - name: Cat
+                  prompt: a cat
+                  coco: [cat]
+                - name: Horse
+                  prompt: a horse
+                  coco: [horse]
+                - name: Large Livestock
+                  prompt: a cow or large farm animal
+                  coco: [cow, sheep, elephant, bear]
+                - name: Bird
+                  prompt: a bird
+                  coco: [bird]
+                  sky_ok: true
+
+        # ---------------------------------------------------------------- #
+        #  VEHICLES (objects with wheels / self-propelled transport)       #
+        # ---------------------------------------------------------------- #
+        - name: Vehicle
+          prompt: a vehicle
+          floor: true              # <-- safety floor: never abstract above "Vehicle"
+          size: [0.003, 0.9]
+          children:
+
+            - name: Two-Wheeler
+              prompt: a two-wheeled vehicle
+              children:
+                - name: Bicycle
+                  prompt: a bicycle
+                  coco: [bicycle]
+                - name: Motorcycle
+                  prompt: a motorcycle
+                  coco: [motorcycle]
+
+            - name: Road Vehicle
+              prompt: a motor vehicle driving on the road
+              children:
+
+                - name: Passenger Car
+                  prompt: a passenger car
+                  coco: [car]
+                  size: [0.005, 0.8]
+                  children:
+                    - name: Sedan
+                      prompt: a sedan car
+                    - name: SUV
+                      prompt: an SUV or off-road car
+
+                - name: Commercial Vehicle
+                  prompt: a large commercial vehicle
+                  children:
+                    - name: Transport Vehicle
+                      prompt: a vehicle transporting goods or people
+                      # A horse-drawn carriage, an unknown work vehicle, etc.
+                      # will typically bottom out around here when the specific
+                      # leaf is not recognizable.
+                      children:
+                        - name: Truck
+                          prompt: a truck
+                          coco: [truck]
+                          size: [0.01, 0.9]
+                          children:
+                            - name: Heavy Truck
+                              prompt: a heavy goods truck
+                              children:
+                                - name: MAN Truck
+                                  prompt: a MAN brand heavy truck
+                        - name: Bus
+                          prompt: a bus
+                          coco: [bus]
+                          size: [0.01, 0.95]
+
+            - name: Rail Vehicle
+              prompt: a train or tram on rails
+              children:
+                - name: Train
+                  prompt: a train
+                  coco: [train]
+
+    # -------------------------------------------------------------------- #
+    #  STATIC OBJECTS (infrastructure & roadside clutter)                  #
+    # -------------------------------------------------------------------- #
+    - name: Static Object
+      prompt: a static object beside or on the road
+      floor: true                  # <-- safety floor: static vs. moving matters
+      children:
+
+        - name: Traffic Infrastructure
+          prompt: traffic control infrastructure
+          children:
+            - name: Traffic Light
+              prompt: a traffic light
+              coco: [traffic light]
+              sky_ok: true
+              size: [0.0005, 0.1]
+            - name: Traffic Sign
+              prompt: a traffic sign
+              coco: [stop sign]
+              sky_ok: true
+              size: [0.0005, 0.1]
+            - name: Traffic Cone
+              prompt: a traffic cone or road barrier
+              size: [0.0005, 0.15]
+
+        - name: Roadside Object
+          prompt: an object beside the road
+          children:
+            - name: Bench
+              prompt: a bench
+              coco: [bench]
+            - name: Fire Hydrant
+              prompt: a fire hydrant
+              coco: [fire hydrant]
+            - name: Parking Meter
+              prompt: a parking meter
+              coco: [parking meter]
