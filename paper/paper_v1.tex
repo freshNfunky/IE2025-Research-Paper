@@ -12,6 +12,7 @@
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 \usepackage{orcidlink}
+\usepackage[caption=false]{subfig}
 
 \graphicspath{{../figures/}{../images/}}
 
@@ -316,6 +317,24 @@ arg-max ($77\%$ vs.\ $47\%$ useful) with no wrong-branch claims.}
 \label{fig:benchmark}
 \end{figure*}
 
+\begin{figure*}[t]
+\centering
+\subfloat[A giraffe (no taxonomy leaf) is not dropped: the mass climbs to
+\textsf{Living~Being}, a safety floor, and stops.\label{fig:giraffe}]{%
+\includegraphics[width=0.47\textwidth]{ex_road_anomaly_01_0_abstracted.png}}
+\hfil
+\subfloat[A MAN tractor towing a covered carriage---detected only tentatively as
+\texttt{truck}---is classified as \textsf{Vehicle}, not a wrong specific type; it
+is the largest, most important object in frame (importance $1.0$).%
+\label{fig:tractor}]{%
+\includegraphics[width=0.47\textwidth]{ex_road_anomaly_08_1_abstracted.png}}
+\caption{\textsc{Abstracted} examples. In each: top, the detection (with
+confidence, CLIP similarity, and importance); bottom, the per-node probability
+mass along the decision path. Novel or ambiguous objects are abstracted to a safe
+floor category rather than dropped or given a confident wrong leaf.}
+\label{fig:examples}
+\end{figure*}
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{calibration_tradeoff.png}
@@ -340,27 +359,6 @@ settles at \textsf{Vehicle}---exactly the ``shared moving-vehicle category'' the
 original argument calls for. Of the $20$ novel objects, the $11$ that are
 genuinely cross-categorical instead bottom out as \textsc{unknown obstacle} above
 the floor---the deeper safety net.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{ex_road_anomaly_01_0_abstracted.png}
-\caption{\textsc{Abstracted}. A giraffe (no taxonomy leaf) is not dropped: the
-mass climbs to \textsf{Living~Being}, a safety floor, and stops. Top: the
-detection (with confidence, CLIP similarity, and importance); bottom: the
-per-node probability mass along the decision path.}
-\label{fig:giraffe}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{ex_road_anomaly_08_1_abstracted.png}
-\caption{\textsc{Abstracted}, emblematic. A MAN tractor towing a covered carriage
----detected only tentatively as \texttt{truck}---is safely classified as
-\textsf{Vehicle} rather than a wrong specific type. It is the largest, most
-important object in frame (importance $1.0$); missing or mislabeling it would be
-the worst failure.}
-\label{fig:tractor}
-\end{figure}
 
 \section{Discussion}
 \label{sec:discussion}
@@ -448,7 +446,6 @@ detection to safe, forward-looking behavior.
 Together these move the system toward the multi-level semantic validation argued
 for in~\cite{schaller2025}.
 
-\newpage
 \begin{thebibliography}{9}
 \bibitem{schaller2025}
 F.~Schaller, ``The Role of Semantic Models in Constraining Pattern Recognition in
