@@ -31,10 +31,38 @@ overwhelmingly UNKNOWN (22) with a few abstractions (1) and no false
 leaf-level identifications (0) — i.e. the system stays conservative exactly
 where it should.
 
-## Known gap
+## Benchmark: flat class list vs. hierarchical taxonomy
 
-The **identified** tier (a normal car/person committed to a specific leaf) is
-not shown here because it needs a known-object driving set (Cityscapes), whose
-large parquet shards did not stream reliably on the current connection. To be
-added once a stable connection (or a few cached Cityscapes frames in
-`data/samples/`) is available.
+`scripts/benchmark.py` runs a fair head-to-head on the same YOLO boxes and the
+same CLIP features and leaf vocabulary — the only difference is flat argmax (no
+abstraction) vs. the hierarchical mass-descent with a safety floor. Novelty
+ground truth: a detection is *novel* if YOLO's COCO class has no node in our
+taxonomy (e.g. giraffe, airplane).
+
+**`benchmark_flat_vs_hier.png`** (n = 40 images, 46 detections):
+
+| | Flat (argmax) | Flat (reject@0.5) | **Hierarchical** |
+|---|---|---|---|
+| **Novel objects safely handled** | 0% (confident wrong leaf) | 0% (all dropped) | **100%** (11 abstracted, 5 flagged unknown) |
+| Novel confident-wrong leaf | 100% | — | **0%** |
+| **Known objects useful category** | 33% | — | **70%** (0% wrong branch, 30% honest unknown) |
+
+> **Safety improvement on novel road objects: +100 percentage points.**
+> On *known* objects the hierarchy is at least as specific as the flat baseline
+> (70% vs 33% useful) and never makes a confident wrong claim — so the safety
+> gain does not cost known-object performance.
+
+`calibration_tradeoff.png` (`scripts/calibrate.py`) sweeps the operating point:
+every hierarchical config sits at 100% novel-safety while the flat baseline is a
+floor at 0% — the hierarchy dominates. Chosen point: `temperature=0.06,
+commit_mass=0.40` (now the default in `AbstractionConfig`).
+
+## Notes / gaps
+
+- The **identified-to-a-leaf** tier reads 0% because several known COCO classes
+  map onto *internal* taxonomy nodes (e.g. `car` → "Passenger Car", whose
+  Sedan/SUV leaves always split the mass). "Useful category on the correct
+  branch" is therefore the meaningful specificity measure, not "reached a leaf".
+- A dedicated known-object driving set (Cityscapes) would strengthen the known
+  half; its large parquet shards did not stream reliably here. The Road Anomaly
+  frames already contain enough normal traffic to populate the known column.

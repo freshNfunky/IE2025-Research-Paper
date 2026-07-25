@@ -1,0 +1,25 @@
+======================================================================
+FLAT vs HIERARCHICAL -- safety on NOVEL (out-of-taxonomy) objects
+======================================================================
+novel objects: 16
+
+  HIERARCHICAL safe-handled :  16/16  (100.0%)  [abstract 11, unknown 5]
+  HIERARCHICAL wrong leaf   :   0/16  (  0.0%)
+
+  FLAT (argmax) wrong leaf  :  16/16  (100.0%)   safe: 0.0%
+  FLAT (reject@0.5) wrong  :   0/16  (  0.0%)
+  FLAT (reject@0.5) dropped :  16/16  (100.0%)   safe: 0.0%
+
+  >>> SAFETY IMPROVEMENT on novel objects: +100.0 percentage points (hierarchical 100.0% vs flat 0.0%)
+
+----------------------------------------------------------------------
+KNOWN (in-taxonomy) objects -- does the hierarchy keep specificity?
+----------------------------------------------------------------------
+known objects: 30
+  FLAT (argmax) useful category      :  33.3%
+  HIERARCHICAL useful category       :  70.0%
+  HIERARCHICAL flagged unknown       :  30.0%
+  HIERARCHICAL wrong branch          :   0.0%
+  (on known objects flat and hierarchical are comparable; the
+   hierarchy's advantage is confined to the NOVEL objects above)
+======================================================================

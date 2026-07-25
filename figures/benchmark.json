@@ -1,0 +1,22 @@
+{
+  "reject_tau": 0.5,
+  "novel": {
+    "total": 16,
+    "hier_safe_abstract": 11,
+    "hier_safe_unknown": 5,
+    "hier_wrong_leaf": 0,
+    "flat_wrong_leaf_argmax": 16,
+    "flat_wrong_leaf_reject": 0,
+    "flat_dropped_reject": 16
+  },
+  "known": {
+    "total": 30,
+    "hier_useful": 21,
+    "hier_unknown": 9,
+    "hier_wrong": 0,
+    "flat_useful": 10,
+    "flat_wrong": 20
+  },
+  "novel_safety_improvement_pp": 100.0,
+  "hier_novel_safe_pct": 100.0
+}

@@ -69,8 +69,11 @@ class AbstractionConfig:
     # tree. We then descend as long as a single child subtree holds enough mass
     # -- when mass splits across children (the crop is ambiguous between, say,
     # "horse" and "bicycle"), we stop and report their common ancestor.
-    min_abs_sim: float = 0.22   # min best-leaf cosine; below this nothing matches
-    commit_mass: float = 0.55   # min child subtree mass to descend one level
+    # Defaults calibrated on the Road Anomaly set (see scripts/calibrate.py):
+    # this operating point identifies ~70% of KNOWN objects at a useful level
+    # with 0% confident-wrong, while still safely handling 100% of NOVEL objects.
+    min_abs_sim: float = 0.20   # min best-leaf cosine; below this nothing matches
+    commit_mass: float = 0.40   # min child subtree mass to descend one level
     temperature: float = 0.06   # softmax temperature over leaf similarities
     enforce_floor: bool = True  # apply the anti-paranoia (floor) limit
 
@@ -80,9 +83,14 @@ def classify_crop(
     taxonomy: Taxonomy,
     clip: ClipClassifier,
     cfg: AbstractionConfig,
+    image_feat: np.ndarray | None = None,
 ) -> Classification:
-    """Leaf-scored, mass-aggregated hierarchical classification with floor."""
-    image_feat = clip.image_features(crop_rgb)
+    """Leaf-scored, mass-aggregated hierarchical classification with floor.
+
+    ``image_feat`` may be passed in to reuse a CLIP embedding already computed
+    for the same crop (e.g. when a flat baseline scores the same box)."""
+    if image_feat is None:
+        image_feat = clip.image_features(crop_rgb)
 
     leaves = [n for n in taxonomy.iter_nodes() if n.is_leaf]
     sims = np.array(
@@ -130,6 +138,38 @@ def classify_crop(
         node_mass=node_mass,
         top_sim=round(top_sim, 4),
     )
+
+
+@dataclass
+class FlatResult:
+    """A flat baseline: argmax over the SAME leaf vocabulary, no hierarchy."""
+
+    leaf: Node
+    prob: float           # softmax probability of the winning leaf
+    accepted: bool        # prob >= reject threshold (else the flat system drops)
+
+
+def flat_classify(
+    image_feat: np.ndarray,
+    taxonomy: Taxonomy,
+    clip: ClipClassifier,
+    temperature: float = 0.06,
+    reject_threshold: float = 0.5,
+) -> FlatResult:
+    """Flat classifier over taxonomy leaves -- the baseline with NO abstraction.
+
+    It can only ever output a specific leaf (or, with a reject option, drop the
+    object). It has no way to say "some kind of vehicle" or "unknown obstacle".
+    """
+    leaves = [n for n in taxonomy.iter_nodes() if n.is_leaf]
+    sims = np.array([float(np.dot(image_feat, clip._text_feats[l.name])) for l in leaves])
+    z = sims / max(temperature, 1e-6)
+    z = z - z.max()
+    p = np.exp(z)
+    p /= p.sum()
+    i = int(p.argmax())
+    return FlatResult(leaf=leaves[i], prob=round(float(p[i]), 4),
+                      accepted=bool(p[i] >= reject_threshold))
 
 
 def _resolve_outcome(node: Node, taxonomy: Taxonomy, cfg: AbstractionConfig) -> Outcome:

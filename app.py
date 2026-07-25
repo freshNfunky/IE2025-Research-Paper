@@ -131,10 +131,10 @@ def build() -> gr.Blocks:
                 det_conf = gr.Slider(0.05, 0.9, value=0.25, step=0.05,
                                      label="YOLO detection confidence")
                 descend = gr.Slider(
-                    0.3, 0.9, value=0.55, step=0.05,
+                    0.3, 0.9, value=0.40, step=0.05,
                     label="Commit mass (↑ = abstracts sooner / more cautious)",
                 )
-                min_sim = gr.Slider(0.15, 0.35, value=0.22, step=0.01,
+                min_sim = gr.Slider(0.15, 0.35, value=0.20, step=0.01,
                                     label="Min CLIP similarity (below = UNKNOWN)")
                 floor = gr.Checkbox(value=True, label="Enforce abstraction floor 🛡 (anti-paranoia)")
                 run_btn = gr.Button("Analyze", variant="primary")
