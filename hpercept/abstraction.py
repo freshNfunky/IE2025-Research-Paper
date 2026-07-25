@@ -48,6 +48,8 @@ class Classification:
     confidence: float                # confidence of the *reported* level
     path: list[Node] = field(default_factory=list)
     steps: list[Step] = field(default_factory=list)
+    node_mass: dict[str, float] = field(default_factory=dict)  # per-node prob mass
+    top_sim: float = 0.0             # best-leaf CLIP cosine similarity
 
     @property
     def label(self) -> str:
@@ -118,12 +120,15 @@ def classify_crop(
 
     confidence = round(mass(node), 3) if top_sim >= cfg.min_abs_sim else 0.0
     outcome = _resolve_outcome(node, taxonomy, cfg)
+    node_mass = {n.name: round(mass(n), 4) for n in taxonomy.iter_nodes()}
     return Classification(
         node=node,
         outcome=outcome,
         confidence=confidence,
         path=path,
         steps=steps,
+        node_mass=node_mass,
+        top_sim=round(top_sim, 4),
     )
 
 

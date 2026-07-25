@@ -13,3 +13,6 @@ open_clip_torch>=2.24     # CLIP zero-shot over taxonomy nodes
 gradio>=4.44
 datasets>=2.19
 huggingface_hub>=0.23
+
+# Figures / charts (also pulled transitively by ultralytics)
+matplotlib>=3.7
