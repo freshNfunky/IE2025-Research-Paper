@@ -120,6 +120,58 @@ converts over-abstraction into an explicit unknown rather than a useless generic
 label. (iii) A fair, training-free head-to-head benchmark quantifying the safety
 gain of the taxonomy over a flat list on real anomalous road scenes.
 
+\section{Problem Statement}
+\label{sec:problem}
+
+The failure mode is concrete and, in the open world, routine. A perception stack
+trained on a flat class list has, for any object, exactly one question to answer:
+which of my $N$ classes is this? When the true answer is ``none of them,'' the
+system has no representation for that outcome. It resolves the impasse in one of
+two unsafe ways. Either it forces the object into the nearest class---mislabeling
+a novel work vehicle as a \texttt{car}, or fragmenting a horse-drawn carriage into
+a \texttt{person} (the driver) and disconnected parts---or, under a confidence
+threshold, it rejects the detection entirely and the object simply ceases to
+exist for every downstream planner. This second case is the dangerous one: it is
+a recognized failure mode behind open-world perception incidents, in which an
+obstacle absent from the operational class vocabulary is, functionally, an
+obstacle the vehicle never decides to avoid. The flat list does not merely
+misclassify the rare object; it can render it \emph{invisible}.
+
+This is the epistemological crux of~\cite{schaller_patterns}. Within ISO~21448
+(SOTIF), the residual risk concentrates in the ``unknown--unsafe'' quadrant, and
+a purely inductive, context-free classifier cannot shrink that quadrant because
+it has no mechanism to represent what it does not know: it maps high confidence
+onto out-of-distribution inputs and cannot distinguish an accidental correlation
+from a physical truth.
+
+We therefore reframe the remedy as a difference in \emph{what happens at the
+moment of failure}. Under a flat list, when categorization fails the object falls
+through the category into the void---nothing catches it. Under a taxonomy, when
+the most specific assignment fails, the object is caught one level up: the coarser
+parent category still applies, and there is \emph{always} a level that applies
+because the root does. Between the leaf and the root sit several intermediate
+levels, so the taxonomy is not a single safety net but a \emph{stack} of them---
+like the tiered nets strung beneath a trapeze act, a missed catch ends not on the
+ground but in the next net down. Each step of abstraction is one more net, and the
+safety floor marks the lowest net we still call ``caught.''
+
+This tiered abstraction is, we argue, a \emph{necessary} safety architecture for
+the SOTIF regime, not merely a convenient one. Where ISO~26262 can demand
+deductive, formal guarantees against systematic and random faults, SOTIF hazards
+arise from functional limitations of a \emph{statistical} perception function to
+which formal proof does not apply. The answer cannot be more formalism layered
+over an ungrounded inductive engine; it must be \emph{semantic}. By abstracting an
+undecidable specific pattern to the most specific category that remains decidable,
+the system converts an unbounded inductive failure into a bounded, semantically
+meaningful, safety-actionable output---in the terms of~\cite{schaller_patterns},
+it \emph{bounds induction} not by proving the leaf but by falling back to a level
+the evidence still supports and a floor guarantees is useful. The resulting safety
+argument for a probabilistic function---that no novel obstacle is silently dropped
+or confidently mislabeled---is one we make \emph{measurable}: Section~\ref{sec:results}
+substantiates it with KPIs, showing the tiered taxonomy retains and safely
+categorizes $100\%$ of real anomalous road objects where the flat baseline retains
+$0\%$.
+
 \section{Related Work}
 \label{sec:related}
 
@@ -394,7 +446,11 @@ abstraction rule, bounded by a safety floor, converts the open-world failure mod
 of driving perception---mislabel-or-drop---into a safe, graded fallback:
 $+100$ percentage points of safe handling on novel objects at no cost to known
 ones. The mechanism is training-free and rides on off-the-shelf detection and
-open-vocabulary models.
+open-vocabulary models. Its significance is that it turns a safety
+\emph{argument} for a probabilistic perception function into a \emph{measured}
+one: where formal proof cannot reach a statistical SOTIF function, semantic
+abstraction over a taxonomy provides a tiered guarantee---no silent drop, no
+confident wrong leaf---substantiated by KPIs rather than asserted.
 
 Three directions follow. \emph{First, and most fundamental: train the detector
 itself on the taxonomy, not on a flat class list.} A closed-set detector
@@ -446,6 +502,7 @@ detection to safe, forward-looking behavior.
 Together these move the system toward the multi-level semantic validation argued
 for in~\cite{schaller2025}.
 
+\newpage
 \begin{thebibliography}{9}
 \bibitem{schaller2025}
 F.~Schaller, ``The Role of Semantic Models in Constraining Pattern Recognition in
