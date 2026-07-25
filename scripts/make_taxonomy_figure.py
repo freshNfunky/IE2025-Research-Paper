@@ -28,6 +28,8 @@ OUT.mkdir(exist_ok=True)
 COL_W = 3.05        # horizontal distance between levels
 BOX_W = 2.75        # node box width
 BOX_H = 0.66        # node box height
+LEAF_STEP = 1.45    # vertical distance between adjacent leaves (row pitch)
+COCO_GAP = 0.24     # gap between a leaf box and its "coco:" caption
 ROOT_C = "#2c3e50"
 FLOOR_C = "#f39c12"
 LEAF_C = "#eef1f4"
@@ -38,7 +40,7 @@ def layout(node: Node, depth: int, counter: list[int], pos: dict):
     x = depth * COL_W
     if node.is_leaf:
         y = counter[0]
-        counter[0] += 1
+        counter[0] += LEAF_STEP
     else:
         ys = [layout(c, depth + 1, counter, pos) for c in node.children]
         y = sum(ys) / len(ys)
@@ -52,8 +54,9 @@ def draw(tax: Taxonomy):
 
     n_leaves = sum(1 for _ in (n for n in tax.iter_nodes() if n.is_leaf))
     max_depth = tax.max_depth
+    y_extent = max(p[1] for p in pos.values()) - min(p[1] for p in pos.values())
     fig_w = (max_depth + 1) * 1.55
-    fig_h = max(6, n_leaves * 0.52)
+    fig_h = max(6, (y_extent + 2) * 0.42)
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
 
     # connectors first (behind boxes)
@@ -85,9 +88,9 @@ def draw(tax: Taxonomy):
                 fontsize=8.2, color=txt, fontweight=weight, zorder=3)
         # tiny COCO hint under leaves that map to a detector class
         if node.coco:
-            ax.text(x + BOX_W / 2, y - BOX_H / 2 - 0.16,
-                    "coco: " + ", ".join(node.coco), ha="center", va="top",
-                    fontsize=5.4, color="#7f8c8d", style="italic", zorder=3)
+            ax.text(x + BOX_W / 2, y - BOX_H / 2 - COCO_GAP,
+                    "coco: " + ", ".join(node.coco), ha="center", va="bottom",
+                    fontsize=5.6, color="#95a5a6", style="italic", zorder=3)
 
     xs = [p[0] for p in pos.values()]
     ys = [p[1] for p in pos.values()]
