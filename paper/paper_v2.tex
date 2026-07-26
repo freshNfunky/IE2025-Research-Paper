@@ -54,12 +54,12 @@ the SegmentMeIfYouCan Road~Anomaly set. On novel objects the hierarchy handles
 $100\%$ safely (abstracted or flagged) versus $0\%$ for the flat baseline, while
 on known objects it remains at least as specific ($77\%$ vs.\ $47\%$ useful) and
 never makes a confident wrong claim. We then add a second, \emph{independent}
-perception path---dense open-vocabulary semantic segmentation---that
+perception path, dense open-vocabulary semantic segmentation, that
 cross-validates each box against the pixels beneath it. Produced by a different
 model family (CLIPSeg vs.\ YOLO+CLIP), the two paths yield a three-way verdict:
 \emph{confirm} when they agree, \emph{flag} when they disagree on the label (the
 detection is kept, never dropped), and \emph{conflict} only for the physically
-impossible ``object on sky'' case---the sole hard rejection. On the same anomaly
+impossible ``object on sky'' case, the sole hard rejection. On the same anomaly
 set this corroborates a third of box detections while rejecting no genuine
 obstacle.
 \end{abstract}
@@ -133,7 +133,7 @@ converts over-abstraction into an explicit unknown rather than a useless generic
 label. (iii) A fair, training-free head-to-head benchmark quantifying the safety
 gain of the taxonomy over a flat list on real anomalous road scenes. (iv) A
 second, \emph{independent} segmentation-based perception path that corroborates,
-flags, or---only for physically impossible detections---rejects the box path,
+flags, or (only for physically impossible detections) rejects the box path,
 without ever dropping a genuine obstacle.
 
 \section{Problem Statement}
@@ -315,9 +315,9 @@ The gates above use only the box and taxonomy metadata. We now add a second,
 \emph{independent} source of evidence: a dense semantic segmentation of the whole
 frame. Where the box path asks ``what is this object?'', the segmentation path
 asks ``what stuff is at every pixel?''. Because it is produced by a different
-model family---open-vocabulary CLIPSeg~\cite{clipseg2022} rather than
-YOLO+CLIP---its agreement with the box path is genuine corroborating evidence,
-not a correlated echo of the same features.
+model family (open-vocabulary CLIPSeg~\cite{clipseg2022} rather than YOLO+CLIP),
+its agreement with the box path is genuine corroborating evidence, not a
+correlated echo of the same features.
 
 The segmentation label space is a small stuff/things taxonomy (road, sidewalk,
 building, vegetation, terrain, sky, person, animal, vehicle, two-wheeler, pole,
@@ -330,21 +330,21 @@ $\rightarrow$ \textsf{Static~Object}); ``stuff'' classes (road, sky, \ldots) are
 context.
 
 For each box we resolve its branch to the nearest safety floor and measure
-support over the box's \emph{object} pixels---those the segmenter labels as some
-discrete thing---rather than over the whole box, so the road and terrain a box
+support over the box's \emph{object} pixels (those the segmenter labels as some
+discrete thing) rather than over the whole box, so the road and terrain a box
 legitimately contains cannot dilute the verdict. Writing $f_b$ for the fraction
 of object pixels lying on the box's own branch, the cross-check
 (Alg.~\ref{alg:segxval}) emits one of three verdicts:
 \begin{itemize}
-\item \textsc{confirm}: $f_b$ is high---the segmentation independently supports
+\item \textsc{confirm}: $f_b$ is high, so the segmentation independently supports
 the reported branch.
 \item \textsc{flag}: the object pixels belong overwhelmingly to a \emph{different}
 branch (box says \textsf{Vehicle}, segmenter says \textsf{Living~Being}). The two
 paths disagree about the \emph{label}, but there is plainly still an object, so
-the detection is \emph{kept and marked}, never dropped---discarding a mislabeled
+the detection is \emph{kept and marked}, never dropped. Discarding a mislabeled
 obstacle is exactly the failure the hierarchy exists to prevent.
 \item \textsc{conflict}: the box is dominated by \emph{sky} pixels while the
-object is not sky-plausible---the data-driven form of the ``car above the
+object is not sky-plausible. This is the data-driven form of the ``car above the
 clouds'' gate, and the \emph{only} verdict promoted to a hard rejection.
 \end{itemize}
 An \textsc{unknown obstacle} has no branch to check and is therefore never
@@ -485,6 +485,28 @@ novel-safety. The hierarchy dominates.}
 \label{fig:calibration}
 \end{figure}
 
+% Declared here (ahead of its Sec. VI-C reference) on purpose: as the last, large
+% double-column float it must be placed BEFORE the bibliography, so we give it the
+% earliest page it can take.
+\begin{figure*}[tbp]
+\centering
+\subfloat[Per scene: (left) the YOLO+CLIP boxes, outlined in the segmentation
+verdict colour with a per-box mark ($\checkmark$ confirm, $\sim$ neutral,
+$\triangle$ flag); (right) the dense CLIPSeg segmentation. Novel animals with no
+taxonomy leaf abstract to \textsf{Living~Being} on the box path and are
+independently confirmed as living beings by the segmenter; the loaded trailer
+(top) is confirmed \textsf{Vehicle}.\label{fig:segqual}]{%
+\includegraphics[width=0.80\textwidth]{segmentation_qualitative.png}}\\[6pt]
+\subfloat[Cross-check verdict over all box detections (left) and by box-path
+outcome (right): confirm / neutral / flag and \emph{zero} conflicts, with no
+obstacle dropped; corroboration and flags concentrate on the \emph{abstracted}
+novel objects, while \textsc{unknown} obstacles are never vetoed.\label{fig:segagree}]{%
+\includegraphics[width=0.92\textwidth]{segmentation_agreement.png}}
+\caption{The independent segmentation cross-validation path: (a) qualitative
+two-path comparison; (b) the verdict distribution over all detections.}
+\label{fig:seg}
+\end{figure*}
+
 \subsection{Qualitative}
 Figure~\ref{fig:giraffe} shows a giraffe on the road. The detector reports
 \texttt{giraffe}, which has no taxonomy node; mass concentrates at
@@ -510,35 +532,12 @@ raises \emph{zero} hard conflicts and hence rejects \emph{no} detection.
 Corroboration concentrates exactly where it is most useful: of the objects the
 hierarchy \emph{abstracted} to a floor category, half are independently confirmed
 by segmentation and the other half flagged for review, while the
-\textsc{unknown} obstacles are left untouched---never vetoed. Qualitatively
-(Fig.~\ref{fig:segqual}) a deer and two giraffes---novel animals with no taxonomy
-leaf---are abstracted to \textsf{Living~Being} by the box path and independently
+\textsc{unknown} obstacles are left untouched and never vetoed. Qualitatively
+(Fig.~\ref{fig:segqual}) a deer and two giraffes (novel animals with no taxonomy
+leaf) are abstracted to \textsf{Living~Being} by the box path and independently
 confirmed as living beings ($100\%$ of their object pixels) by the segmenter,
 while a helicopter is confirmed as \textsf{Vehicle}. The flags are the
 theoretically interesting cases and motivate the limitation discussed next.
-
-\begin{figure*}[tb]
-\centering
-\includegraphics[width=0.70\textwidth]{segmentation_qualitative.png}
-\caption{Two independent perception paths. Per scene: (left) the YOLO+CLIP boxes,
-outlined in the segmentation verdict colour with a per-box mark
-($\checkmark$ confirm, $\sim$ neutral, $\triangle$ flag); (right) the dense
-CLIPSeg segmentation. Novel animals with no taxonomy leaf abstract to
-\textsf{Living~Being} on the box path and are independently confirmed as living
-beings by the segmenter; the loaded trailer (top) is confirmed \textsf{Vehicle}.}
-\label{fig:segqual}
-\end{figure*}
-
-\begin{figure*}[tb]
-\centering
-\includegraphics[width=0.96\textwidth]{segmentation_agreement.png}
-\caption{Left: cross-check verdict over all box detections---confirm / neutral /
-flag and \emph{zero} conflicts, i.e.\ no obstacle dropped. Right: the verdict mix
-by box-path outcome; corroboration and flags concentrate on the
-\emph{abstracted} novel objects, while \textsc{unknown} obstacles are never
-vetoed.}
-\label{fig:segagree}
-\end{figure*}
 
 \section{Discussion}
 \label{sec:discussion}
@@ -568,8 +567,8 @@ crops is the accuracy bottleneck of the box path, not the abstraction logic.
 
 A more fundamental limitation is specific to the second path: semantic
 segmentation is a purely 2D, appearance-based labeling with no notion of depth or
-scene geometry. A spatially \emph{elevated} object---one not resting on the road
-plane---is therefore mis-segmented \emph{into} the road or background surface
+scene geometry. A spatially \emph{elevated} object (one not resting on the road
+plane) is therefore mis-segmented \emph{into} the road or background surface
 rather than isolated as foreground, even though such objects are precisely the
 ones that ought to be raised as anomalies; appearance alone cannot separate ``on
 the ground'' from ``above it.'' This is why the second path can reliably
@@ -578,6 +577,34 @@ is a limitation of appearance-only 2D models in principle, not a matter of
 tuning. Depth or radial-velocity sensing (LiDAR, Doppler radar) resolves the
 ambiguity by placing objects off the background plane; we defer this to future
 work.
+
+\section{From Cross-Validation to Cross-Supervision}
+\label{sec:xsup}
+The two paths need not remain mere runtime validators of each other; their
+agreement is itself a source of \emph{supervision}. Each \textsc{confirm}
+(Fig.~\ref{fig:segagree}) is a high-confidence, automatically generated
+pseudo-label that ties a region to a safety-floor category, and each
+\textsc{flag} is a hard, self-identified example: precisely the novel or
+elevated objects on which 2D appearance fails. Crucially, the labels the box path
+hands the segmenter are \emph{safe by construction}: the hierarchy never commits
+a wrong leaf, only a correct coarser class, so a giraffe teaches the segmenter
+``\textsf{Living~Being} here,'' never a spurious species. The box path thus
+becomes an oracle that can \emph{teach} the pixel path on exactly the long-tail
+objects neither model was trained for. Cross-validation becomes
+\emph{cross-supervision}. In our run the seven confirmations and seven flags
+together cover \emph{every} abstracted novel object ($74\%$ of all detections):
+confirmations as free positive labels, flags as cases routed to review.
+
+This inverts the usual data economy. Harvesting agreement labels over a large
+\emph{unlabeled} driving corpus yields a taxonomy-aligned, safety-graded
+segmentation set at no annotation cost, on which the segmentation layer (and, per
+the detector-retraining direction below, the box model itself) can be fine-tuned
+to \emph{hierarchical} targets. We intend to release the harvested benchmark and
+the resulting open-set models openly on the HuggingFace Hub, so the community can
+build on a shared, safety-oriented resource instead of re-annotating the long
+tail from scratch. Combined with the 3D signal of the next section, this closes a
+self-improving loop: geometry and hierarchy supervise appearance, and the
+improved appearance models feed back into both perception paths.
 
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
@@ -613,9 +640,9 @@ precision, mAP), importance-weighted, to test whether semantic filtering of
 high-recall proposals measurably improves \emph{usable} detection of novel
 objects---a claim we deliberately do not assert here without that evidence.
 \emph{Third}, make the now-realized second path \emph{3D-aware}. The second,
-independent perception path proposed in the first version of this system---
+independent perception path proposed in the first version of this system,
 \emph{semantic segmentation} as a parallel taxonomy and cross-validation
-layer---is delivered here (Secs.~\ref{sec:segxval},~\ref{sec:results-seg}): it
+layer, is delivered here (Secs.~\ref{sec:segxval},~\ref{sec:results-seg}): it
 corroborates a third of box detections, flags label disagreements without
 dropping a single obstacle, and rejects only physically impossible ``object on
 sky'' cases. Its open limitation is dimensional. Because segmentation is 2D and
@@ -624,12 +651,12 @@ rather than isolated as an anomaly (Sec.~\ref{sec:discussion}). The v3 step is t
 lift the cross-validation into 3D: LiDAR and/or Doppler radar supply depth and
 radial velocity that separate foreground objects from the background plane and,
 for the moving ones, give \emph{direct} evidence for the \textsf{Moving~Object}
-branch---the very split the safety floor rests on. The same 3D signal can in turn
+branch, the very split the safety floor rests on. The same 3D signal can in turn
 \emph{retrain} the segmentation layer and \emph{stimulate} the detector's
 patterns on elevated and anomalous objects, closing the loop between the two
 paths. Beyond validation, segmentation also supplies scene-context labels
 (drivable lane, sidewalk, parking strip) that could feed back into the taxonomy
-decision itself---sharpening the \textsf{Moving} versus \textsf{Static~Object}
+decision itself, sharpening the \textsf{Moving} versus \textsf{Static~Object}
 distinction the floor depends on.
 
 \emph{Fourth}, and as the culmination, add \emph{3D scene reconstruction}.
@@ -651,8 +678,8 @@ detection to safe, forward-looking behavior.
 Together these move the system toward the multi-level semantic validation argued
 for in~\cite{schaller2025}.
 
-% \clearpage (not \newpage) so any figures still queued are flushed onto the
-% pages before the bibliography, keeping the natural order figures-then-refs.
+% Flush any figure still queued onto a page BEFORE the bibliography, so the
+% natural order (figures, then references) is preserved -- never figures-after-refs.
 \clearpage
 \begin{thebibliography}{9}
 \bibitem{schaller2025}
