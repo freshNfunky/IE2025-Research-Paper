@@ -36,3 +36,6 @@ paper/*.bbl
 paper/*.blg
 paper/*.log
 paper/*.out
+
+# demo assets are part of the deliverable (not the dataset cache)
+!demo/data/

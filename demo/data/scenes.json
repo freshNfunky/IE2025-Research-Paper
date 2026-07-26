@@ -1,0 +1,787 @@
+{
+ "outcome_colors": {
+  "identified": "#2ecc71",
+  "abstracted": "#f39c12",
+  "unknown": "#e74c3c",
+  "rejected": "#7f8c8d"
+ },
+ "seg_marks": {
+  "confirm": "\u2713",
+  "neutral": "\u223c",
+  "flag": "\u26a0",
+  "conflict": "\u2717",
+  "off": ""
+ },
+ "seg_legend": [
+  {
+   "name": "road",
+   "color": "#804080"
+  },
+  {
+   "name": "sidewalk",
+   "color": "#f423e8"
+  },
+  {
+   "name": "building",
+   "color": "#464646"
+  },
+  {
+   "name": "vegetation",
+   "color": "#6b8e23"
+  },
+  {
+   "name": "terrain",
+   "color": "#98fb98"
+  },
+  {
+   "name": "sky",
+   "color": "#4682b4"
+  },
+  {
+   "name": "person",
+   "color": "#dc143c"
+  },
+  {
+   "name": "animal",
+   "color": "#ff8c00"
+  },
+  {
+   "name": "vehicle",
+   "color": "#00008e"
+  },
+  {
+   "name": "two_wheeler",
+   "color": "#770b20"
+  },
+  {
+   "name": "pole",
+   "color": "#999999"
+  },
+  {
+   "name": "traffic_sign",
+   "color": "#dcdc00"
+  }
+ ],
+ "scenes": [
+  {
+   "id": "scene_00",
+   "image": "data/scene_00.jpg",
+   "seg": "data/scene_00_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      404,
+      141,
+      742,
+      494
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.42,
+     "importance": 1.0,
+     "yolo": "sheep",
+     "yolo_conf": 0.54,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.734,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.425,
+       "floor": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_01",
+   "image": "data/scene_01.jpg",
+   "seg": "data/scene_01_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      402,
+      85,
+      692,
+      485
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.42,
+     "importance": 1.0,
+     "yolo": "giraffe",
+     "yolo_conf": 0.95,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.744,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.419,
+       "floor": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_02",
+   "image": "data/scene_02.jpg",
+   "seg": "data/scene_02_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      410,
+      39,
+      680,
+      468
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 1.0,
+     "yolo": "giraffe",
+     "yolo_conf": 0.95,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.719,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.406,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      265,
+      292,
+      278,
+      316
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.67,
+     "importance": 0.05,
+     "yolo": "person",
+     "yolo_conf": 0.72,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: terrain)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.671,
+       "floor": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_03",
+   "image": "data/scene_03.jpg",
+   "seg": "data/scene_03_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      195,
+      118,
+      823,
+      451
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 1.0,
+     "yolo": "airplane",
+     "yolo_conf": 0.59,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Vehicle (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.805,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.413,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      445,
+      200,
+      467,
+      222
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.66,
+     "importance": 0.07,
+     "yolo": "person",
+     "yolo_conf": 0.23,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: two_wheeler)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.656,
+       "floor": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_04",
+   "image": "data/scene_04.jpg",
+   "seg": "data/scene_04_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      161,
+      41,
+      840,
+      480
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 1.0,
+     "yolo": "truck",
+     "yolo_conf": 0.72,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Vehicle (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.786,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.442,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      170,
+      217,
+      204,
+      236
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.7,
+     "importance": 0.08,
+     "yolo": "car",
+     "yolo_conf": 0.34,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: building)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.702,
+       "floor": false
+      }
+     ]
+    },
+    {
+     "box": [
+      7,
+      214,
+      44,
+      242
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 0.09,
+     "yolo": "car",
+     "yolo_conf": 0.33,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0022<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.715,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.413,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      0,
+      191,
+      41,
+      242
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 0.14,
+     "yolo": "truck",
+     "yolo_conf": 0.31,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.726,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.412,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      133,
+      216,
+      182,
+      238
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.43,
+     "importance": 0.1,
+     "yolo": "car",
+     "yolo_conf": 0.31,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0024<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.694,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.432,
+       "floor": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_05",
+   "image": "data/scene_05.jpg",
+   "seg": "data/scene_05_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      642,
+      253,
+      668,
+      288
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 0.09,
+     "yolo": "car",
+     "yolo_conf": 0.57,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0020<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.7,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.408,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      574,
+      256,
+      632,
+      285
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 0.12,
+     "yolo": "car",
+     "yolo_conf": 0.44,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.715,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.441,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      432,
+      257,
+      458,
+      274
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.66,
+     "importance": 0.06,
+     "yolo": "car",
+     "yolo_conf": 0.31,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: road)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.657,
+       "floor": false
+      }
+     ]
+    },
+    {
+     "box": [
+      471,
+      257,
+      499,
+      277
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.65,
+     "importance": 0.07,
+     "yolo": "car",
+     "yolo_conf": 0.29,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: road)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.646,
+       "floor": false
+      }
+     ]
+    },
+    {
+     "box": [
+      574,
+      257,
+      603,
+      285
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.43,
+     "importance": 0.09,
+     "yolo": "car",
+     "yolo_conf": 0.28,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0018<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.731,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.431,
+       "floor": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_06",
+   "image": "data/scene_06.jpg",
+   "seg": "data/scene_06_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      68,
+      273,
+      409,
+      427
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.47,
+     "importance": 0.68,
+     "yolo": "dog",
+     "yolo_conf": 0.65,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.757,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.465,
+       "floor": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scene_07",
+   "image": "data/scene_07.jpg",
+   "seg": "data/scene_07_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      129,
+      157,
+      690,
+      468
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 1.0,
+     "yolo": "truck",
+     "yolo_conf": 0.66,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Living Being' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.822,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.438,
+       "floor": true
+      }
+     ]
+    },
+    {
+     "box": [
+      692,
+      321,
+      738,
+      464
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 0.24,
+     "yolo": "person",
+     "yolo_conf": 0.61,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.736,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.444,
+       "floor": true
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
