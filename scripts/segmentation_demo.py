@@ -93,17 +93,13 @@ def draw_scene(fig, cells, image, scene, show_titles=False):
     axs.axis("off")
 
 
-def make_qualitative(scenes, out_path):
-    n = len(scenes)
-    # Single vertical column: for each scene the box panel sits directly above its
-    # segmentation panel, and the scenes stack below one another. A narrow, tall
-    # figure (no suptitle) makes every panel fill the full column width -- large
-    # and legible -- rather than being centred with wasted side margins. The
-    # top/bottom meaning is stated in the LaTeX caption.
-    fig = plt.figure(figsize=(3.4, 1.95 * 2 * n), constrained_layout=True)
-    gs = fig.add_gridspec(2 * n, 1)
-    for c, (image, scene) in enumerate(scenes):
-        draw_scene(fig, [gs[2 * c, 0], gs[2 * c + 1, 0]], image, scene)
+def make_qualitative_single(image, scene, out_path):
+    """One scene as two stacked panels: box (top) over its segmentation (bottom),
+    full column-width. Kept to about half a text column tall so two such figures
+    can sit on facing pages rather than being forced together onto one page."""
+    fig = plt.figure(figsize=(3.4, 4.1), constrained_layout=True)
+    gs = fig.add_gridspec(2, 1)
+    draw_scene(fig, [gs[0, 0], gs[1, 0]], image, scene)
     fig.savefig(out_path, dpi=170, bbox_inches="tight")
     plt.close(fig)
 
@@ -112,7 +108,9 @@ def make_qualitative(scenes, out_path):
 #  Summary charts                                                             #
 # --------------------------------------------------------------------------- #
 def make_summary(stats, out_path):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.6))
+    # Stacked vertically (2 rows, 1 col) so each chart is full column-width and
+    # legible in a single text column, rather than shrunk side by side.
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(4.6, 7.4))
 
     # (a) overall confirm / neutral / flag / conflict.
     labels = list(SEG_STATES)
@@ -168,10 +166,19 @@ def _rerender_from_cache() -> bool:
     with open(_QUAL_CACHE, "rb") as f:
         qualitative = pickle.load(f)
     stats = json.loads((OUT / "segmentation.json").read_text())
-    make_qualitative(qualitative, OUT / "segmentation_qualitative.png")
+    _write_qualitative(qualitative)
     make_summary(stats, OUT / "segmentation_agreement.png")
     print(">>> re-rendered figures from cache (no model run)", flush=True)
     return True
+
+
+def _write_qualitative(qualitative):
+    """Write each selected scene as its own stacked figure so the two examples
+    (car-with-trailer, deer) are separate LaTeX floats that can land on adjacent
+    pages instead of being forced together."""
+    for i, (image, scene) in enumerate(qualitative, start=1):
+        make_qualitative_single(image, scene, OUT / f"segmentation_qual_{i}.png")
+        print(f">>> wrote segmentation_qual_{i}.png", flush=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -242,8 +249,7 @@ def main():
 
     (OUT / "segmentation.json").write_text(json.dumps(stats, indent=2))
     if qualitative:
-        make_qualitative(qualitative, OUT / "segmentation_qualitative.png")
-        print(">>> wrote segmentation_qualitative.png", flush=True)
+        _write_qualitative(qualitative)
     make_summary(stats, OUT / "segmentation_agreement.png")
     print(">>> wrote segmentation_agreement.png, segmentation.json", flush=True)
     print(json.dumps(stats, indent=2), flush=True)
