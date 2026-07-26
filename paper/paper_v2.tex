@@ -485,26 +485,16 @@ novel-safety. The hierarchy dominates.}
 \label{fig:calibration}
 \end{figure}
 
-% Declared here (ahead of its Sec. VI-C reference) on purpose: as the last, large
-% double-column float it must be placed BEFORE the bibliography, so we give it the
-% earliest page it can take.
-\begin{figure*}[tbp]
+\begin{figure*}[t]
 \centering
-\subfloat[Per scene: (left) the YOLO+CLIP boxes, outlined in the segmentation
-verdict colour with a per-box mark ($\checkmark$ confirm, $\sim$ neutral,
-$\triangle$ flag); (right) the dense CLIPSeg segmentation. Novel animals with no
-taxonomy leaf abstract to \textsf{Living~Being} on the box path and are
-independently confirmed as living beings by the segmenter; the loaded trailer
-(top) is confirmed \textsf{Vehicle}.\label{fig:segqual}]{%
-\includegraphics[width=0.80\textwidth]{segmentation_qualitative.png}}\\[6pt]
-\subfloat[Cross-check verdict over all box detections (left) and by box-path
-outcome (right): confirm / neutral / flag and \emph{zero} conflicts, with no
-obstacle dropped; corroboration and flags concentrate on the \emph{abstracted}
-novel objects, while \textsc{unknown} obstacles are never vetoed.\label{fig:segagree}]{%
-\includegraphics[width=0.92\textwidth]{segmentation_agreement.png}}
-\caption{The independent segmentation cross-validation path: (a) qualitative
-two-path comparison; (b) the verdict distribution over all detections.}
-\label{fig:seg}
+\includegraphics[width=0.72\textwidth]{segmentation_qualitative.png}
+\caption{Two independent perception paths. Per scene: (left) the YOLO+CLIP boxes,
+outlined in the segmentation verdict colour with a per-box mark ($\checkmark$
+confirm, $\sim$ neutral, $\triangle$ flag); (right) the dense CLIPSeg
+segmentation. Novel animals with no taxonomy leaf abstract to
+\textsf{Living~Being} on the box path and are independently confirmed as living
+beings by the segmenter; the loaded trailer is confirmed \textsf{Vehicle}.}
+\label{fig:segqual}
 \end{figure*}
 
 \subsection{Qualitative}
@@ -538,6 +528,17 @@ leaf) are abstracted to \textsf{Living~Being} by the box path and independently
 confirmed as living beings ($100\%$ of their object pixels) by the segmenter,
 while a helicopter is confirmed as \textsf{Vehicle}. The flags are the
 theoretically interesting cases and motivate the limitation discussed next.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{segmentation_agreement.png}
+\caption{Segmentation cross-check verdict over all box detections (left) and by
+box-path outcome (right): confirm / neutral / flag and \emph{zero} conflicts,
+with no obstacle dropped; corroboration and flags concentrate on the
+\emph{abstracted} novel objects, while \textsc{unknown} obstacles are never
+vetoed.}
+\label{fig:segagree}
+\end{figure*}
 
 \section{Discussion}
 \label{sec:discussion}
