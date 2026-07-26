@@ -31,3 +31,8 @@ data/
 .idea/
 .vscode/
 figures/_qual_cache.pkl
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
