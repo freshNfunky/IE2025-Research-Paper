@@ -10,7 +10,12 @@ import gradio as gr
 from hpercept import datasets
 from hpercept.abstraction import AbstractionConfig
 from hpercept.pipeline import get_pipeline
-from hpercept.viz import annotate, taxonomy_html
+from hpercept.viz import (
+    annotate,
+    segmentation_overlay,
+    seg_legend_html,
+    taxonomy_html,
+)
 
 PIPELINE = get_pipeline()
 TAXONOMY = PIPELINE.taxonomy
@@ -48,10 +53,15 @@ def pick_from_gallery(evt: gr.SelectData, source_id: str, n: int):
     return samples[idx].image
 
 
+SEG_ICON = {"confirm": "✅", "flag": "⚠️", "conflict": "❌", "neutral": "➖", "off": "—"}
+
+
 def analyze(image: np.ndarray, mode_label: str, det_conf: float,
-            descend: float, min_sim: float, enforce_floor: bool):
+            descend: float, min_sim: float, enforce_floor: bool,
+            use_seg: bool):
     if image is None:
-        return None, "Please choose or upload an image first.", [], _tree(None), gr.update(choices=[], value=None)
+        return (None, "Please choose or upload an image first.", [], _tree(None),
+                gr.update(choices=[], value=None), None, "")
 
     mode = MODE_LABELS[mode_label]
     cfg = AbstractionConfig(
@@ -59,13 +69,19 @@ def analyze(image: np.ndarray, mode_label: str, det_conf: float,
         min_abs_sim=float(min_sim),
         enforce_floor=bool(enforce_floor),
     )
-    scene = PIPELINE.run(image, mode=mode, det_conf=float(det_conf), cfg=cfg)
+    scene = PIPELINE.run(image, mode=mode, det_conf=float(det_conf), cfg=cfg,
+                         segment=bool(use_seg))
     annotated = annotate(image, scene)
+
+    def _seg_cell(p):
+        if p.seg is None:
+            return "—"
+        return f"{SEG_ICON.get(p.seg.status, '')} {p.seg.note}"
 
     rows = [[
         i, p.classification.label, p.classification.outcome.value,
         f"{p.classification.confidence:.2f}", p.box.coco_name,
-        f"{p.box.coco_conf:.2f}", p.constraints.summary,
+        f"{p.box.coco_conf:.2f}", p.constraints.summary, _seg_cell(p),
     ] for i, p in enumerate(scene.predictions)]
 
     c = scene.counts()
@@ -76,13 +92,30 @@ def analyze(image: np.ndarray, mode_label: str, det_conf: float,
         f"🔴 {c['unknown']} unknown · "
         f"⬜ {c['rejected']} rejected (constraint)"
     )
+    if use_seg:
+        s = scene.seg_counts()
+        summary += (
+            f"\n\n**Segmentation cross-check** — "
+            f"✅ {s['confirm']} confirmed · "
+            f"➖ {s['neutral']} neutral · "
+            f"⚠️ {s['flag']} flagged (paths disagree) · "
+            f"❌ {s['conflict']} conflict (rejected)"
+        )
+
+    # Segmentation overlay + legend (or clear them when segmentation is off).
+    if use_seg and scene.seg_result is not None:
+        seg_img = segmentation_overlay(image, scene.seg_result)
+        seg_legend = seg_legend_html(scene.seg_result)
+    else:
+        seg_img, seg_legend = None, ""
 
     choices = [f"{i}: {p.classification.label}" for i, p in enumerate(scene.predictions)]
     first = choices[0] if choices else None
     tree = _tree(scene.predictions[0] if scene.predictions else None)
 
     analyze.last_scene = scene  # stash for the highlight callback
-    return annotated, summary, rows, tree, gr.update(choices=choices, value=first)
+    return (annotated, summary, rows, tree,
+            gr.update(choices=choices, value=first), seg_img, seg_legend)
 
 
 def highlight(selection: str):
@@ -108,7 +141,12 @@ def build() -> gr.Blocks:
             "Novel objects are not dropped — the system **abstracts up the "
             "taxonomy** until it reaches a confident, *safety-useful* level "
             "(bounded by the 🛡 floor, so it never becomes paranoid), then "
-            "**validates** each detection against physical/semantic context."
+            "**validates** each detection against physical/semantic context.\n\n"
+            "Enabling **segmentation cross-validation 🖇** adds a second, "
+            "independent perception path: a dense open-vocabulary segmenter "
+            "labels every pixel and each box is checked against it — "
+            "corroborating plausible detections (✅) and rejecting implausible "
+            "ones like a *car sitting on sky pixels* (❌)."
         )
         with gr.Row():
             with gr.Column(scale=1):
@@ -137,6 +175,10 @@ def build() -> gr.Blocks:
                 min_sim = gr.Slider(0.15, 0.35, value=0.20, step=0.01,
                                     label="Min CLIP similarity (below = UNKNOWN)")
                 floor = gr.Checkbox(value=True, label="Enforce abstraction floor 🛡 (anti-paranoia)")
+                use_seg = gr.Checkbox(
+                    value=False,
+                    label="Segmentation cross-validation 🖇 (2nd perception path)",
+                )
                 run_btn = gr.Button("Analyze", variant="primary")
 
             with gr.Column(scale=2):
@@ -144,9 +186,13 @@ def build() -> gr.Blocks:
                 out_img = gr.Image(label="Annotated", type="numpy")
                 out_summary = gr.Markdown()
                 out_table = gr.Dataframe(
-                    headers=["#", "label", "outcome", "conf", "yolo", "yolo_conf", "constraints"],
+                    headers=["#", "label", "outcome", "conf", "yolo", "yolo_conf",
+                             "constraints", "segmentation"],
                     label="Detections", wrap=True,
                 )
+                with gr.Accordion("Segmentation overlay (2nd path)", open=False):
+                    out_seg = gr.Image(label="Semantic segmentation", type="numpy")
+                    out_seg_legend = gr.HTML()
                 pick = gr.Dropdown(label="Highlight object in taxonomy", choices=[])
                 out_tree = gr.HTML(_tree(None))
 
@@ -155,8 +201,8 @@ def build() -> gr.Blocks:
         gallery.select(pick_from_gallery, [source, n_samples], image)
         run_btn.click(
             analyze,
-            [image, mode, det_conf, descend, min_sim, floor],
-            [out_img, out_summary, out_table, out_tree, pick],
+            [image, mode, det_conf, descend, min_sim, floor, use_seg],
+            [out_img, out_summary, out_table, out_tree, pick, out_seg, out_seg_legend],
         )
         pick.change(highlight, pick, out_tree)
     return demo

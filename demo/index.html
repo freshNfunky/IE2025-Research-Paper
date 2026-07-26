@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hierarchical Perception — Interactive Demo</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+    --fg:#e7ecf3; --muted:#9aa4b2; --accent:#4aa3ff;
+    --identified:#2ecc71; --abstracted:#f39c12; --unknown:#e74c3c; --rejected:#7f8c8d;
+    --confirm:#2ecc71; --flag:#f39c12; --conflict:#e74c3c; --neutral:#95a5a6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:20px 22px 10px;max-width:1200px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  header p{color:var(--muted);margin:0;max-width:70ch}
+  .wrap{max-width:1200px;margin:0 auto;padding:14px 22px 40px;
+        display:grid;grid-template-columns:1fr 340px;gap:18px}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;
+           border-bottom:1px solid var(--line)}
+  .seg{margin-left:auto}
+  .btn{background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+       border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13px}
+  .btn[aria-pressed=true]{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:600}
+  .btn:hover{border-color:var(--accent)}
+  .stage{position:relative;line-height:0;background:#000;border-radius:0 0 12px 12px;overflow:hidden}
+  .stage img{width:100%;height:auto;display:block;user-select:none}
+  #segimg{position:absolute;inset:0;opacity:0;transition:opacity .18s}
+  #cv{position:absolute;inset:0;width:100%;height:100%}
+  .gallery{display:flex;gap:8px;overflow-x:auto;padding:10px 12px}
+  .gallery img{height:56px;border-radius:6px;border:2px solid transparent;cursor:pointer;opacity:.65}
+  .gallery img.sel{border-color:var(--accent);opacity:1}
+  .side .card{padding:12px 14px;margin-bottom:14px}
+  .side h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 8px}
+  .summary{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px}
+  .pill{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .detlist{list-style:none;margin:0;padding:0;max-height:230px;overflow:auto}
+  .detlist li{padding:7px 8px;border-radius:8px;cursor:pointer;border:1px solid transparent;
+              display:flex;gap:8px;align-items:center;font-size:13px}
+  .detlist li:hover{background:var(--panel2)}
+  .detlist li.sel{background:var(--panel2);border-color:var(--accent)}
+  .swatch{width:12px;height:12px;border-radius:3px;flex:none}
+  .muted{color:var(--muted)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px;margin:2px 0 10px}
+  .kv .muted{white-space:nowrap}
+  .verdict{font-weight:700}
+  .tax{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+  .node{display:flex;align-items:center;gap:8px;margin:3px 0}
+  .node .nm{width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .node .bar{flex:1;height:9px;background:var(--panel2);border-radius:5px;overflow:hidden}
+  .node .bar>i{display:block;height:100%;background:var(--accent)}
+  .node .pct{width:36px;text-align:right;color:var(--muted)}
+  .node.reported .nm{color:var(--accent);font-weight:700}
+  .node .floor{color:var(--abstracted)}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12px}
+  .legend .pill .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  footer{max-width:1200px;margin:0 auto;padding:0 22px 30px;color:var(--muted);font-size:12px}
+  a{color:var(--accent)}
+  .empty{padding:26px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Hierarchical Object Perception — two independent paths</h1>
+  <p>Novel road objects are never dropped: the system abstracts each detection up
+  a semantic taxonomy to the most specific level it can safely justify, then a
+  second, independent segmentation path cross-checks it. Pick a scene, toggle the
+  segmentation overlay, and click a detection to see its taxonomy descent and the
+  cross-check verdict.</p>
+</header>
+
+<div class="wrap">
+  <div>
+    <div class="card">
+      <div class="toolbar">
+        <span class="muted" style="font-size:13px">Colour&nbsp;by:</span>
+        <button class="btn" id="byOutcome" aria-pressed="true">Outcome</button>
+        <button class="btn" id="bySeg" aria-pressed="false">Seg&nbsp;verdict</button>
+        <span class="seg"></span>
+        <button class="btn" id="toggleSeg" aria-pressed="false">Segmentation overlay</button>
+      </div>
+      <div class="stage" id="stage">
+        <img id="baseimg" alt="scene">
+        <img id="segimg" alt="segmentation">
+        <canvas id="cv"></canvas>
+      </div>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h2>Scene</h2>
+      <div class="summary" id="summary"></div>
+    </div>
+    <div class="card">
+      <h2>Detections</h2>
+      <ul class="detlist" id="detlist"></ul>
+    </div>
+    <div class="card" id="detailCard">
+      <h2>Detail</h2>
+      <div id="detail"><div class="empty">Click a detection.</div></div>
+    </div>
+    <div class="card">
+      <h2>Segmentation classes</h2>
+      <div class="legend" id="seglegend"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Reference implementation of F. Schaller, “The Role of Semantic Models in
+  Constraining Pattern Recognition,” Intelligent Environments 2025
+  (doi:10.5281/zenodo.21593472). Detections are computed offline (YOLOv8 + CLIP
+  + CLIPSeg); this page is fully static.
+</footer>
+
+<script>
+const OUTCOME={identified:"--identified",abstracted:"--abstracted",unknown:"--unknown"};
+const SEGCOL={confirm:"--confirm",flag:"--flag",conflict:"--conflict",neutral:"--neutral",off:"--neutral"};
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+let DATA=null, scene=null, sel=-1, colorBy="outcome";
+const $=id=>document.getElementById(id);
+
+function detColor(d){
+  if(colorBy==="seg"){ return cssv(SEGCOL[d.seg_status]||"--neutral"); }
+  if(d.rejected) return cssv("--rejected");
+  return cssv(OUTCOME[d.outcome]||"--neutral");
+}
+
+function init(data){
+  DATA=data;
+  // segmentation legend
+  $("seglegend").innerHTML = data.seg_legend.map(c=>
+    `<span class="pill"><span class="sw" style="background:${c.color}"></span>${c.name}</span>`).join("");
+  // gallery
+  $("gallery").innerHTML = data.scenes.map((s,i)=>
+    `<img src="${s.image}" data-i="${i}" title="${s.caption}">`).join("");
+  $("gallery").querySelectorAll("img").forEach(im=>
+    im.onclick=()=>selectScene(+im.dataset.i));
+  selectScene(0);
+}
+
+function selectScene(i){
+  scene=DATA.scenes[i]; sel=-1;
+  $("gallery").querySelectorAll("img").forEach(im=>
+    im.classList.toggle("sel", +im.dataset.i===i));
+  $("baseimg").src=scene.image;
+  $("segimg").src=scene.seg;
+  const c={identified:0,abstracted:0,unknown:0,rejected:0};
+  scene.detections.forEach(d=>{c[d.outcome]=(c[d.outcome]||0)+1; if(d.rejected)c.rejected++;});
+  $("summary").innerHTML=
+    pill("--identified",`${c.identified} identified`)+
+    pill("--abstracted",`${c.abstracted} abstracted`)+
+    pill("--unknown",`${c.unknown} unknown`)+
+    pill("--rejected",`${c.rejected} rejected`);
+  renderDetList();
+  $("detail").innerHTML='<div class="empty">Click a detection.</div>';
+  $("baseimg").onload=draw;
+  if($("baseimg").complete) draw();
+}
+function pill(varname,txt){
+  return `<span class="pill"><span class="dot" style="background:${cssv(varname)}"></span>${txt}</span>`;
+}
+
+function renderDetList(){
+  $("detlist").innerHTML=scene.detections.map((d,i)=>{
+    const mark=DATA.seg_marks[d.seg_status]||"";
+    return `<li data-i="${i}" class="${i===sel?'sel':''}">
+      <span class="swatch" style="background:${detColor(d)}"></span>
+      <span>${d.label}</span>
+      <span class="muted" style="margin-left:auto">${mark} ${(d.confidence).toFixed(2)}</span>
+    </li>`;}).join("");
+  $("detlist").querySelectorAll("li").forEach(li=>
+    li.onclick=()=>{selectDet(+li.dataset.i);});
+}
+
+function draw(){
+  const img=$("baseimg"), cv=$("cv");
+  const W=img.clientWidth, H=img.clientHeight;
+  if(!W){ requestAnimationFrame(draw); return; }
+  const dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const ctx=cv.getContext("2d"); ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const sx=W/scene.width, sy=H/scene.height;
+  scene.detections.forEach((d,i)=>{
+    const [x1,y1,x2,y2]=d.box;
+    const x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
+    const col=detColor(d), on=i===sel;
+    ctx.lineWidth=on?4:2; ctx.strokeStyle=col;
+    if(d.rejected){ ctx.setLineDash([6,4]); } else ctx.setLineDash([]);
+    ctx.strokeRect(x,y,w,h);
+    // label chip
+    const mark=DATA.seg_marks[d.seg_status]||"";
+    const txt=(d.rejected?"⛔ ":"")+d.label+(mark?" "+mark:"");
+    ctx.font=(on?"bold ":"")+"12px system-ui";
+    const tw=ctx.measureText(txt).width+8;
+    ctx.fillStyle=col; ctx.globalAlpha=on?1:.85;
+    ctx.fillRect(x, Math.max(0,y-16), tw, 16);
+    ctx.globalAlpha=1; ctx.fillStyle="#04121f";
+    ctx.fillText(txt, x+4, Math.max(11,y-4));
+  });
+  cv.onclick=e=>{
+    const r=cv.getBoundingClientRect();
+    const px=(e.clientX-r.left), py=(e.clientY-r.top);
+    let hit=-1;
+    scene.detections.forEach((d,i)=>{
+      const [x1,y1,x2,y2]=d.box;
+      if(px>=x1*sx&&px<=x2*sx&&py>=y1*sy&&py<=y2*sy) hit=i;
+    });
+    if(hit>=0) selectDet(hit);
+  };
+}
+
+function selectDet(i){
+  sel=i; renderDetList(); draw();
+  const d=scene.detections[i];
+  const segc=cssv(SEGCOL[d.seg_status]||"--neutral");
+  const nodes=d.path.map(n=>{
+    const rep=n.name===d.path[d.path.length-1].name;
+    const pct=Math.round(n.mass*100);
+    return `<div class="node ${rep?'reported':''}">
+      <span class="nm">${n.name}${n.floor?' <span class="floor" title="safety floor">◆</span>':''}</span>
+      <span class="bar"><i style="width:${pct}%"></i></span>
+      <span class="pct">${pct}%</span></div>`;}).join("");
+  $("detail").innerHTML=`
+    <div class="kv">
+      <span class="muted">Label</span><span><b>${d.label}</b></span>
+      <span class="muted">Outcome</span><span>${d.outcome}${d.rejected?' · <b>rejected</b>':''}</span>
+      <span class="muted">Confidence</span><span>${d.confidence.toFixed(2)} · importance ${d.importance.toFixed(2)}</span>
+      <span class="muted">Detector</span><span>YOLO “${d.yolo}” (${d.yolo_conf.toFixed(2)})</span>
+      <span class="muted">Constraints</span><span>${d.constraints}</span>
+      <span class="muted">Segmentation</span><span class="verdict" style="color:${segc}">
+        ${(DATA.seg_marks[d.seg_status]||"")} ${d.seg_status}</span>
+    </div>
+    <div class="muted" style="font-size:12px;margin:-4px 0 8px">${d.seg_note||""}</div>
+    <h2 style="margin-top:6px">Taxonomy descent</h2>
+    <div class="tax">${nodes}</div>`;
+}
+
+// toolbar
+$("byOutcome").onclick=()=>{colorBy="outcome";setPressed();renderDetList();draw();};
+$("bySeg").onclick=()=>{colorBy="seg";setPressed();renderDetList();draw();};
+function setPressed(){
+  $("byOutcome").setAttribute("aria-pressed",colorBy==="outcome");
+  $("bySeg").setAttribute("aria-pressed",colorBy==="seg");
+}
+$("toggleSeg").onclick=()=>{
+  const on=$("segimg").style.opacity!=="1";
+  $("segimg").style.opacity=on?"1":"0";
+  $("toggleSeg").setAttribute("aria-pressed",on);
+};
+window.addEventListener("resize",()=>scene&&draw());
+
+fetch("data/scenes.json").then(r=>r.json()).then(init).catch(e=>{
+  document.querySelector(".wrap").innerHTML=
+    '<div class="empty">Could not load <code>data/scenes.json</code>. '+
+    'Serve this folder over http (e.g. a static/PHP web space), not file://.</div>';
+});
+</script>
+</body>
+</html>

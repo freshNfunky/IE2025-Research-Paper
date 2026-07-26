@@ -1,0 +1,118 @@
+# Semantic-segmentation taxonomy -- the SECOND, independent perception path.
+#
+# Rationale (see paper "The Role of Semantic Models in Constraining Pattern
+# Recognition", F. Schaller, Intelligent Environments 2025, section 3.2):
+#   The box+CLIP pipeline (taxonomy.yaml) answers "what is this object?". A
+#   dense, per-pixel segmentation answers a *different*, complementary question:
+#   "what kind of surface/stuff is here?". Because the two paths are produced by
+#   independent models (YOLO+CLIP vs. an open-vocabulary segmenter), their
+#   agreement is real corroborating evidence and their disagreement is a signal
+#   worth acting on -- the context-validation idea. A "Vehicle" box whose region
+#   is actually painted "sky" by the segmenter is the data-driven version of the
+#   classic "flying car" false positive.
+#
+# This is a Cityscapes-flavoured stuff/things vocabulary, but expressed as
+# open-vocabulary text prompts (CLIPSeg) so it needs no fixed-class training and
+# can be edited freely -- consistent with the open-set spirit of the box path.
+#
+# Class fields:
+#   name    : short display label (also used in the overlay legend / table)
+#   prompt  : the text query fed to the open-vocabulary segmenter
+#   role    : Cityscapes-style super-category. Two roles are special-cased by the
+#             cross-validator:
+#               "sky"  -> a ground object whose box is dominated by sky pixels is
+#                         physically implausible (data-driven flying-car gate).
+#             The "flat"/"nature"/"construction" roles are treated as background
+#             *context* (an object may legitimately sit in front of them).
+#   thing   : true  -> this class denotes a discrete object the box path also
+#             detects (vehicle, person, ...), so it can be matched branch-to-
+#             branch against a detection. false -> background "stuff".
+#   maps_to : name of the hpercept taxonomy node (taxonomy.yaml) this class
+#             corresponds to, or empty for pure background. Used to decide
+#             whether a detection's segmentation *agrees* with its branch.
+#   color   : [r, g, b] for the segmentation overlay.
+
+classes:
+
+  # ---- background "stuff" (drivable / flat) ----------------------------- #
+  - name: road
+    prompt: a road surface for cars to drive on
+    role: flat
+    thing: false
+    maps_to: ""
+    color: [128, 64, 128]
+  - name: sidewalk
+    prompt: a sidewalk or pavement for pedestrians
+    role: flat
+    thing: false
+    maps_to: ""
+    color: [244, 35, 232]
+
+  # ---- background "stuff" (upright surroundings) ------------------------ #
+  - name: building
+    prompt: a building or wall
+    role: construction
+    thing: false
+    maps_to: ""
+    color: [70, 70, 70]
+  - name: vegetation
+    prompt: trees, bushes or vegetation
+    role: nature
+    thing: false
+    maps_to: ""
+    color: [107, 142, 35]
+  - name: terrain
+    prompt: grass, soil or terrain beside the road
+    role: nature
+    thing: false
+    maps_to: ""
+    color: [152, 251, 152]
+  - name: sky
+    prompt: the open sky
+    role: sky
+    thing: false
+    maps_to: ""
+    color: [70, 130, 180]
+
+  # ---- "things" that the box path also detects -------------------------- #
+  # maps_to points at the SAFETY-FLOOR node of the matching taxonomy branch, so
+  # branch-level agreement is a simple name comparison after resolving a box's
+  # own nearest floor.
+  - name: person
+    prompt: a person, pedestrian or cyclist
+    role: human
+    thing: true
+    maps_to: Living Being
+    color: [220, 20, 60]
+  - name: animal
+    prompt: an animal such as a deer, dog, horse, cow or giraffe
+    role: human            # cityscapes groups people+riders; we group living beings
+    thing: true
+    maps_to: Living Being
+    color: [255, 140, 0]
+  - name: vehicle
+    prompt: a car, truck, bus or other vehicle
+    role: vehicle
+    thing: true
+    maps_to: Vehicle
+    color: [0, 0, 142]
+  - name: two_wheeler
+    prompt: a bicycle or motorcycle
+    role: vehicle
+    thing: true
+    maps_to: Vehicle
+    color: [119, 11, 32]
+
+  # ---- roadside "things" (static infrastructure) ------------------------ #
+  - name: pole
+    prompt: a pole or post beside the road
+    role: object
+    thing: true
+    maps_to: Static Object
+    color: [153, 153, 153]
+  - name: traffic_sign
+    prompt: a traffic sign or traffic light
+    role: object
+    thing: true
+    maps_to: Static Object
+    color: [220, 220, 0]

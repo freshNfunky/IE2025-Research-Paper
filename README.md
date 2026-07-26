@@ -35,29 +35,45 @@ Plus a **context-validation layer** that rejects physically implausible
 detections (the paper's "car flying above the clouds" example): size and
 position plausibility per category, inherited down the taxonomy.
 
+3. **Segmentation cross-validation (a second, independent perception path).**
+   Alongside the box path, an **open-vocabulary semantic segmenter** (CLIPSeg)
+   densely labels every pixel into its own stuff/things taxonomy
+   (`segmentation.yaml`: road, sidewalk, vehicle, person, vegetation, sky, …).
+   Each box is then cross-checked against it: a detection is **corroborated**
+   when the pixels under it agree with its taxonomy branch, and **rejected** when
+   they contradict it — the *data-driven* version of the position gate (a
+   `Vehicle` box sitting on `sky` pixels is the classic flying-car false
+   positive). Because the two paths come from different model families
+   (YOLO+CLIP vs. CLIPSeg), their agreement is genuine evidence. Safety-first:
+   an `UNKNOWN OBSTACLE` is never vetoed by segmentation.
+
 ## Architecture
 
 ```
 image
-  └─ YOLO (ultralytics)            → boxes ("there is an object here")
-       └─ per box:
-            clip mode : CLIP zero-shot top-down descent over taxonomy nodes
-            yolo mode : COCO→taxonomy + confidence-based abstraction
-       └─ constraint validation    → reject implausible detections
-  └─ annotated image + taxonomy tree showing the abstraction path
+  ├─ YOLO (ultralytics)            → boxes ("there is an object here")
+  │    └─ per box:
+  │         clip mode : CLIP zero-shot top-down descent over taxonomy nodes
+  │         yolo mode : COCO→taxonomy + confidence-based abstraction
+  │    └─ constraint validation    → reject implausible detections
+  └─ CLIPSeg (optional 2nd path)   → dense pixel labels (stuff/things)
+       └─ per box: cross-check region vs. taxonomy branch (confirm / conflict)
+  └─ annotated image + segmentation overlay + taxonomy tree
 ```
 
 | File | Role |
 |------|------|
 | `taxonomy.yaml` | The semantic model: the tree + floors + constraints |
+| `segmentation.yaml` | Segmentation stuff/things taxonomy (2nd path) |
 | `hpercept/taxonomy.py` | Tree loading, traversal, floor logic |
 | `hpercept/detector.py` | YOLO wrapper (lazy model load) |
 | `hpercept/classifier.py` | CLIP zero-shot over all taxonomy nodes |
+| `hpercept/segmenter.py` | CLIPSeg open-vocab segmenter (lazy model load) |
 | `hpercept/abstraction.py` | **Core**: hierarchical descent + floor fallback |
-| `hpercept/constraints.py` | Physical/semantic context validation |
+| `hpercept/constraints.py` | Physical/semantic + segmentation validation |
 | `hpercept/datasets.py` | Lazy, streaming dataset registry |
 | `hpercept/pipeline.py` | Wires it all together |
-| `hpercept/viz.py` | Annotated image + HTML taxonomy tree |
+| `hpercept/viz.py` | Annotated image + overlay + HTML taxonomy tree |
 | `app.py` | Gradio UI |
 
 ## Datasets (lazy, low-disk)
@@ -84,8 +100,9 @@ pip install -r requirements.txt
 ```
 
 > Heaviest dependency is PyTorch (~2 GB). Models download lazily on first use
-> (YOLOv8n ~6 MB, CLIP ViT-B-32 ~350 MB). The **YOLO-only** mode works without
-> CLIP if disk is tight.
+> (YOLOv8n ~6 MB, CLIP ViT-B-32 ~350 MB, CLIPSeg ~150 MB). The **YOLO-only** mode
+> works without CLIP if disk is tight, and segmentation is off by default (its
+> weights are only fetched when you enable the cross-check).
 
 ## Run
 
@@ -101,6 +118,9 @@ python smoke_test.py     # offline logic check, no model download
 - **Enforce abstraction floor 🛡** — toggle the anti-paranoia limit on/off to see
   the difference between a bounded `UNKNOWN OBSTACLE` and collapse to `Object`.
 - **Min CLIP similarity** — refuse to commit on weak visual evidence.
+- **Segmentation cross-validation 🖇** — turn on the second perception path; each
+  detection gets a ✅ confirm / ➖ neutral / ❌ conflict verdict (conflicts are
+  rejected), plus a segmentation overlay.
 
 ## Status
 
