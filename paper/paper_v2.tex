@@ -485,18 +485,6 @@ novel-safety. The hierarchy dominates.}
 \label{fig:calibration}
 \end{figure}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.72\textwidth]{segmentation_qualitative.png}
-\caption{Two independent perception paths. Per scene: (left) the YOLO+CLIP boxes,
-outlined in the segmentation verdict colour with a per-box mark ($\checkmark$
-confirm, $\sim$ neutral, $\triangle$ flag); (right) the dense CLIPSeg
-segmentation. Novel animals with no taxonomy leaf abstract to
-\textsf{Living~Being} on the box path and are independently confirmed as living
-beings by the segmenter; the loaded trailer is confirmed \textsf{Vehicle}.}
-\label{fig:segqual}
-\end{figure*}
-
 \subsection{Qualitative}
 Figure~\ref{fig:giraffe} shows a giraffe on the road. The detector reports
 \texttt{giraffe}, which has no taxonomy node; mass concentrates at
@@ -529,16 +517,28 @@ confirmed as living beings ($100\%$ of their object pixels) by the segmenter,
 while a helicopter is confirmed as \textsf{Vehicle}. The flags are the
 theoretically interesting cases and motivate the limitation discussed next.
 
-\begin{figure*}[t]
+\begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\textwidth]{segmentation_agreement.png}
+\includegraphics[width=\columnwidth]{segmentation_qualitative.png}
+\caption{Two independent perception paths. Per scene: (left) the YOLO+CLIP boxes,
+outlined in the segmentation verdict colour with a per-box mark ($\checkmark$
+confirm, $\sim$ neutral, $\triangle$ flag); (right) the dense CLIPSeg
+segmentation. Novel animals with no taxonomy leaf abstract to
+\textsf{Living~Being} on the box path and are independently confirmed as living
+beings by the segmenter; the loaded trailer is confirmed \textsf{Vehicle}.}
+\label{fig:segqual}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\columnwidth]{segmentation_agreement.png}
 \caption{Segmentation cross-check verdict over all box detections (left) and by
 box-path outcome (right): confirm / neutral / flag and \emph{zero} conflicts,
 with no obstacle dropped; corroboration and flags concentrate on the
 \emph{abstracted} novel objects, while \textsc{unknown} obstacles are never
 vetoed.}
 \label{fig:segagree}
-\end{figure*}
+\end{figure}
 
 \section{Discussion}
 \label{sec:discussion}
