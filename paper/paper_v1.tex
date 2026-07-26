@@ -496,9 +496,33 @@ safety floor rests on. This distinction is not academic: static objects need onl
 be driven around, whereas a moving object may enter the ego-vehicle's trajectory,
 so it demands the most attention and, ultimately, \emph{prediction}---estimating
 its future from its present and past. A taxonomy that fuses appearance (CLIP),
-context (segmentation), and motion (stereo) could commit to \textsf{Moving
+context (segmentation), and motion (stereo, radar) could commit to \textsf{Moving
 Object} on geometry alone even when appearance is ambiguous, closing the loop from
 detection to safe, forward-looking behavior.
+
+\emph{Fifth}, \emph{Doppler radar} offers a second, physics-grounded route to the
+same motion evidence---and arguably the most direct one. By the Doppler effect,
+the return from a moving object is frequency-shifted in proportion to its radial
+velocity, so a mover's spectral signature is displaced from that of the static
+surround: motion is not \emph{inferred} from successive frames but read off as a
+first-class physical observable. Exclusively extracting the shifted returns
+isolates precisely the moving objects---the elevated-risk class that can enter the
+ego trajectory---and does so where vision degrades, in darkness, glare, or bad
+weather. As an independent, physics-based vote for the \textsf{Moving~Object}
+branch, Doppler radar complements the appearance and geometry channels and further
+hardens the coarse split the safety floor depends on.
+
+\emph{Sixth}, \emph{LiDAR} contributes \emph{measured} geometry rather than
+inferred. Its per-return depth lets one back-project the camera image onto the
+point cloud and tessellate it---triangulating each return to its nearest
+neighbours into an even, uniformly meshed, textured surface---to obtain a real 3D
+model of the scene instead of a monocular guess. Metric size, distance, and shape
+then become measured quantities that feed the physical-constraint gates
+(Sec.~\ref{sec:method}-D) with ground truth in place of priors: an object's true
+extent and its occlusion relations can directly support or veto a taxonomic
+hypothesis. Fused with appearance (CLIP) and motion (stereo, radar), measured
+geometry lets the system reason about \emph{what} and \emph{where} on one
+evidential footing.
 
 Together these move the system toward the multi-level semantic validation argued
 for in~\cite{schaller2025}.
