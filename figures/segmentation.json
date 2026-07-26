@@ -1,0 +1,31 @@
+{
+  "n_images": 8,
+  "overall": {
+    "confirm": 7,
+    "neutral": 5,
+    "flag": 7,
+    "conflict": 0
+  },
+  "by_outcome": {
+    "identified": {
+      "confirm": 0,
+      "neutral": 0,
+      "flag": 0,
+      "conflict": 0
+    },
+    "abstracted": {
+      "confirm": 7,
+      "neutral": 0,
+      "flag": 7,
+      "conflict": 0
+    },
+    "unknown": {
+      "confirm": 0,
+      "neutral": 5,
+      "flag": 0,
+      "conflict": 0
+    }
+  },
+  "seg_rejections": 0,
+  "corroboration_rate_pct": 36.8
+}
