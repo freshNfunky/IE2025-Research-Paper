@@ -95,16 +95,16 @@ def draw_scene(fig, cells, image, scene, show_titles=False):
 
 def make_qualitative(scenes, out_path):
     n = len(scenes)
-    # Stacked, single-column-friendly: 2 rows (box on top, segmentation directly
-    # below) x n scene columns. Landscape aspect so it scales down cleanly to one
-    # text column, with each scene's box sitting right above its segmentation.
-    fig = plt.figure(figsize=(3.3 * n, 4.9), constrained_layout=True)
-    gs = fig.add_gridspec(2, n)
+    # Single vertical column: for each scene the box panel sits directly above its
+    # segmentation panel, and the scenes stack below one another. A narrow, tall
+    # figure (no suptitle) makes every panel fill the full column width -- large
+    # and legible -- rather than being centred with wasted side margins. The
+    # top/bottom meaning is stated in the LaTeX caption.
+    fig = plt.figure(figsize=(3.4, 1.95 * 2 * n), constrained_layout=True)
+    gs = fig.add_gridspec(2 * n, 1)
     for c, (image, scene) in enumerate(scenes):
-        draw_scene(fig, [gs[0, c], gs[1, c]], image, scene, show_titles=(c == 0))
-    fig.suptitle("Two perception paths: boxes (top) vs. segmentation (bottom)",
-                 fontsize=12, fontweight="bold")
-    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+        draw_scene(fig, [gs[2 * c, 0], gs[2 * c + 1, 0]], image, scene)
+    fig.savefig(out_path, dpi=170, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -153,8 +153,32 @@ def make_summary(stats, out_path):
     plt.close(fig)
 
 
+_QUAL_CACHE = OUT / "_qual_cache.pkl"
+
+
+def _rerender_from_cache() -> bool:
+    """Fast path: redraw the figures from the last run's cached scenes + stats,
+    with no model inference. Returns True if the cache was present and used.
+    Use `python scripts/segmentation_demo.py --rerender` while iterating on the
+    figure layout so a 4-minute CLIPSeg run is not repeated for every tweak."""
+    import pickle
+    if not _QUAL_CACHE.exists():
+        print(">>> no cache; run once without --rerender first", flush=True)
+        return False
+    with open(_QUAL_CACHE, "rb") as f:
+        qualitative = pickle.load(f)
+    stats = json.loads((OUT / "segmentation.json").read_text())
+    make_qualitative(qualitative, OUT / "segmentation_qualitative.png")
+    make_summary(stats, OUT / "segmentation_agreement.png")
+    print(">>> re-rendered figures from cache (no model run)", flush=True)
+    return True
+
+
 # --------------------------------------------------------------------------- #
 def main():
+    if "--rerender" in sys.argv[1:]:
+        _rerender_from_cache()
+        return
     src = sys.argv[1] if len(sys.argv) > 1 else "road_anomaly"
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 8
     print(f">>> streaming {n} images from '{src}'", flush=True)
@@ -199,6 +223,12 @@ def main():
             chosen.append(idx)
     # Two scenes keep the stacked panels large enough to read at one column width.
     qualitative = [(candidates[i][0], candidates[i][1]) for i in chosen[:2]]
+
+    # Cache the selected scenes so the figure layout can be re-rendered later
+    # without re-running the model (see --rerender).
+    import pickle
+    with open(_QUAL_CACHE, "wb") as f:
+        pickle.dump(qualitative, f)
 
     stats = {
         "n_images": len(samples),
