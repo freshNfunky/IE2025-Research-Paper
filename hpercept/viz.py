@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from .abstraction import Outcome
 from .pipeline import Prediction, SceneResult
+from .segmenter import SegResult
 from .taxonomy import Node, Taxonomy
 
 COLORS = {
@@ -21,6 +22,10 @@ COLORS = {
     Outcome.UNKNOWN: (231, 76, 60),
 }
 REJECTED_COLOR = (127, 140, 141)
+
+# Marker glyphs for the segmentation cross-check status (used in labels/table).
+SEG_MARK = {"confirm": "✓seg", "flag": "⚠seg", "conflict": "✗seg",
+            "neutral": "~seg", "off": ""}
 
 
 def _font(size: int = 16):
@@ -61,7 +66,42 @@ def _color_for(pred: Prediction):
 def _label_for(pred: Prediction) -> str:
     c = pred.classification
     tag = "REJECT " if pred.rejected else ""
-    return f"{tag}{c.label} {c.confidence:.2f}"
+    seg = SEG_MARK.get(pred.seg_status, "")
+    seg = f" {seg}" if seg else ""
+    return f"{tag}{c.label} {c.confidence:.2f}{seg}"
+
+
+# --------------------------------------------------------------------------- #
+#  Segmentation overlay                                                        #
+# --------------------------------------------------------------------------- #
+def segmentation_overlay(
+    image_rgb: np.ndarray, seg: SegResult, alpha: float = 0.5
+) -> np.ndarray:
+    """Blend the dense segmentation colour map over the image."""
+    color = seg.color_map()
+    blended = (1.0 - alpha) * image_rgb.astype(np.float32) + alpha * color.astype(
+        np.float32
+    )
+    return blended.clip(0, 255).astype(np.uint8)
+
+
+def seg_legend_html(seg: SegResult) -> str:
+    """A small colour legend for the segmentation classes present."""
+    present = sorted(set(seg.label_map.ravel().tolist()))
+    chips = []
+    for idx in present:
+        c = seg.classes[idx]
+        r, g, b = c.color
+        chips.append(
+            f'<span style="display:inline-block;margin:2px 8px 2px 0;">'
+            f'<span style="display:inline-block;width:12px;height:12px;'
+            f'background:rgb({r},{g},{b});border:1px solid #333;'
+            f'vertical-align:middle;margin-right:4px;"></span>{c.name}</span>'
+        )
+    return (
+        '<div style="font-family:sans-serif;font-size:12px;">'
+        "<b>Segmentation:</b> " + "".join(chips) + "</div>"
+    )
 
 
 # --------------------------------------------------------------------------- #

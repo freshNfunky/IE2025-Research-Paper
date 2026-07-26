@@ -23,8 +23,14 @@ from .abstraction import (
     classify_crop,
 )
 from .classifier import ClipClassifier
-from .constraints import ConstraintResult, validate
+from .constraints import (
+    ConstraintResult,
+    SegAgreement,
+    segmentation_agreement,
+    validate,
+)
 from .detector import Box, get_detector
+from .segmenter import SegResult, get_segmenter
 from .taxonomy import Taxonomy
 
 Mode = Literal["clip", "yolo"]
@@ -38,10 +44,15 @@ class Prediction:
     classification: Classification
     constraints: ConstraintResult
     importance: float = 0.0   # size-based priority in [0,1]; bigger = more critical
+    seg: Optional[SegAgreement] = None   # segmentation cross-check (None if off)
 
     @property
     def rejected(self) -> bool:
         return not self.constraints.ok
+
+    @property
+    def seg_status(self) -> str:
+        return self.seg.status if self.seg is not None else "off"
 
     def to_dict(self) -> dict:
         c = self.classification
@@ -55,6 +66,8 @@ class Prediction:
             "path": " > ".join(n.name for n in c.path),
             "box": list(self.box.xyxy),
             "constraints": self.constraints.summary,
+            "seg_agreement": self.seg_status,
+            "seg_note": self.seg.note if self.seg is not None else "",
             "rejected": self.rejected,
         }
 
@@ -63,6 +76,7 @@ class Prediction:
 class SceneResult:
     predictions: list[Prediction] = field(default_factory=list)
     image_shape: tuple[int, int] = (0, 0)  # (h, w)
+    seg_result: Optional[SegResult] = None  # dense segmentation, if computed
 
     def counts(self) -> dict[str, int]:
         c = {"identified": 0, "abstracted": 0, "unknown": 0, "rejected": 0}
@@ -70,6 +84,14 @@ class SceneResult:
             c[p.classification.outcome.value] += 1
             if p.rejected:
                 c["rejected"] += 1
+        return c
+
+    def seg_counts(self) -> dict[str, int]:
+        """Tally of the segmentation cross-check outcomes across predictions."""
+        c = {"confirm": 0, "neutral": 0, "flag": 0, "conflict": 0}
+        for p in self.predictions:
+            if p.seg is not None:
+                c[p.seg.status] = c.get(p.seg.status, 0) + 1
         return c
 
 
@@ -80,11 +102,13 @@ class Pipeline:
         weights: str = "yolov8s.pt",
         clip_model: str = "ViT-B-32-quickgelu",
         clip_pretrained: str = "openai",
+        seg_model: str = "CIDAS/clipseg-rd64-refined",
     ) -> None:
         self.taxonomy = taxonomy or Taxonomy.load(_TAXONOMY_PATH)
         self.weights = weights
         self._clip: Optional[ClipClassifier] = None
         self._clip_cfg = (clip_model, clip_pretrained)
+        self._seg_model = seg_model
 
     @property
     def clip(self) -> ClipClassifier:
@@ -93,17 +117,30 @@ class Pipeline:
             self._clip = ClipClassifier(self.taxonomy, model, pretrained)
         return self._clip
 
+    @property
+    def segmenter(self):
+        # Lazily resolved via the module-level singleton so the heavy CLIPSeg
+        # weights are only fetched when segmentation is actually requested.
+        return get_segmenter(self._seg_model)
+
     def run(
         self,
         image_rgb: np.ndarray,
         mode: Mode = "clip",
         det_conf: float = 0.20,
         cfg: Optional[AbstractionConfig] = None,
+        segment: bool = False,
     ) -> SceneResult:
         cfg = cfg or AbstractionConfig()
         h, w = image_rgb.shape[:2]
         detector = get_detector(self.weights, det_conf)
         boxes = detector.detect(image_rgb, conf=det_conf)
+
+        # Run the dense segmentation once for the whole image (not per box); the
+        # per-box cross-check is then just cheap array slicing.
+        seg_result: Optional[SegResult] = None
+        if segment:
+            seg_result = self.segmenter.segment(image_rgb)
 
         preds: list[Prediction] = []
         for box in boxes:
@@ -114,11 +151,18 @@ class Pipeline:
                 cls = classify_by_coco(
                     box.coco_name, box.coco_conf, self.taxonomy,
                 )
-            cons = validate(box, cls.node, w, h)
+            agreement = (
+                segmentation_agreement(box, cls.node, seg_result)
+                if seg_result is not None
+                else None
+            )
+            cons = validate(box, cls.node, w, h, seg=agreement)
             preds.append(Prediction(box=box, classification=cls, constraints=cons,
-                                    importance=importance_of(box, w, h)))
+                                    importance=importance_of(box, w, h),
+                                    seg=agreement))
 
-        return SceneResult(predictions=preds, image_shape=(h, w))
+        return SceneResult(predictions=preds, image_shape=(h, w),
+                           seg_result=seg_result)
 
 
 def importance_of(box: Box, img_w: int, img_h: int) -> float:
