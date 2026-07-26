@@ -64,16 +64,17 @@ def _box_color(pred) -> str:
 # --------------------------------------------------------------------------- #
 #  Qualitative: boxes | segmentation overlay | notes                          #
 # --------------------------------------------------------------------------- #
-def draw_scene(fig, gs_row, image, scene):
-    axb = fig.add_subplot(gs_row[0])
-    axs = fig.add_subplot(gs_row[1])
+def draw_scene(fig, cells, image, scene, show_titles=False):
+    """Draw one scene as two stacked panels: boxes (top cell), segmentation
+    (bottom cell). Titles are shown only for the left-most scene column so they
+    are not repeated across columns."""
+    axb = fig.add_subplot(cells[0])
+    axs = fig.add_subplot(cells[1])
 
-    # Panel 1: image + boxes coloured by segmentation verdict. The verdict mark
-    # (✓/~/⚠/✗) and the branch note ride on the box itself, so we need no third
-    # text column -- keeping the figure compact enough to sit inline with text.
+    # Top panel: image + boxes coloured by segmentation verdict. The verdict mark
+    # (✓/~/⚠/✗) rides on the box itself.
     axb.imshow(image)
     axb.axis("off")
-    axb.set_title("Box path (colour = seg verdict)", fontsize=9, loc="left")
     for i, p in enumerate(scene.predictions):
         x1, y1, x2, y2 = p.box.xyxy
         c = _box_color(p)
@@ -81,30 +82,29 @@ def draw_scene(fig, gs_row, image, scene):
                                 edgecolor=c, linewidth=2.4))
         mark = SEG_MARK.get(p.seg.status, "") if p.seg else ""
         axb.text(x1, max(0, y1 - 4), f"{p.classification.label} {mark}",
-                 fontsize=7.5, color="white", va="bottom", ha="left",
+                 fontsize=7, color="white", va="bottom", ha="left",
                  bbox=dict(boxstyle="round,pad=0.2", fc=c, ec="none"))
 
-    # Panel 2: the dense segmentation overlay (the 2nd, independent path).
+    # Bottom panel (stacked below the box panel): the dense segmentation overlay.
     if scene.seg_result is not None:
         axs.imshow(segmentation_overlay(image, scene.seg_result, alpha=0.55))
     else:
         axs.imshow(image)
     axs.axis("off")
-    axs.set_title("Segmentation path (dense pixel labels)", fontsize=9, loc="left")
 
 
 def make_qualitative(scenes, out_path):
     n = len(scenes)
-    # Two columns (boxes | segmentation), one row per scene. Height per row is
-    # driven by each image's own aspect ratio via constrained_layout so there is
-    # no wasted vertical whitespace.
-    fig = plt.figure(figsize=(11, 3.0 * n), constrained_layout=True)
-    gs = fig.add_gridspec(n, 2, width_ratios=[1.0, 1.0])
-    for r, (image, scene) in enumerate(scenes):
-        draw_scene(fig, [gs[r, 0], gs[r, 1]], image, scene)
-    fig.suptitle("Two independent perception paths: YOLO+CLIP boxes vs. dense "
-                 "segmentation cross-validation", fontsize=13, fontweight="bold")
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    # Stacked, single-column-friendly: 2 rows (box on top, segmentation directly
+    # below) x n scene columns. Landscape aspect so it scales down cleanly to one
+    # text column, with each scene's box sitting right above its segmentation.
+    fig = plt.figure(figsize=(3.3 * n, 4.9), constrained_layout=True)
+    gs = fig.add_gridspec(2, n)
+    for c, (image, scene) in enumerate(scenes):
+        draw_scene(fig, [gs[0, c], gs[1, c]], image, scene, show_titles=(c == 0))
+    fig.suptitle("Two perception paths: boxes (top) vs. segmentation (bottom)",
+                 fontsize=12, fontweight="bold")
+    fig.savefig(out_path, dpi=160, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -193,11 +193,12 @@ def main():
                 chosen.append(idx)
                 break
     for idx in range(len(candidates)):
-        if len(chosen) >= 3:
+        if len(chosen) >= 2:
             break
         if idx not in chosen:
             chosen.append(idx)
-    qualitative = [(candidates[i][0], candidates[i][1]) for i in chosen[:3]]
+    # Two scenes keep the stacked panels large enough to read at one column width.
+    qualitative = [(candidates[i][0], candidates[i][1]) for i in chosen[:2]]
 
     stats = {
         "n_images": len(samples),
