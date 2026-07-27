@@ -35,7 +35,7 @@
   .stage{position:relative;background:#000;border-radius:0 0 12px 12px;overflow:hidden;min-height:220px;
          display:flex;align-items:center;justify-content:center}
   .stage img{width:100%;height:auto;display:block}
-  #cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  #cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;cursor:default}
   .stage .placeholder{color:var(--muted);padding:60px 20px;text-align:center}
   .statusline{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px;color:var(--muted);font-size:12px;
               border-top:1px solid var(--line)}
@@ -217,6 +217,22 @@ const OUTC={identified:"--identified",abstracted:"--abstracted",unknown:"--unkno
 // leaf -> green, higher branch -> orange, unknown/bottom -> red; rejected -> grey.
 function outColor(d){ return d.rejected ? cssv("--rejected") : (cssv(OUTC[d.outcome])||cssv("--neutral")); }
 let cur=null;
+// Manual focus: image-space centre of a clicked box (null = auto = most important).
+let selCenter=null;
+function boxCenter(b){ return {x:(b[0]+b[2])/2, y:(b[1]+b[3])/2}; }
+// Which detection is "in focus": the clicked object (tracked across frames by the
+// nearest box centre) or, when nothing is picked, the server's importance choice.
+function computeFocus(d){
+  if(!d.detections.length) return -1;
+  if(!selCenter) return d.focus_idx;
+  let best=-1, bd=Infinity;
+  d.detections.forEach((det,i)=>{
+    const c=boxCenter(det.box), dist=(c.x-selCenter.x)**2+(c.y-selCenter.y)**2;
+    if(dist<bd){ bd=dist; best=i; }
+  });
+  if(best>=0) selCenter=boxCenter(d.detections[best].box);  // follow the object
+  return best;
+}
 
 function onFrame(d){
   cur=d;
@@ -231,10 +247,17 @@ function onFrame(d){
     $("segrow").innerHTML=["confirm","neutral","flag","conflict"].map(v=>
       `<span class="p"><span class="dot" style="background:${cssv(SEGCOL[v])}"></span>${s[v]||0} ${v}</span>`).join("");
   } else $("segrow").innerHTML='<span class="muted">segmentation off (turn on “run seg”)</span>';
-  const f = d.focus_idx>=0 ? d.detections[d.focus_idx] : null;
-  if(f){ $("focus").innerHTML=`focus: <b style="color:${outColor(f)}">${f.label}</b> `+
-      `<span class="muted">(${f.outcome}${f.is_leaf?", leaf":""})</span>`; highlightTree(f); }
+  const fi = computeFocus(d); d._focus = fi;
+  const f = fi>=0 ? d.detections[fi] : null;
+  if(f){ const how = selCenter ? "clicked" : "auto: most important";
+    $("focus").innerHTML=`focus: <b style="color:${outColor(f)}">${f.label}</b> `+
+      `<span class="muted">(${f.outcome}${f.is_leaf?", leaf":""}) &middot; ${how}</span>`+
+      (selCenter?` <a href="#" id="clrsel" class="muted">reset</a>`:``);
+    highlightTree(f);
+    const cs=$("clrsel"); if(cs) cs.onclick=e=>{ e.preventDefault(); selCenter=null; onFrame(cur); };
+  }
   else { $("focus").innerHTML='<span class="muted">no object in focus</span>'; clearTree(); }
+  draw();
 }
 
 // Draw boxes + labels on the canvas over the frame image. Labels are toggleable:
@@ -251,7 +274,7 @@ function draw(){
   ctx.font="12px system-ui,sans-serif";
   cur.detections.forEach((d,i)=>{
     const [x1,y1,x2,y2]=d.box, x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
-    const col=outColor(d), focus=i===cur.focus_idx;
+    const col=outColor(d), focus=i===(cur._focus!=null?cur._focus:cur.focus_idx);
     ctx.setLineDash(d.rejected?[6,4]:[]); ctx.lineWidth=focus?3.5:2; ctx.strokeStyle=col;
     ctx.strokeRect(x,y,w,h);
     const lines=[];
@@ -268,6 +291,29 @@ function draw(){
 }
 $("frame").addEventListener("load", draw);
 window.addEventListener("resize", draw);
+
+// Click a box to focus it (its taxonomy path shows on the right); click empty
+// space to return to automatic (most-important) focus. Map the click from the
+// canvas back into image coordinates, then hit-test the boxes (topmost first).
+function hitTest(ev){
+  if(!cur||!cur.detections.length) return -1;
+  const r=$("cv").getBoundingClientRect();
+  const ix=(ev.clientX-r.left)/r.width*cur.w, iy=(ev.clientY-r.top)/r.height*cur.h;
+  for(let i=cur.detections.length-1;i>=0;i--){
+    const [x1,y1,x2,y2]=cur.detections[i].box;
+    if(ix>=x1&&ix<=x2&&iy>=y1&&iy<=y2) return i;
+  }
+  return -1;
+}
+$("cv").addEventListener("click",ev=>{
+  if(!cur) return;
+  const i=hitTest(ev);
+  selCenter = i>=0 ? boxCenter(cur.detections[i].box) : null;
+  onFrame(cur);
+});
+$("cv").addEventListener("mousemove",ev=>{
+  $("cv").style.cursor = hitTest(ev)>=0 ? "pointer" : "default";
+});
 ["ovlChk","hierChk","flatChk"].forEach(id=>$(id).addEventListener("change",()=>{ if(cur) onFrame(cur); }));
 
 /* ---- taxonomy tree (shared with the static demo) ---- */

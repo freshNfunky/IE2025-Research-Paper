@@ -7,7 +7,9 @@ cross-validation) **frame by frame over video** and shows it live:
 - **right, top** — live KPIs (identified / abstracted / unknown / rejected,
   segmentation verdicts, throughput);
 - **right, bottom** — the taxonomy tree with the descent path of the most
-  important object in the current frame highlighted.
+  important object in the current frame highlighted. **Click any box** in the
+  video to focus a specific object instead (its path is tracked across frames);
+  click empty space to return to the automatic (most-important) focus.
 
 Start with a public warm-up clip, then load your own footage. It is a local app:
 a small FastAPI server does the inference and streams annotated frames + data to
