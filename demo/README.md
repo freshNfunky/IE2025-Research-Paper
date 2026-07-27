@@ -22,9 +22,17 @@ demo/
 - Boxes are drawn from the JSON, coloured by **outcome** (identified / abstracted
   / unknown / rejected) or by **segmentation verdict** (confirm / flag / conflict).
 - Toggle the **segmentation overlay**.
-- Click a detection to see its **taxonomy descent** (per-node probability mass,
-  safety floor marked ◆) and the **cross-check verdict** from the independent
-  segmentation path.
+- Click a detection to see:
+  - its **Detail** (label, outcome, confidence, detector guess, constraints,
+    segmentation cross-check verdict),
+  - the full **taxonomy tree** with the descent **path highlighted** and per-node
+    probability **mass** bars (as in the paper, Fig. 2; safety floors marked ◆),
+  - a **flat list vs. hierarchical** comparison — a flat classifier forces a
+    specific/wrong leaf or drops the object, while the hierarchy abstracts to a
+    safe level.
+
+> This static demo is a teaser; the convincing **live video** dashboard is
+> tracked as a standalone app in issue #4.
 
 ## Deploy
 

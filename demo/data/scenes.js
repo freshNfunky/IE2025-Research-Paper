@@ -1,4 +1,4 @@
-{
+window.DEMO_DATA={
  "outcome_colors": {
   "identified": "#2ecc71",
   "abstracted": "#f39c12",
@@ -2166,4 +2166,4 @@
    ]
   }
  ]
-}
+};

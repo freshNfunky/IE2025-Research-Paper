@@ -30,7 +30,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 from hpercept import datasets                                   # noqa: E402
-from hpercept.abstraction import AbstractionConfig             # noqa: E402
+from hpercept.abstraction import AbstractionConfig, flat_classify  # noqa: E402
 from hpercept.pipeline import get_pipeline                     # noqa: E402
 from hpercept.viz import COLORS, REJECTED_COLOR, segmentation_overlay  # noqa: E402
 
@@ -55,11 +55,21 @@ def _save_jpg(arr: np.ndarray, path: Path, scale: float) -> tuple[int, int]:
     return im.width, im.height
 
 
-def detection_dict(p, scale: float) -> dict:
+def tax_tree(node) -> dict:
+    """Nested taxonomy structure for the demo's tree view (name/floor/children)."""
+    return {"name": node.name, "floor": bool(node.floor),
+            "children": [tax_tree(c) for c in node.children]}
+
+
+def detection_dict(p, scale: float, pipe, cfg) -> dict:
     c = p.classification
     x1, y1, x2, y2 = p.box.xyxy
     path = [{"name": n.name, "mass": round(c.node_mass.get(n.name, 0.0), 3),
              "floor": bool(n.floor)} for n in c.path]
+    # Per-node probability mass (non-zero only) so the tree view can show how the
+    # descent distributed mass, like the paper's decision-path bars.
+    node_mass = {k: round(v, 3) for k, v in c.node_mass.items() if v >= 0.005}
+
     return {
         "box": [round(x1 * scale), round(y1 * scale),
                 round(x2 * scale), round(y2 * scale)],
@@ -69,12 +79,37 @@ def detection_dict(p, scale: float) -> dict:
         "importance": round(p.importance, 2),
         "yolo": p.box.coco_name,
         "yolo_conf": round(p.box.coco_conf, 2),
+        "novel": pipe.taxonomy.by_coco(p.box.coco_name) is None,
         "rejected": bool(p.rejected),
         "constraints": p.constraints.summary,
         "seg_status": p.seg.status if p.seg else "off",
         "seg_note": p.seg.note if p.seg else "",
         "path": path,
+        "node_mass": node_mass,
     }
+
+
+def salient_detector_miss(scene, frac: float = 0.06) -> bool:
+    """True if the segmenter shows a large ``thing`` object that NO detection box
+    covers -- i.e. the detector missed a salient object. Such scenes are outside
+    the demo's message (the hierarchy handles *detected* objects; detection recall
+    is a separate concern), and a visibly un-boxed object hurts credibility, so we
+    skip them. Uses only numpy (no scipy): the segmentation ``thing`` classes are
+    localized to real objects, so the fraction of thing-pixels left uncovered by
+    any box is a good proxy for a missed object."""
+    seg = scene.seg_result
+    if seg is None:
+        return False
+    thing_idx = [i for i, c in enumerate(seg.classes) if c.thing]
+    thing = np.isin(seg.label_map, thing_idx)
+    if not thing.any():
+        return False
+    covered = np.zeros(thing.shape, dtype=bool)
+    for p in scene.predictions:
+        x1, y1, x2, y2 = p.box.xyxy
+        covered[max(0, y1):y2, max(0, x1):x2] = True
+    uncovered = thing & ~covered
+    return float(uncovered.sum()) / float(thing.size) > frac
 
 
 def main():
@@ -95,6 +130,10 @@ def main():
         scene = pipe.run(s.image, mode="clip", segment=True, cfg=cfg)
         if not scene.predictions:
             continue
+        if salient_detector_miss(scene):
+            print("    (skipped: segmenter shows an object no box covers -- "
+                  "detector miss, off-message for the demo)", flush=True)
+            continue
         idx = len(scenes)
         sid = f"scene_{idx:02d}"
         h, w = s.image.shape[:2]
@@ -103,7 +142,16 @@ def main():
         if scene.seg_result is not None:
             overlay = segmentation_overlay(s.image, scene.seg_result, alpha=0.55)
             _save_jpg(overlay, OUT / f"{sid}_seg.jpg", scale)
-        dets = [detection_dict(p, scale) for p in scene.predictions]
+        dets = []
+        for p in scene.predictions:
+            d = detection_dict(p, scale, pipe, cfg)
+            # Flat baseline on the same CLIP features (arg-max leaf + reject option).
+            feat = pipe.clip.image_features(p.box.crop(s.image))
+            flat = flat_classify(feat, pipe.taxonomy, pipe.clip,
+                                 temperature=cfg.temperature, reject_threshold=0.5)
+            d["flat"] = {"leaf": flat.leaf.name, "prob": round(flat.prob, 2),
+                         "accepted": bool(flat.accepted)}
+            dets.append(d)
         scenes.append({
             "id": sid,
             "image": f"data/{sid}.jpg",
@@ -121,10 +169,17 @@ def main():
         "seg_marks": {"confirm": "✓", "neutral": "∼",
                       "flag": "⚠", "conflict": "✗", "off": ""},
         "seg_legend": [{"name": c.name, "color": _rgb(c.color)} for c in seg_classes],
+        "taxonomy": tax_tree(pipe.taxonomy.root),
         "scenes": scenes,
     }
-    (OUT / "scenes.json").write_text(json.dumps(data, indent=1))
-    print(f">>> wrote {OUT/'scenes.json'} with {len(scenes)} scenes", flush=True)
+    payload = json.dumps(data, indent=1)
+    (OUT / "scenes.json").write_text(payload)
+    # Also emit the data as a plain JS assignment so the viewer can load it via a
+    # <script> tag instead of fetch(). fetch() is blocked on file:// and is
+    # stricter in some browsers (Firefox); a <script> include works everywhere,
+    # including opening index.html by double-click.
+    (OUT / "scenes.js").write_text("window.DEMO_DATA=" + payload + ";\n")
+    print(f">>> wrote scenes.json + scenes.js with {len(scenes)} scenes", flush=True)
 
 
 if __name__ == "__main__":
