@@ -47,6 +47,20 @@ Per-frame YOLO+CLIP(+CLIPSeg) is heavy. Two knobs keep it fluid:
 On Apple Silicon (MPS), segmentation-off runs at a handful of fps; with
 segmentation on it is a slideshow-paced demonstration, not real-time.
 
+## Specificity (why green is rare)
+
+The **specificity** selector maps to the abstraction operating point:
+
+- **Safe (paper)** — the calibrated default (`temperature=0.06`,
+  `commit_mass=0.40`). When leaf probability mass is split across similar
+  categories (Sedan / SUV / Bus …) it abstracts to the common ancestor
+  (orange "Vehicle") rather than guess, so a concrete green *identified*
+  leaf is deliberately rare on real footage. This is the paper's result.
+- **Balanced / Specific (demo)** — sharpen the softmax and lower the commit
+  bar so more objects descend to a leaf (green). This trades a little safety
+  for specificity and exists to *show* that trade-off live; it does not
+  change the pipeline defaults (the presets are passed as `/stream` args).
+
 ## Packaging for a GitHub Release (TODO)
 
 The intended distribution is a downloadable standalone build. Sketch:
