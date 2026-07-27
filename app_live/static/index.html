@@ -93,6 +93,13 @@
       <label class="inl"><input type="checkbox" id="ovlChk"> seg overlay</label>
       <label class="inl"><input type="checkbox" id="hierChk" checked> hierarchical</label>
       <label class="inl"><input type="checkbox" id="flatChk"> flat</label>
+      <span style="width:1px;height:18px;background:var(--line)"></span>
+      <label class="inl" title="Paper default abstracts to a coarse node when leaf mass is split (green is deliberately rare). Deeper settings sharpen the softmax and lower the commit bar to expose the specificity/safety trade-off.">specificity
+        <select id="spec">
+          <option value="0.06:0.40" selected>Safe (paper)</option>
+          <option value="0.03:0.30">Balanced</option>
+          <option value="0.02:0.30">Specific (demo)</option>
+        </select></label>
       <span style="margin-left:auto"></span>
       <label class="inl">own video: <input type="file" id="file" accept="video/*"></label>
     </div>
@@ -191,9 +198,11 @@ function start(){
   if(!loaded) return;
   stop();
   const stride=$("stride").value, seg=$("segChk").checked?1:0;
+  const [temp,cm]=$("spec").value.split(":");
   $("ph").style.display="none"; $("frame").style.display="block";
   $("startBtn").disabled=true; $("stopBtn").disabled=false;
-  es=new EventSource(`stream?stride=${stride}&segment=${seg}&seg_every=3`);
+  es=new EventSource(`stream?stride=${stride}&segment=${seg}&seg_every=3`
+                    +`&temperature=${temp}&commit_mass=${cm}`);
   es.onmessage=ev=>{ if(ev.data) onFrame(JSON.parse(ev.data)); };
   es.addEventListener("end",()=>{ stop(); });
   es.onerror=()=>{ stop(); };

@@ -10,12 +10,12 @@
       "license": "CC BY 3.0"
     },
     {
-      "id": "frederiksted-day",
-      "name": "Daytime town drive — cars & pedestrians (~440 MB)",
-      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Driver%20view%20taxi%20ride%20into%20Frederiksted%2C%20St.%20Croix%2C%20U.S.%20Virgin%20Islands%203-6-18.webm",
-      "ext": ".webm",
-      "credit": "John Edwards, Wikimedia Commons",
-      "license": "CC BY 3.0"
+      "id": "seattle-bus",
+      "name": "Downtown Seattle bus ride — cars, buses & pedestrians",
+      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Bus%20Ride%20Through%20Downtown%20Seattle%20%28Time-lapse%29.ogv",
+      "ext": ".ogv",
+      "credit": "Oran Viriyincy, Wikimedia Commons",
+      "license": "CC BY-SA 2.0"
     },
     {
       "id": "nairobi-rush",

@@ -36,7 +36,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 from hpercept.pipeline import get_pipeline                       # noqa: E402
-from hpercept.abstraction import flat_classify                   # noqa: E402
+from hpercept.abstraction import flat_classify, AbstractionConfig  # noqa: E402
 from hpercept.viz import COLORS, REJECTED_COLOR, segmentation_overlay  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
@@ -168,7 +168,8 @@ def _sse(payload: dict) -> str:
     return "data: " + json.dumps(payload) + "\n\n"
 
 
-def _stream_gen(stride: int, segment: bool, seg_every: int):
+def _stream_gen(stride: int, segment: bool, seg_every: int,
+                cfg: Optional[AbstractionConfig] = None):
     """Blocking generator (runs in a threadpool via StreamingResponse)."""
     video = STATE["video"]
     if not video:
@@ -194,7 +195,7 @@ def _stream_gen(stride: int, segment: bool, seg_every: int):
                                  interpolation=cv2.INTER_AREA)
             t0 = time.time()
             do_seg = segment and (i // max(1, stride)) % max(1, seg_every) == 0
-            scene = pipe.run(rgb, mode="clip", segment=do_seg)
+            scene = pipe.run(rgb, mode="clip", segment=do_seg, cfg=cfg)
 
             # Raw frame (boxes/labels are drawn client-side so they can be toggled).
             def _jpg(arr):
@@ -241,9 +242,20 @@ def _stream_gen(stride: int, segment: bool, seg_every: int):
 
 
 @app.get("/stream")
-def stream(stride: int = 3, segment: int = 1, seg_every: int = 3):
+def stream(stride: int = 3, segment: int = 1, seg_every: int = 3,
+           temperature: float = 0.0, commit_mass: float = 0.0):
+    # The paper's safety-first operating point (temperature=0.06, commit_mass=0.40)
+    # abstracts to a coarse node whenever leaf mass is split -- so on real footage
+    # a concrete leaf (green "identified") is deliberately rare. The dashboard can
+    # pass a sharper/deeper operating point to *show* the specificity/safety trade
+    # off live; when unset (<=0) we use the calibrated paper defaults untouched.
+    _d = AbstractionConfig()
+    cfg = AbstractionConfig(
+        temperature=temperature if temperature > 0 else _d.temperature,
+        commit_mass=commit_mass if commit_mass > 0 else _d.commit_mass,
+    )
     gen = _stream_gen(stride=max(1, stride), segment=bool(segment),
-                      seg_every=max(1, seg_every))
+                      seg_every=max(1, seg_every), cfg=cfg)
     return StreamingResponse(gen, media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache",
                                       "X-Accel-Buffering": "no"})
