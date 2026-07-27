@@ -71,6 +71,11 @@
   .taxtree{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;
            padding:6px 14px 14px;max-height:520px;overflow:auto}
   .tnode{display:flex;align-items:center;gap:8px;padding:1px 0}
+  /* nested tree with left guide lines so hierarchy levels read visually */
+  .tkids{margin-left:9px;padding-left:12px;border-left:1px solid #3d4657}
+  .tkids>.tbranch{position:relative}
+  .tkids>.tbranch::before{content:"";position:absolute;left:-12px;top:11px;
+    width:9px;height:1px;background:#3d4657}
   .tnode .tl{display:inline-block;padding:1px 7px;border-radius:5px;white-space:nowrap}
   .tnode.onpath .tl{background:#2c3e50;color:#fff}
   .tnode.reported .tl{background:var(--accent);color:#04121f;font-weight:700}
@@ -162,6 +167,8 @@
   + CLIPSeg); this page is fully static.
 </footer>
 
+<!-- Demo data as a plain JS global; works over http AND file:// (unlike fetch). -->
+<script src="data/scenes.js"></script>
 <script>
 const OUTCOME={identified:"--identified",abstracted:"--abstracted",unknown:"--unknown"};
 const SEGCOL={confirm:"--confirm",flag:"--flag",conflict:"--conflict",neutral:"--neutral",off:"--neutral"};
@@ -191,15 +198,16 @@ function init(data){
 }
 
 function renderTaxTree(root){
-  const rows=[];
-  (function walk(n,depth){
-    rows.push(`<div class="tnode" data-name="${n.name}">
-      <span class="tl" style="margin-left:${depth*14}px">${n.name}${n.floor?
-        ' <span class="tfloor" title="safety floor">◆</span>':''}</span>
-      <span class="tbar"><i></i></span><span class="tpct"></span></div>`);
-    (n.children||[]).forEach(c=>walk(c,depth+1));
-  })(root,0);
-  $("taxtree").innerHTML=rows.join("");
+  function node(n){
+    const kids=(n.children||[]).map(node).join("");
+    return `<div class="tbranch">
+      <div class="tnode" data-name="${n.name}">
+        <span class="tl">${n.name}${n.floor?
+          ' <span class="tfloor" title="safety floor">◆</span>':''}</span>
+        <span class="tbar"><i></i></span><span class="tpct"></span>
+      </div>${kids?`<div class="tkids">${kids}</div>`:""}</div>`;
+  }
+  $("taxtree").innerHTML=node(root);
 }
 function clearTax(){
   $("taxtree").querySelectorAll(".tnode").forEach(el=>{
@@ -363,11 +371,16 @@ $("toggleSeg").onclick=()=>{
 };
 window.addEventListener("resize",()=>scene&&draw());
 
-fetch("data/scenes.json").then(r=>r.json()).then(init).catch(e=>{
-  document.querySelector(".wrap").innerHTML=
-    '<div class="empty">Could not load <code>data/scenes.json</code>. '+
-    'Serve this folder over http (e.g. a static/PHP web space), not file://.</div>';
-});
+if(window.DEMO_DATA){
+  init(window.DEMO_DATA);
+}else{
+  // Fallback for setups without the scenes.js include.
+  fetch("data/scenes.json").then(r=>r.json()).then(init).catch(()=>{
+    document.querySelector(".wrap").innerHTML=
+      '<div class="empty">Could not load the demo data. Keep '+
+      '<code>data/scenes.js</code> next to <code>index.html</code>.</div>';
+  });
+}
 </script>
 </body>
 </html>

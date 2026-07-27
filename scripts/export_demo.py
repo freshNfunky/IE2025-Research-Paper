@@ -145,8 +145,14 @@ def main():
         "taxonomy": tax_tree(pipe.taxonomy.root),
         "scenes": scenes,
     }
-    (OUT / "scenes.json").write_text(json.dumps(data, indent=1))
-    print(f">>> wrote {OUT/'scenes.json'} with {len(scenes)} scenes", flush=True)
+    payload = json.dumps(data, indent=1)
+    (OUT / "scenes.json").write_text(payload)
+    # Also emit the data as a plain JS assignment so the viewer can load it via a
+    # <script> tag instead of fetch(). fetch() is blocked on file:// and is
+    # stricter in some browsers (Firefox); a <script> include works everywhere,
+    # including opening index.html by double-click.
+    (OUT / "scenes.js").write_text("window.DEMO_DATA=" + payload + ";\n")
+    print(f">>> wrote scenes.json + scenes.js with {len(scenes)} scenes", flush=True)
 
 
 if __name__ == "__main__":

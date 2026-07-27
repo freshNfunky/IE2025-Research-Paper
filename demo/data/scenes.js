@@ -1,0 +1,1844 @@
+window.DEMO_DATA={
+ "outcome_colors": {
+  "identified": "#2ecc71",
+  "abstracted": "#f39c12",
+  "unknown": "#e74c3c",
+  "rejected": "#7f8c8d"
+ },
+ "seg_marks": {
+  "confirm": "\u2713",
+  "neutral": "\u223c",
+  "flag": "\u26a0",
+  "conflict": "\u2717",
+  "off": ""
+ },
+ "seg_legend": [
+  {
+   "name": "road",
+   "color": "#804080"
+  },
+  {
+   "name": "sidewalk",
+   "color": "#f423e8"
+  },
+  {
+   "name": "building",
+   "color": "#464646"
+  },
+  {
+   "name": "vegetation",
+   "color": "#6b8e23"
+  },
+  {
+   "name": "terrain",
+   "color": "#98fb98"
+  },
+  {
+   "name": "sky",
+   "color": "#4682b4"
+  },
+  {
+   "name": "person",
+   "color": "#dc143c"
+  },
+  {
+   "name": "animal",
+   "color": "#ff8c00"
+  },
+  {
+   "name": "vehicle",
+   "color": "#00008e"
+  },
+  {
+   "name": "two_wheeler",
+   "color": "#770b20"
+  },
+  {
+   "name": "pole",
+   "color": "#999999"
+  },
+  {
+   "name": "traffic_sign",
+   "color": "#dcdc00"
+  }
+ ],
+ "taxonomy": {
+  "name": "Object",
+  "floor": false,
+  "children": [
+   {
+    "name": "Moving Object",
+    "floor": false,
+    "children": [
+     {
+      "name": "Living Being",
+      "floor": true,
+      "children": [
+       {
+        "name": "Person",
+        "floor": false,
+        "children": [
+         {
+          "name": "Pedestrian",
+          "floor": false,
+          "children": []
+         },
+         {
+          "name": "Rider",
+          "floor": false,
+          "children": []
+         }
+        ]
+       },
+       {
+        "name": "Animal",
+        "floor": false,
+        "children": [
+         {
+          "name": "Dog",
+          "floor": false,
+          "children": []
+         },
+         {
+          "name": "Cat",
+          "floor": false,
+          "children": []
+         },
+         {
+          "name": "Horse",
+          "floor": false,
+          "children": []
+         },
+         {
+          "name": "Large Livestock",
+          "floor": false,
+          "children": []
+         },
+         {
+          "name": "Bird",
+          "floor": false,
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "name": "Vehicle",
+      "floor": true,
+      "children": [
+       {
+        "name": "Two-Wheeler",
+        "floor": false,
+        "children": [
+         {
+          "name": "Bicycle",
+          "floor": false,
+          "children": []
+         },
+         {
+          "name": "Motorcycle",
+          "floor": false,
+          "children": []
+         }
+        ]
+       },
+       {
+        "name": "Road Vehicle",
+        "floor": false,
+        "children": [
+         {
+          "name": "Passenger Car",
+          "floor": false,
+          "children": [
+           {
+            "name": "Sedan",
+            "floor": false,
+            "children": []
+           },
+           {
+            "name": "SUV",
+            "floor": false,
+            "children": []
+           }
+          ]
+         },
+         {
+          "name": "Commercial Vehicle",
+          "floor": false,
+          "children": [
+           {
+            "name": "Transport Vehicle",
+            "floor": false,
+            "children": [
+             {
+              "name": "Truck",
+              "floor": false,
+              "children": [
+               {
+                "name": "Heavy Truck",
+                "floor": false,
+                "children": [
+                 {
+                  "name": "MAN Truck",
+                  "floor": false,
+                  "children": []
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "name": "Bus",
+              "floor": false,
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "name": "Rail Vehicle",
+        "floor": false,
+        "children": [
+         {
+          "name": "Train",
+          "floor": false,
+          "children": []
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Static Object",
+    "floor": true,
+    "children": [
+     {
+      "name": "Traffic Infrastructure",
+      "floor": false,
+      "children": [
+       {
+        "name": "Traffic Light",
+        "floor": false,
+        "children": []
+       },
+       {
+        "name": "Traffic Sign",
+        "floor": false,
+        "children": []
+       },
+       {
+        "name": "Traffic Cone",
+        "floor": false,
+        "children": []
+       }
+      ]
+     },
+     {
+      "name": "Roadside Object",
+      "floor": false,
+      "children": [
+       {
+        "name": "Bench",
+        "floor": false,
+        "children": []
+       },
+       {
+        "name": "Fire Hydrant",
+        "floor": false,
+        "children": []
+       },
+       {
+        "name": "Parking Meter",
+        "floor": false,
+        "children": []
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "id": "scene_00",
+   "image": "data/scene_00.jpg",
+   "seg": "data/scene_00_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      404,
+      141,
+      742,
+      494
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.42,
+     "importance": 1.0,
+     "yolo": "sheep",
+     "yolo_conf": 0.54,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.734,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.425,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.734,
+      "Living Being": 0.425,
+      "Person": 0.154,
+      "Pedestrian": 0.102,
+      "Rider": 0.053,
+      "Animal": 0.27,
+      "Dog": 0.06,
+      "Cat": 0.041,
+      "Horse": 0.059,
+      "Large Livestock": 0.063,
+      "Bird": 0.048,
+      "Vehicle": 0.309,
+      "Two-Wheeler": 0.098,
+      "Bicycle": 0.058,
+      "Motorcycle": 0.04,
+      "Road Vehicle": 0.184,
+      "Passenger Car": 0.108,
+      "Sedan": 0.056,
+      "SUV": 0.052,
+      "Commercial Vehicle": 0.075,
+      "Transport Vehicle": 0.075,
+      "Truck": 0.037,
+      "Heavy Truck": 0.037,
+      "MAN Truck": 0.037,
+      "Bus": 0.038,
+      "Rail Vehicle": 0.027,
+      "Train": 0.027,
+      "Static Object": 0.266,
+      "Traffic Infrastructure": 0.165,
+      "Traffic Light": 0.047,
+      "Traffic Sign": 0.068,
+      "Traffic Cone": 0.05,
+      "Roadside Object": 0.101,
+      "Bench": 0.034,
+      "Fire Hydrant": 0.028,
+      "Parking Meter": 0.039
+     },
+     "flat": {
+      "leaf": "Pedestrian",
+      "prob": 0.1,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_01",
+   "image": "data/scene_01.jpg",
+   "seg": "data/scene_01_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      402,
+      85,
+      692,
+      485
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.42,
+     "importance": 1.0,
+     "yolo": "giraffe",
+     "yolo_conf": 0.95,
+     "novel": true,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.744,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.419,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.744,
+      "Living Being": 0.419,
+      "Person": 0.136,
+      "Pedestrian": 0.101,
+      "Rider": 0.035,
+      "Animal": 0.283,
+      "Dog": 0.046,
+      "Cat": 0.04,
+      "Horse": 0.069,
+      "Large Livestock": 0.081,
+      "Bird": 0.047,
+      "Vehicle": 0.325,
+      "Two-Wheeler": 0.08,
+      "Bicycle": 0.05,
+      "Motorcycle": 0.03,
+      "Road Vehicle": 0.209,
+      "Passenger Car": 0.118,
+      "Sedan": 0.048,
+      "SUV": 0.069,
+      "Commercial Vehicle": 0.091,
+      "Transport Vehicle": 0.091,
+      "Truck": 0.04,
+      "Heavy Truck": 0.04,
+      "MAN Truck": 0.04,
+      "Bus": 0.051,
+      "Rail Vehicle": 0.037,
+      "Train": 0.037,
+      "Static Object": 0.256,
+      "Traffic Infrastructure": 0.145,
+      "Traffic Light": 0.041,
+      "Traffic Sign": 0.062,
+      "Traffic Cone": 0.043,
+      "Roadside Object": 0.11,
+      "Bench": 0.028,
+      "Fire Hydrant": 0.033,
+      "Parking Meter": 0.05
+     },
+     "flat": {
+      "leaf": "Pedestrian",
+      "prob": 0.1,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_02",
+   "image": "data/scene_02.jpg",
+   "seg": "data/scene_02_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      410,
+      39,
+      680,
+      468
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 1.0,
+     "yolo": "giraffe",
+     "yolo_conf": 0.95,
+     "novel": true,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.719,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.406,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.719,
+      "Living Being": 0.406,
+      "Person": 0.124,
+      "Pedestrian": 0.095,
+      "Rider": 0.03,
+      "Animal": 0.282,
+      "Dog": 0.053,
+      "Cat": 0.045,
+      "Horse": 0.066,
+      "Large Livestock": 0.066,
+      "Bird": 0.052,
+      "Vehicle": 0.312,
+      "Two-Wheeler": 0.08,
+      "Bicycle": 0.047,
+      "Motorcycle": 0.034,
+      "Road Vehicle": 0.191,
+      "Passenger Car": 0.098,
+      "Sedan": 0.044,
+      "SUV": 0.054,
+      "Commercial Vehicle": 0.093,
+      "Transport Vehicle": 0.093,
+      "Truck": 0.04,
+      "Heavy Truck": 0.04,
+      "MAN Truck": 0.04,
+      "Bus": 0.053,
+      "Rail Vehicle": 0.041,
+      "Train": 0.041,
+      "Static Object": 0.281,
+      "Traffic Infrastructure": 0.165,
+      "Traffic Light": 0.053,
+      "Traffic Sign": 0.068,
+      "Traffic Cone": 0.043,
+      "Roadside Object": 0.117,
+      "Bench": 0.029,
+      "Fire Hydrant": 0.037,
+      "Parking Meter": 0.05
+     },
+     "flat": {
+      "leaf": "Pedestrian",
+      "prob": 0.09,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      265,
+      292,
+      278,
+      316
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.67,
+     "importance": 0.05,
+     "yolo": "person",
+     "yolo_conf": 0.72,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: terrain)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.671,
+       "floor": false
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.671,
+      "Living Being": 0.368,
+      "Person": 0.103,
+      "Pedestrian": 0.047,
+      "Rider": 0.056,
+      "Animal": 0.265,
+      "Dog": 0.054,
+      "Cat": 0.044,
+      "Horse": 0.05,
+      "Large Livestock": 0.06,
+      "Bird": 0.056,
+      "Vehicle": 0.303,
+      "Two-Wheeler": 0.113,
+      "Bicycle": 0.06,
+      "Motorcycle": 0.053,
+      "Road Vehicle": 0.145,
+      "Passenger Car": 0.07,
+      "Sedan": 0.04,
+      "SUV": 0.029,
+      "Commercial Vehicle": 0.075,
+      "Transport Vehicle": 0.075,
+      "Truck": 0.034,
+      "Heavy Truck": 0.034,
+      "MAN Truck": 0.034,
+      "Bus": 0.041,
+      "Rail Vehicle": 0.045,
+      "Train": 0.045,
+      "Static Object": 0.329,
+      "Traffic Infrastructure": 0.149,
+      "Traffic Light": 0.051,
+      "Traffic Sign": 0.055,
+      "Traffic Cone": 0.042,
+      "Roadside Object": 0.18,
+      "Bench": 0.044,
+      "Fire Hydrant": 0.084,
+      "Parking Meter": 0.053
+     },
+     "flat": {
+      "leaf": "Fire Hydrant",
+      "prob": 0.08,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_03",
+   "image": "data/scene_03.jpg",
+   "seg": "data/scene_03_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      195,
+      118,
+      823,
+      451
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 1.0,
+     "yolo": "airplane",
+     "yolo_conf": 0.59,
+     "novel": true,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Vehicle (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.805,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.413,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.805,
+      "Living Being": 0.392,
+      "Person": 0.104,
+      "Pedestrian": 0.047,
+      "Rider": 0.057,
+      "Animal": 0.288,
+      "Dog": 0.047,
+      "Cat": 0.051,
+      "Horse": 0.053,
+      "Large Livestock": 0.066,
+      "Bird": 0.072,
+      "Vehicle": 0.413,
+      "Two-Wheeler": 0.115,
+      "Bicycle": 0.05,
+      "Motorcycle": 0.065,
+      "Road Vehicle": 0.256,
+      "Passenger Car": 0.153,
+      "Sedan": 0.077,
+      "SUV": 0.075,
+      "Commercial Vehicle": 0.103,
+      "Transport Vehicle": 0.103,
+      "Truck": 0.055,
+      "Heavy Truck": 0.055,
+      "MAN Truck": 0.055,
+      "Bus": 0.048,
+      "Rail Vehicle": 0.042,
+      "Train": 0.042,
+      "Static Object": 0.195,
+      "Traffic Infrastructure": 0.098,
+      "Traffic Light": 0.033,
+      "Traffic Sign": 0.036,
+      "Traffic Cone": 0.03,
+      "Roadside Object": 0.097,
+      "Bench": 0.028,
+      "Fire Hydrant": 0.028,
+      "Parking Meter": 0.041
+     },
+     "flat": {
+      "leaf": "Sedan",
+      "prob": 0.08,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      445,
+      200,
+      467,
+      222
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.66,
+     "importance": 0.07,
+     "yolo": "person",
+     "yolo_conf": 0.23,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: two_wheeler)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.656,
+       "floor": false
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.656,
+      "Living Being": 0.353,
+      "Person": 0.091,
+      "Pedestrian": 0.039,
+      "Rider": 0.052,
+      "Animal": 0.262,
+      "Dog": 0.05,
+      "Cat": 0.046,
+      "Horse": 0.048,
+      "Large Livestock": 0.059,
+      "Bird": 0.059,
+      "Vehicle": 0.302,
+      "Two-Wheeler": 0.097,
+      "Bicycle": 0.047,
+      "Motorcycle": 0.05,
+      "Road Vehicle": 0.163,
+      "Passenger Car": 0.08,
+      "Sedan": 0.044,
+      "SUV": 0.036,
+      "Commercial Vehicle": 0.084,
+      "Transport Vehicle": 0.084,
+      "Truck": 0.044,
+      "Heavy Truck": 0.044,
+      "MAN Truck": 0.044,
+      "Bus": 0.04,
+      "Rail Vehicle": 0.042,
+      "Train": 0.042,
+      "Static Object": 0.344,
+      "Traffic Infrastructure": 0.169,
+      "Traffic Light": 0.054,
+      "Traffic Sign": 0.048,
+      "Traffic Cone": 0.066,
+      "Roadside Object": 0.175,
+      "Bench": 0.044,
+      "Fire Hydrant": 0.077,
+      "Parking Meter": 0.055
+     },
+     "flat": {
+      "leaf": "Fire Hydrant",
+      "prob": 0.08,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_04",
+   "image": "data/scene_04.jpg",
+   "seg": "data/scene_04_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      161,
+      41,
+      840,
+      480
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 1.0,
+     "yolo": "truck",
+     "yolo_conf": 0.72,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Vehicle (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.786,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.442,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.786,
+      "Living Being": 0.345,
+      "Person": 0.074,
+      "Pedestrian": 0.037,
+      "Rider": 0.037,
+      "Animal": 0.27,
+      "Dog": 0.037,
+      "Cat": 0.029,
+      "Horse": 0.077,
+      "Large Livestock": 0.102,
+      "Bird": 0.026,
+      "Vehicle": 0.442,
+      "Two-Wheeler": 0.079,
+      "Bicycle": 0.037,
+      "Motorcycle": 0.042,
+      "Road Vehicle": 0.314,
+      "Passenger Car": 0.122,
+      "Sedan": 0.068,
+      "SUV": 0.054,
+      "Commercial Vehicle": 0.192,
+      "Transport Vehicle": 0.192,
+      "Truck": 0.09,
+      "Heavy Truck": 0.09,
+      "MAN Truck": 0.09,
+      "Bus": 0.102,
+      "Rail Vehicle": 0.049,
+      "Train": 0.049,
+      "Static Object": 0.213,
+      "Traffic Infrastructure": 0.13,
+      "Traffic Light": 0.038,
+      "Traffic Sign": 0.039,
+      "Traffic Cone": 0.052,
+      "Roadside Object": 0.084,
+      "Bench": 0.021,
+      "Fire Hydrant": 0.03,
+      "Parking Meter": 0.032
+     },
+     "flat": {
+      "leaf": "Bus",
+      "prob": 0.1,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      170,
+      217,
+      204,
+      236
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.7,
+     "importance": 0.08,
+     "yolo": "car",
+     "yolo_conf": 0.34,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: building)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.702,
+       "floor": false
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.702,
+      "Living Being": 0.306,
+      "Person": 0.107,
+      "Pedestrian": 0.05,
+      "Rider": 0.057,
+      "Animal": 0.199,
+      "Dog": 0.042,
+      "Cat": 0.035,
+      "Horse": 0.036,
+      "Large Livestock": 0.048,
+      "Bird": 0.037,
+      "Vehicle": 0.396,
+      "Two-Wheeler": 0.087,
+      "Bicycle": 0.041,
+      "Motorcycle": 0.045,
+      "Road Vehicle": 0.272,
+      "Passenger Car": 0.175,
+      "Sedan": 0.095,
+      "SUV": 0.079,
+      "Commercial Vehicle": 0.097,
+      "Transport Vehicle": 0.097,
+      "Truck": 0.054,
+      "Heavy Truck": 0.054,
+      "MAN Truck": 0.054,
+      "Bus": 0.043,
+      "Rail Vehicle": 0.038,
+      "Train": 0.038,
+      "Static Object": 0.298,
+      "Traffic Infrastructure": 0.178,
+      "Traffic Light": 0.049,
+      "Traffic Sign": 0.062,
+      "Traffic Cone": 0.067,
+      "Roadside Object": 0.12,
+      "Bench": 0.031,
+      "Fire Hydrant": 0.04,
+      "Parking Meter": 0.049
+     },
+     "flat": {
+      "leaf": "Sedan",
+      "prob": 0.1,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      7,
+      214,
+      44,
+      242
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 0.09,
+     "yolo": "car",
+     "yolo_conf": 0.33,
+     "novel": false,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0022<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.715,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.413,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.715,
+      "Living Being": 0.302,
+      "Person": 0.1,
+      "Pedestrian": 0.051,
+      "Rider": 0.049,
+      "Animal": 0.202,
+      "Dog": 0.043,
+      "Cat": 0.035,
+      "Horse": 0.04,
+      "Large Livestock": 0.046,
+      "Bird": 0.038,
+      "Vehicle": 0.413,
+      "Two-Wheeler": 0.084,
+      "Bicycle": 0.041,
+      "Motorcycle": 0.043,
+      "Road Vehicle": 0.29,
+      "Passenger Car": 0.151,
+      "Sedan": 0.078,
+      "SUV": 0.073,
+      "Commercial Vehicle": 0.139,
+      "Transport Vehicle": 0.139,
+      "Truck": 0.083,
+      "Heavy Truck": 0.083,
+      "MAN Truck": 0.083,
+      "Bus": 0.056,
+      "Rail Vehicle": 0.038,
+      "Train": 0.038,
+      "Static Object": 0.285,
+      "Traffic Infrastructure": 0.148,
+      "Traffic Light": 0.042,
+      "Traffic Sign": 0.056,
+      "Traffic Cone": 0.05,
+      "Roadside Object": 0.137,
+      "Bench": 0.04,
+      "Fire Hydrant": 0.038,
+      "Parking Meter": 0.059
+     },
+     "flat": {
+      "leaf": "MAN Truck",
+      "prob": 0.08,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      0,
+      191,
+      41,
+      242
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 0.14,
+     "yolo": "truck",
+     "yolo_conf": 0.31,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.726,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.412,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.726,
+      "Living Being": 0.313,
+      "Person": 0.095,
+      "Pedestrian": 0.045,
+      "Rider": 0.049,
+      "Animal": 0.219,
+      "Dog": 0.042,
+      "Cat": 0.045,
+      "Horse": 0.044,
+      "Large Livestock": 0.045,
+      "Bird": 0.043,
+      "Vehicle": 0.412,
+      "Two-Wheeler": 0.09,
+      "Bicycle": 0.04,
+      "Motorcycle": 0.05,
+      "Road Vehicle": 0.272,
+      "Passenger Car": 0.122,
+      "Sedan": 0.058,
+      "SUV": 0.064,
+      "Commercial Vehicle": 0.15,
+      "Transport Vehicle": 0.15,
+      "Truck": 0.084,
+      "Heavy Truck": 0.084,
+      "MAN Truck": 0.084,
+      "Bus": 0.066,
+      "Rail Vehicle": 0.05,
+      "Train": 0.05,
+      "Static Object": 0.274,
+      "Traffic Infrastructure": 0.159,
+      "Traffic Light": 0.047,
+      "Traffic Sign": 0.053,
+      "Traffic Cone": 0.059,
+      "Roadside Object": 0.115,
+      "Bench": 0.039,
+      "Fire Hydrant": 0.026,
+      "Parking Meter": 0.05
+     },
+     "flat": {
+      "leaf": "MAN Truck",
+      "prob": 0.08,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      133,
+      216,
+      182,
+      238
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.43,
+     "importance": 0.1,
+     "yolo": "car",
+     "yolo_conf": 0.31,
+     "novel": false,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0024<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.694,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.432,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.694,
+      "Living Being": 0.262,
+      "Person": 0.094,
+      "Pedestrian": 0.048,
+      "Rider": 0.046,
+      "Animal": 0.168,
+      "Dog": 0.035,
+      "Cat": 0.03,
+      "Horse": 0.032,
+      "Large Livestock": 0.039,
+      "Bird": 0.031,
+      "Vehicle": 0.432,
+      "Two-Wheeler": 0.09,
+      "Bicycle": 0.042,
+      "Motorcycle": 0.049,
+      "Road Vehicle": 0.29,
+      "Passenger Car": 0.157,
+      "Sedan": 0.086,
+      "SUV": 0.071,
+      "Commercial Vehicle": 0.134,
+      "Transport Vehicle": 0.134,
+      "Truck": 0.063,
+      "Heavy Truck": 0.063,
+      "MAN Truck": 0.063,
+      "Bus": 0.071,
+      "Rail Vehicle": 0.051,
+      "Train": 0.051,
+      "Static Object": 0.306,
+      "Traffic Infrastructure": 0.185,
+      "Traffic Light": 0.066,
+      "Traffic Sign": 0.058,
+      "Traffic Cone": 0.061,
+      "Roadside Object": 0.121,
+      "Bench": 0.034,
+      "Fire Hydrant": 0.034,
+      "Parking Meter": 0.053
+     },
+     "flat": {
+      "leaf": "Sedan",
+      "prob": 0.09,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_05",
+   "image": "data/scene_05.jpg",
+   "seg": "data/scene_05_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      642,
+      253,
+      668,
+      288
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.41,
+     "importance": 0.09,
+     "yolo": "car",
+     "yolo_conf": 0.57,
+     "novel": false,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0020<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.7,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.408,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.7,
+      "Living Being": 0.292,
+      "Person": 0.091,
+      "Pedestrian": 0.052,
+      "Rider": 0.039,
+      "Animal": 0.201,
+      "Dog": 0.035,
+      "Cat": 0.042,
+      "Horse": 0.037,
+      "Large Livestock": 0.05,
+      "Bird": 0.038,
+      "Vehicle": 0.408,
+      "Two-Wheeler": 0.084,
+      "Bicycle": 0.04,
+      "Motorcycle": 0.044,
+      "Road Vehicle": 0.278,
+      "Passenger Car": 0.147,
+      "Sedan": 0.083,
+      "SUV": 0.065,
+      "Commercial Vehicle": 0.131,
+      "Transport Vehicle": 0.131,
+      "Truck": 0.07,
+      "Heavy Truck": 0.07,
+      "MAN Truck": 0.07,
+      "Bus": 0.061,
+      "Rail Vehicle": 0.046,
+      "Train": 0.046,
+      "Static Object": 0.3,
+      "Traffic Infrastructure": 0.14,
+      "Traffic Light": 0.042,
+      "Traffic Sign": 0.054,
+      "Traffic Cone": 0.044,
+      "Roadside Object": 0.16,
+      "Bench": 0.035,
+      "Fire Hydrant": 0.037,
+      "Parking Meter": 0.088
+     },
+     "flat": {
+      "leaf": "Parking Meter",
+      "prob": 0.09,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      574,
+      256,
+      632,
+      285
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 0.12,
+     "yolo": "car",
+     "yolo_conf": 0.44,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.715,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.441,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.715,
+      "Living Being": 0.274,
+      "Person": 0.086,
+      "Pedestrian": 0.051,
+      "Rider": 0.035,
+      "Animal": 0.188,
+      "Dog": 0.04,
+      "Cat": 0.035,
+      "Horse": 0.03,
+      "Large Livestock": 0.045,
+      "Bird": 0.037,
+      "Vehicle": 0.441,
+      "Two-Wheeler": 0.075,
+      "Bicycle": 0.037,
+      "Motorcycle": 0.038,
+      "Road Vehicle": 0.33,
+      "Passenger Car": 0.212,
+      "Sedan": 0.124,
+      "SUV": 0.087,
+      "Commercial Vehicle": 0.119,
+      "Transport Vehicle": 0.119,
+      "Truck": 0.067,
+      "Heavy Truck": 0.067,
+      "MAN Truck": 0.067,
+      "Bus": 0.052,
+      "Rail Vehicle": 0.035,
+      "Train": 0.035,
+      "Static Object": 0.285,
+      "Traffic Infrastructure": 0.152,
+      "Traffic Light": 0.041,
+      "Traffic Sign": 0.06,
+      "Traffic Cone": 0.051,
+      "Roadside Object": 0.134,
+      "Bench": 0.032,
+      "Fire Hydrant": 0.038,
+      "Parking Meter": 0.064
+     },
+     "flat": {
+      "leaf": "Sedan",
+      "prob": 0.12,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      432,
+      257,
+      458,
+      274
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.66,
+     "importance": 0.06,
+     "yolo": "car",
+     "yolo_conf": 0.31,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: road)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.657,
+       "floor": false
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.657,
+      "Living Being": 0.306,
+      "Person": 0.09,
+      "Pedestrian": 0.046,
+      "Rider": 0.044,
+      "Animal": 0.217,
+      "Dog": 0.046,
+      "Cat": 0.039,
+      "Horse": 0.04,
+      "Large Livestock": 0.052,
+      "Bird": 0.039,
+      "Vehicle": 0.351,
+      "Two-Wheeler": 0.093,
+      "Bicycle": 0.048,
+      "Motorcycle": 0.045,
+      "Road Vehicle": 0.205,
+      "Passenger Car": 0.094,
+      "Sedan": 0.053,
+      "SUV": 0.041,
+      "Commercial Vehicle": 0.111,
+      "Transport Vehicle": 0.111,
+      "Truck": 0.058,
+      "Heavy Truck": 0.058,
+      "MAN Truck": 0.058,
+      "Bus": 0.054,
+      "Rail Vehicle": 0.052,
+      "Train": 0.052,
+      "Static Object": 0.343,
+      "Traffic Infrastructure": 0.168,
+      "Traffic Light": 0.055,
+      "Traffic Sign": 0.06,
+      "Traffic Cone": 0.053,
+      "Roadside Object": 0.175,
+      "Bench": 0.052,
+      "Fire Hydrant": 0.057,
+      "Parking Meter": 0.066
+     },
+     "flat": {
+      "leaf": "Parking Meter",
+      "prob": 0.07,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      471,
+      257,
+      499,
+      277
+     ],
+     "label": "UNKNOWN OBSTACLE (~Moving Object)",
+     "outcome": "unknown",
+     "confidence": 0.65,
+     "importance": 0.07,
+     "yolo": "car",
+     "yolo_conf": 0.29,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "neutral",
+     "seg_note": "unverifiable (dominant context: road)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.646,
+       "floor": false
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.646,
+      "Living Being": 0.314,
+      "Person": 0.099,
+      "Pedestrian": 0.055,
+      "Rider": 0.044,
+      "Animal": 0.215,
+      "Dog": 0.045,
+      "Cat": 0.042,
+      "Horse": 0.04,
+      "Large Livestock": 0.048,
+      "Bird": 0.041,
+      "Vehicle": 0.332,
+      "Two-Wheeler": 0.103,
+      "Bicycle": 0.057,
+      "Motorcycle": 0.047,
+      "Road Vehicle": 0.184,
+      "Passenger Car": 0.083,
+      "Sedan": 0.045,
+      "SUV": 0.038,
+      "Commercial Vehicle": 0.101,
+      "Transport Vehicle": 0.101,
+      "Truck": 0.055,
+      "Heavy Truck": 0.055,
+      "MAN Truck": 0.055,
+      "Bus": 0.047,
+      "Rail Vehicle": 0.044,
+      "Train": 0.044,
+      "Static Object": 0.354,
+      "Traffic Infrastructure": 0.19,
+      "Traffic Light": 0.072,
+      "Traffic Sign": 0.056,
+      "Traffic Cone": 0.061,
+      "Roadside Object": 0.164,
+      "Bench": 0.044,
+      "Fire Hydrant": 0.058,
+      "Parking Meter": 0.062
+     },
+     "flat": {
+      "leaf": "Traffic Light",
+      "prob": 0.07,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      574,
+      257,
+      603,
+      285
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.43,
+     "importance": 0.09,
+     "yolo": "car",
+     "yolo_conf": 0.28,
+     "novel": false,
+     "rejected": true,
+     "constraints": "too small for Vehicle (0.0018<0.003)",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Static Object' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.731,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.431,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.731,
+      "Living Being": 0.3,
+      "Person": 0.099,
+      "Pedestrian": 0.062,
+      "Rider": 0.037,
+      "Animal": 0.201,
+      "Dog": 0.044,
+      "Cat": 0.039,
+      "Horse": 0.034,
+      "Large Livestock": 0.048,
+      "Bird": 0.036,
+      "Vehicle": 0.431,
+      "Two-Wheeler": 0.079,
+      "Bicycle": 0.039,
+      "Motorcycle": 0.04,
+      "Road Vehicle": 0.318,
+      "Passenger Car": 0.212,
+      "Sedan": 0.127,
+      "SUV": 0.085,
+      "Commercial Vehicle": 0.106,
+      "Transport Vehicle": 0.106,
+      "Truck": 0.057,
+      "Heavy Truck": 0.057,
+      "MAN Truck": 0.057,
+      "Bus": 0.049,
+      "Rail Vehicle": 0.035,
+      "Train": 0.035,
+      "Static Object": 0.269,
+      "Traffic Infrastructure": 0.147,
+      "Traffic Light": 0.043,
+      "Traffic Sign": 0.059,
+      "Traffic Cone": 0.045,
+      "Roadside Object": 0.122,
+      "Bench": 0.031,
+      "Fire Hydrant": 0.035,
+      "Parking Meter": 0.055
+     },
+     "flat": {
+      "leaf": "Sedan",
+      "prob": 0.13,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_06",
+   "image": "data/scene_06.jpg",
+   "seg": "data/scene_06_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      68,
+      273,
+      409,
+      427
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.47,
+     "importance": 0.68,
+     "yolo": "dog",
+     "yolo_conf": 0.65,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.757,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.465,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.757,
+      "Living Being": 0.465,
+      "Person": 0.09,
+      "Pedestrian": 0.053,
+      "Rider": 0.037,
+      "Animal": 0.375,
+      "Dog": 0.105,
+      "Cat": 0.086,
+      "Horse": 0.063,
+      "Large Livestock": 0.055,
+      "Bird": 0.066,
+      "Vehicle": 0.292,
+      "Two-Wheeler": 0.082,
+      "Bicycle": 0.04,
+      "Motorcycle": 0.042,
+      "Road Vehicle": 0.173,
+      "Passenger Car": 0.091,
+      "Sedan": 0.036,
+      "SUV": 0.056,
+      "Commercial Vehicle": 0.081,
+      "Transport Vehicle": 0.081,
+      "Truck": 0.04,
+      "Heavy Truck": 0.04,
+      "MAN Truck": 0.04,
+      "Bus": 0.042,
+      "Rail Vehicle": 0.037,
+      "Train": 0.037,
+      "Static Object": 0.243,
+      "Traffic Infrastructure": 0.137,
+      "Traffic Light": 0.043,
+      "Traffic Sign": 0.054,
+      "Traffic Cone": 0.04,
+      "Roadside Object": 0.106,
+      "Bench": 0.038,
+      "Fire Hydrant": 0.032,
+      "Parking Meter": 0.036
+     },
+     "flat": {
+      "leaf": "Dog",
+      "prob": 0.11,
+      "accepted": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "scene_07",
+   "image": "data/scene_07.jpg",
+   "seg": "data/scene_07_seg.jpg",
+   "width": 900,
+   "height": 506,
+   "caption": "0",
+   "detections": [
+    {
+     "box": [
+      129,
+      157,
+      690,
+      468
+     ],
+     "label": "Vehicle",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 1.0,
+     "yolo": "truck",
+     "yolo_conf": 0.66,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "flag",
+     "seg_note": "paths disagree: box says Vehicle, segmentation says 'Living Being' (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.822,
+       "floor": false
+      },
+      {
+       "name": "Vehicle",
+       "mass": 0.438,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.822,
+      "Living Being": 0.385,
+      "Person": 0.093,
+      "Pedestrian": 0.053,
+      "Rider": 0.039,
+      "Animal": 0.292,
+      "Dog": 0.054,
+      "Cat": 0.059,
+      "Horse": 0.064,
+      "Large Livestock": 0.073,
+      "Bird": 0.042,
+      "Vehicle": 0.438,
+      "Two-Wheeler": 0.076,
+      "Bicycle": 0.03,
+      "Motorcycle": 0.047,
+      "Road Vehicle": 0.296,
+      "Passenger Car": 0.154,
+      "Sedan": 0.085,
+      "SUV": 0.069,
+      "Commercial Vehicle": 0.143,
+      "Transport Vehicle": 0.143,
+      "Truck": 0.074,
+      "Heavy Truck": 0.074,
+      "MAN Truck": 0.074,
+      "Bus": 0.069,
+      "Rail Vehicle": 0.065,
+      "Train": 0.065,
+      "Static Object": 0.178,
+      "Traffic Infrastructure": 0.094,
+      "Traffic Light": 0.033,
+      "Traffic Sign": 0.036,
+      "Traffic Cone": 0.025,
+      "Roadside Object": 0.084,
+      "Bench": 0.026,
+      "Fire Hydrant": 0.026,
+      "Parking Meter": 0.032
+     },
+     "flat": {
+      "leaf": "Sedan",
+      "prob": 0.08,
+      "accepted": false
+     }
+    },
+    {
+     "box": [
+      692,
+      321,
+      738,
+      464
+     ],
+     "label": "Living Being",
+     "outcome": "abstracted",
+     "confidence": 0.44,
+     "importance": 0.24,
+     "yolo": "person",
+     "yolo_conf": 0.61,
+     "novel": false,
+     "rejected": false,
+     "constraints": "OK",
+     "seg_status": "confirm",
+     "seg_note": "segmentation supports Living Being (100% of object pixels)",
+     "path": [
+      {
+       "name": "Object",
+       "mass": 1.0,
+       "floor": false
+      },
+      {
+       "name": "Moving Object",
+       "mass": 0.736,
+       "floor": false
+      },
+      {
+       "name": "Living Being",
+       "mass": 0.444,
+       "floor": true
+      }
+     ],
+     "node_mass": {
+      "Object": 1.0,
+      "Moving Object": 0.736,
+      "Living Being": 0.444,
+      "Person": 0.128,
+      "Pedestrian": 0.072,
+      "Rider": 0.055,
+      "Animal": 0.316,
+      "Dog": 0.061,
+      "Cat": 0.056,
+      "Horse": 0.053,
+      "Large Livestock": 0.086,
+      "Bird": 0.06,
+      "Vehicle": 0.292,
+      "Two-Wheeler": 0.076,
+      "Bicycle": 0.038,
+      "Motorcycle": 0.038,
+      "Road Vehicle": 0.181,
+      "Passenger Car": 0.083,
+      "Sedan": 0.037,
+      "SUV": 0.046,
+      "Commercial Vehicle": 0.098,
+      "Transport Vehicle": 0.098,
+      "Truck": 0.059,
+      "Heavy Truck": 0.059,
+      "MAN Truck": 0.059,
+      "Bus": 0.038,
+      "Rail Vehicle": 0.036,
+      "Train": 0.036,
+      "Static Object": 0.264,
+      "Traffic Infrastructure": 0.134,
+      "Traffic Light": 0.042,
+      "Traffic Sign": 0.045,
+      "Traffic Cone": 0.048,
+      "Roadside Object": 0.13,
+      "Bench": 0.044,
+      "Fire Hydrant": 0.036,
+      "Parking Meter": 0.05
+     },
+     "flat": {
+      "leaf": "Large Livestock",
+      "prob": 0.09,
+      "accepted": false
+     }
+    }
+   ]
+  }
+ ]
+};
