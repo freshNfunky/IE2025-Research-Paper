@@ -95,6 +95,8 @@ def meta():
         "outcome_colors": OUTCOME_HEX,
         "seg_marks": {"confirm": "✓", "neutral": "~", "flag": "⚠",
                       "conflict": "✗", "off": ""},
+        "seg_legend": [{"name": c.name, "color": _hex(c.color)}
+                       for c in pipe.segmenter.classes],
         "taxonomy": taxonomy_tree(pipe.taxonomy.root),
     })
 
@@ -126,8 +128,13 @@ def _fetch_demo(demo_id: str) -> Optional[str]:
     dst = UPLOADS / f"demo_{demo_id}{d.get('ext', '.mp4')}"
     if not dst.exists():
         req = urllib.request.Request(d["url"], headers={"User-Agent": "hpercept-demo"})
-        with urllib.request.urlopen(req, timeout=60) as r, open(dst, "wb") as f:
-            f.write(r.read())
+        with urllib.request.urlopen(req, timeout=300) as r, open(dst, "wb") as f:
+            # stream to disk in chunks (clips can be a few hundred MB)
+            while True:
+                chunk = r.read(1 << 20)
+                if not chunk:
+                    break
+                f.write(chunk)
     return str(dst)
 
 
