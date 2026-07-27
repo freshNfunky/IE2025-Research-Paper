@@ -63,6 +63,32 @@
   footer{max-width:1200px;margin:0 auto;padding:0 22px 30px;color:var(--muted);font-size:12px}
   a{color:var(--accent)}
   .empty{padding:26px;color:var(--muted);text-align:center}
+  /* second row: taxonomy tree + flat-vs-hierarchical */
+  .wrap2{max-width:1200px;margin:0 auto;padding:0 22px 30px;
+         display:grid;grid-template-columns:1fr 340px;gap:18px}
+  @media(max-width:860px){.wrap2{grid-template-columns:1fr}}
+  .cardpad{padding:12px 14px}
+  .taxtree{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;
+           padding:6px 14px 14px;max-height:520px;overflow:auto}
+  .tnode{display:flex;align-items:center;gap:8px;padding:1px 0}
+  .tnode .tl{display:inline-block;padding:1px 7px;border-radius:5px;white-space:nowrap}
+  .tnode.onpath .tl{background:#2c3e50;color:#fff}
+  .tnode.reported .tl{background:var(--accent);color:#04121f;font-weight:700}
+  .tnode .tfloor{color:var(--abstracted)}
+  .tnode .tbar{flex:1;height:7px;max-width:150px;background:var(--panel2);border-radius:4px;overflow:hidden;opacity:.0}
+  .tnode.hasmass .tbar{opacity:1}
+  .tnode .tbar>i{display:block;height:100%;background:var(--accent)}
+  .tnode .tpct{width:34px;text-align:right;color:var(--muted)}
+  .cmp{display:grid;grid-template-columns:1fr;gap:10px}
+  .cmpbox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel2)}
+  .cmpbox h3{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .cmpbox .big{font-size:16px;font-weight:700}
+  .badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;margin-top:6px}
+  .badge.bad{background:rgba(231,76,60,.18);color:#ff9385;border:1px solid rgba(231,76,60,.5)}
+  .badge.ok{background:rgba(46,204,113,.16);color:#7ee6a6;border:1px solid rgba(46,204,113,.5)}
+  .badge.warn{background:rgba(243,156,18,.16);color:#ffcc73;border:1px solid rgba(243,156,18,.5)}
+  .arrowpath{color:var(--muted);font-size:12px;margin-top:4px}
+  .arrowpath b{color:var(--fg)}
 </style>
 </head>
 <body>
@@ -114,6 +140,21 @@
   </div>
 </div>
 
+<div class="wrap2">
+  <div class="card">
+    <h2 class="cardpad" style="padding-bottom:0">Taxonomy — descent path
+      <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">
+        &nbsp;(◆ = safety floor · bar = probability mass)</span></h2>
+    <div class="taxtree" id="taxtree"></div>
+  </div>
+  <div class="side">
+    <div class="card">
+      <h2>Flat list vs. hierarchical</h2>
+      <div id="flatcmp"><div class="empty">Click a detection.</div></div>
+    </div>
+  </div>
+</div>
+
 <footer>
   Reference implementation of F. Schaller, “The Role of Semantic Models in
   Constraining Pattern Recognition,” Intelligent Environments 2025
@@ -145,7 +186,74 @@ function init(data){
     `<img src="${s.image}" data-i="${i}" title="${s.caption}">`).join("");
   $("gallery").querySelectorAll("img").forEach(im=>
     im.onclick=()=>selectScene(+im.dataset.i));
+  renderTaxTree(data.taxonomy);
   selectScene(0);
+}
+
+function renderTaxTree(root){
+  const rows=[];
+  (function walk(n,depth){
+    rows.push(`<div class="tnode" data-name="${n.name}">
+      <span class="tl" style="margin-left:${depth*14}px">${n.name}${n.floor?
+        ' <span class="tfloor" title="safety floor">◆</span>':''}</span>
+      <span class="tbar"><i></i></span><span class="tpct"></span></div>`);
+    (n.children||[]).forEach(c=>walk(c,depth+1));
+  })(root,0);
+  $("taxtree").innerHTML=rows.join("");
+}
+function clearTax(){
+  $("taxtree").querySelectorAll(".tnode").forEach(el=>{
+    el.classList.remove("onpath","reported","hasmass");
+    el.querySelector(".tbar>i").style.width="0";
+    el.querySelector(".tpct").textContent="";
+  });
+}
+function highlightTax(d){
+  clearTax();
+  const pathNames=new Set(d.path.map(n=>n.name));
+  const reported=d.path[d.path.length-1].name;
+  const mass=d.node_mass||{};
+  $("taxtree").querySelectorAll(".tnode").forEach(el=>{
+    const nm=el.dataset.name;
+    if(pathNames.has(nm)) el.classList.add("onpath");
+    if(nm===reported) el.classList.add("reported");
+    if(mass[nm]!==undefined){
+      const pct=Math.round(mass[nm]*100);
+      el.classList.add("hasmass");
+      el.querySelector(".tbar>i").style.width=pct+"%";
+      el.querySelector(".tpct").textContent=pct+"%";
+    }
+  });
+}
+function renderFlatCmp(d){
+  const f=d.flat;
+  let flatText, flatBadge;
+  if(!f.accepted){
+    flatText=`drops the object <span class="muted">(p=${f.prob.toFixed(2)} &lt; reject)</span>`;
+    flatBadge=`<span class="badge bad">missed obstacle</span>`;
+  }else{
+    flatText=`<span class="big">${f.leaf}</span> <span class="muted">(${f.prob.toFixed(2)})</span>`;
+    flatBadge=d.novel?`<span class="badge bad">confident wrong leaf</span>`
+                     :`<span class="badge ok">specific leaf</span>`;
+  }
+  const hierBadge=d.rejected?`<span class="badge warn">rejected by constraints</span>`
+      :(d.outcome==="abstracted"?`<span class="badge ok">safe abstraction</span>`
+      :(d.outcome==="unknown"?`<span class="badge warn">unknown obstacle (kept)</span>`
+      :`<span class="badge ok">identified</span>`));
+  $("flatcmp").innerHTML=`
+    <div class="cmp">
+      <div class="cmpbox"><h3>Flat class list</h3><div>${flatText}</div>${flatBadge}</div>
+      <div class="cmpbox"><h3>Hierarchical (ours)</h3>
+        <div class="big">${d.label}</div>
+        <div class="arrowpath">${d.path.map(n=>n.name).join(" › ")}</div>${hierBadge}</div>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:8px">
+      ${!d.flat.accepted
+        ? 'The flat classifier’s best leaf is below its reject threshold, so it <b>drops a real obstacle</b>; the hierarchy still reports it at a safe level.'
+        : (d.novel
+          ? 'YOLO class “'+d.yolo+'” has no taxonomy leaf → <b>novel</b>: a flat list must name a specific (wrong) leaf; the hierarchy abstracts to a safe level.'
+          : 'In-taxonomy object: both can categorize it; the hierarchy keeps specificity, bounded by a safety floor.')}
+    </div>`;
 }
 
 function selectScene(i){
@@ -163,6 +271,8 @@ function selectScene(i){
     pill("--rejected",`${c.rejected} rejected`);
   renderDetList();
   $("detail").innerHTML='<div class="empty">Click a detection.</div>';
+  $("flatcmp").innerHTML='<div class="empty">Click a detection.</div>';
+  clearTax();
   $("baseimg").onload=draw;
   if($("baseimg").complete) draw();
 }
@@ -224,13 +334,6 @@ function selectDet(i){
   sel=i; renderDetList(); draw();
   const d=scene.detections[i];
   const segc=cssv(SEGCOL[d.seg_status]||"--neutral");
-  const nodes=d.path.map(n=>{
-    const rep=n.name===d.path[d.path.length-1].name;
-    const pct=Math.round(n.mass*100);
-    return `<div class="node ${rep?'reported':''}">
-      <span class="nm">${n.name}${n.floor?' <span class="floor" title="safety floor">◆</span>':''}</span>
-      <span class="bar"><i style="width:${pct}%"></i></span>
-      <span class="pct">${pct}%</span></div>`;}).join("");
   $("detail").innerHTML=`
     <div class="kv">
       <span class="muted">Label</span><span><b>${d.label}</b></span>
@@ -241,9 +344,9 @@ function selectDet(i){
       <span class="muted">Segmentation</span><span class="verdict" style="color:${segc}">
         ${(DATA.seg_marks[d.seg_status]||"")} ${d.seg_status}</span>
     </div>
-    <div class="muted" style="font-size:12px;margin:-4px 0 8px">${d.seg_note||""}</div>
-    <h2 style="margin-top:6px">Taxonomy descent</h2>
-    <div class="tax">${nodes}</div>`;
+    <div class="muted" style="font-size:12px;margin:-2px 0 2px">${d.seg_note||""}</div>`;
+  highlightTax(d);
+  renderFlatCmp(d);
 }
 
 // toolbar
