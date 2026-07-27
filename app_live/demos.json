@@ -1,25 +1,25 @@
 {
-  "_note": "Public, freely-licensed warm-up clips (Wikimedia Commons). Downloaded on demand to _uploads/ and cached. URLs use Special:FilePath, which redirects to the media file. Frames are downscaled at inference time.",
+  "_note": "Public, freely-licensed warm-up clips (Wikimedia Commons). Downloaded on demand to _uploads/ and cached. URLs use Special:FilePath, which redirects to the media file. Frames are downscaled at inference time. Ordered best-first: Seattle performs best; Nairobi is the hardest stress test.",
   "demos": [
     {
-      "id": "night-highway",
-      "name": "Highway at night — clearest",
-      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cars%20driving%20at%20night.webm",
-      "ext": ".webm",
-      "credit": "“Editor”, Wikimedia Commons",
-      "license": "CC BY 3.0"
-    },
-    {
       "id": "seattle-bus",
-      "name": "Downtown Seattle bus ride — cars, buses & pedestrians",
+      "name": "Downtown Seattle bus ride — best demo (cars, buses & pedestrians)",
       "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Bus%20Ride%20Through%20Downtown%20Seattle%20%28Time-lapse%29.ogv",
       "ext": ".ogv",
       "credit": "Oran Viriyincy, Wikimedia Commons",
       "license": "CC BY-SA 2.0"
     },
     {
+      "id": "night-highway",
+      "name": "Highway at night — clear, sparse traffic",
+      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cars%20driving%20at%20night.webm",
+      "ext": ".webm",
+      "credit": "“Editor”, Wikimedia Commons",
+      "license": "CC BY 3.0"
+    },
+    {
       "id": "nairobi-rush",
-      "name": "Nairobi rush hour — dense-traffic stress test",
+      "name": "Nairobi rush hour — hardest stress test (dense traffic)",
       "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Rush%20hour%20in%20Nairobi.webm",
       "ext": ".webm",
       "credit": "New York-air, Wikimedia Commons",
