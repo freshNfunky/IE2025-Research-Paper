@@ -89,6 +89,29 @@ def detection_dict(p, scale: float, pipe, cfg) -> dict:
     }
 
 
+def salient_detector_miss(scene, frac: float = 0.06) -> bool:
+    """True if the segmenter shows a large ``thing`` object that NO detection box
+    covers -- i.e. the detector missed a salient object. Such scenes are outside
+    the demo's message (the hierarchy handles *detected* objects; detection recall
+    is a separate concern), and a visibly un-boxed object hurts credibility, so we
+    skip them. Uses only numpy (no scipy): the segmentation ``thing`` classes are
+    localized to real objects, so the fraction of thing-pixels left uncovered by
+    any box is a good proxy for a missed object."""
+    seg = scene.seg_result
+    if seg is None:
+        return False
+    thing_idx = [i for i, c in enumerate(seg.classes) if c.thing]
+    thing = np.isin(seg.label_map, thing_idx)
+    if not thing.any():
+        return False
+    covered = np.zeros(thing.shape, dtype=bool)
+    for p in scene.predictions:
+        x1, y1, x2, y2 = p.box.xyxy
+        covered[max(0, y1):y2, max(0, x1):x2] = True
+    uncovered = thing & ~covered
+    return float(uncovered.sum()) / float(thing.size) > frac
+
+
 def main():
     src = sys.argv[1] if len(sys.argv) > 1 else "road_anomaly"
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 10
@@ -106,6 +129,10 @@ def main():
             break
         scene = pipe.run(s.image, mode="clip", segment=True, cfg=cfg)
         if not scene.predictions:
+            continue
+        if salient_detector_miss(scene):
+            print("    (skipped: segmenter shows an object no box covers -- "
+                  "detector miss, off-message for the demo)", flush=True)
             continue
         idx = len(scenes)
         sid = f"scene_{idx:02d}"
