@@ -36,7 +36,8 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 from hpercept.pipeline import get_pipeline                       # noqa: E402
-from hpercept.viz import annotate, COLORS, REJECTED_COLOR        # noqa: E402
+from hpercept.abstraction import flat_classify                   # noqa: E402
+from hpercept.viz import COLORS, REJECTED_COLOR, segmentation_overlay  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 STATIC = HERE / "static"
@@ -71,6 +72,7 @@ def _detection(p, scale: float) -> dict:
                 round(x2 * scale), round(y2 * scale)],
         "label": c.label,
         "outcome": c.outcome.value,
+        "is_leaf": bool(c.node.is_leaf),
         "confidence": round(c.confidence, 2),
         "importance": round(p.importance, 2),
         "rejected": bool(p.rejected),
@@ -186,22 +188,44 @@ def _stream_gen(stride: int, segment: bool, seg_every: int):
             t0 = time.time()
             do_seg = segment and (i // max(1, stride)) % max(1, seg_every) == 0
             scene = pipe.run(rgb, mode="clip", segment=do_seg)
-            annotated = annotate(rgb, scene)
-            ok2, buf = cv2.imencode(".jpg", cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR),
+
+            # Raw frame (boxes/labels are drawn client-side so they can be toggled).
+            def _jpg(arr):
+                _, b = cv2.imencode(".jpg", cv2.cvtColor(arr, cv2.COLOR_RGB2BGR),
                                     [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-            b64 = base64.b64encode(buf).decode("ascii")
-            dets = [_detection(p, 1.0) for p in scene.predictions]
-            focus = max(scene.predictions, key=lambda p: p.importance, default=None)
+                return base64.b64encode(b).decode("ascii")
+
+            frame_b64 = _jpg(rgb)
+            seg_b64 = None
+            if do_seg and scene.seg_result is not None:
+                seg_b64 = _jpg(segmentation_overlay(rgb, scene.seg_result, alpha=0.55))
+
+            dets = []
+            for p in scene.predictions:
+                d = _detection(p, 1.0)
+                # Flat baseline on the same CLIP features (arg-max leaf + reject).
+                feat = pipe.clip.image_features(p.box.crop(rgb))
+                fl = flat_classify(feat, pipe.taxonomy, pipe.clip,
+                                   reject_threshold=0.5)
+                d["flat"] = {"leaf": fl.leaf.name, "prob": round(fl.prob, 2),
+                             "accepted": bool(fl.accepted)}
+                d["novel"] = pipe.taxonomy.by_coco(p.box.coco_name) is None
+                dets.append(d)
+
+            focus_idx = max(range(len(scene.predictions)),
+                            key=lambda k: scene.predictions[k].importance,
+                            default=-1) if scene.predictions else -1
             counts = scene.counts()
-            seg_counts = scene.seg_counts() if do_seg else {}
             dt = time.time() - t0
             yield _sse({
                 "frame_idx": i,
-                "frame": b64,
-                "w": annotated.shape[1], "h": annotated.shape[0],
+                "frame": frame_b64,
+                "seg_frame": seg_b64,
+                "w": rgb.shape[1], "h": rgb.shape[0],
                 "detections": dets,
-                "focus": _detection(focus, 1.0) if focus else None,
-                "kpis": {**counts, "seg": seg_counts, "seg_on": do_seg},
+                "focus_idx": focus_idx,
+                "kpis": {**counts, "seg": scene.seg_counts() if do_seg else {},
+                         "seg_on": do_seg},
                 "fps": round(1.0 / dt, 2) if dt > 0 else 0,
             })
     finally:

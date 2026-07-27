@@ -35,6 +35,7 @@
   .stage{position:relative;background:#000;border-radius:0 0 12px 12px;overflow:hidden;min-height:220px;
          display:flex;align-items:center;justify-content:center}
   .stage img{width:100%;height:auto;display:block}
+  #cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
   .stage .placeholder{color:var(--muted);padding:60px 20px;text-align:center}
   .statusline{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px;color:var(--muted);font-size:12px;
               border-top:1px solid var(--line)}
@@ -81,16 +82,21 @@
     <div class="toolbar">
       <button class="btn primary" id="startBtn" disabled>▶ Start</button>
       <button class="btn stop" id="stopBtn" disabled>■ Stop</button>
-      <label class="inl"><input type="checkbox" id="segChk" checked> segmentation</label>
+      <label class="inl"><input type="checkbox" id="segChk" checked> run seg</label>
       <label class="inl">every
         <select id="stride"><option>1</option><option>2</option><option selected>3</option>
         <option>5</option><option>10</option></select> frames</label>
+      <span style="width:1px;height:18px;background:var(--line)"></span>
+      <label class="inl"><input type="checkbox" id="ovlChk"> seg overlay</label>
+      <label class="inl"><input type="checkbox" id="hierChk" checked> hierarchical</label>
+      <label class="inl"><input type="checkbox" id="flatChk"> flat</label>
       <span style="margin-left:auto"></span>
       <label class="inl">own video: <input type="file" id="file" accept="video/*"></label>
     </div>
     <div class="stage" id="stage">
       <div class="placeholder" id="ph">Pick a warm-up clip below, or load your own video, then press Start.</div>
       <img id="frame" style="display:none" alt="frame">
+      <canvas id="cv"></canvas>
     </div>
     <div class="statusline">
       <span>source: <b id="src">—</b></span>
@@ -189,8 +195,15 @@ function stop(){
 }
 $("startBtn").onclick=start; $("stopBtn").onclick=stop;
 
+const OUTC={identified:"--identified",abstracted:"--abstracted",unknown:"--unknown"};
+// leaf -> green, higher branch -> orange, unknown/bottom -> red; rejected -> grey.
+function outColor(d){ return d.rejected ? cssv("--rejected") : (cssv(OUTC[d.outcome])||cssv("--neutral")); }
+let cur=null;
+
 function onFrame(d){
-  $("frame").src="data:image/jpeg;base64,"+d.frame;
+  cur=d;
+  const useSeg=$("ovlChk").checked && d.seg_frame;
+  $("frame").src="data:image/jpeg;base64,"+(useSeg?d.seg_frame:d.frame);
   $("fidx").textContent=d.frame_idx; $("fps").textContent=d.fps;
   const k=d.kpis;
   for(const key of ["identified","abstracted","unknown","rejected"])
@@ -199,11 +212,45 @@ function onFrame(d){
     const s=k.seg||{};
     $("segrow").innerHTML=["confirm","neutral","flag","conflict"].map(v=>
       `<span class="p"><span class="dot" style="background:${cssv(SEGCOL[v])}"></span>${s[v]||0} ${v}</span>`).join("");
-  } else $("segrow").innerHTML='<span class="muted">segmentation off</span>';
-  if(d.focus){ $("focus").innerHTML=`focus: <b>${d.focus.label}</b> `+
-      `<span class="muted">(${d.focus.outcome})</span>`; highlightTree(d.focus); }
+  } else $("segrow").innerHTML='<span class="muted">segmentation off (turn on “run seg”)</span>';
+  const f = d.focus_idx>=0 ? d.detections[d.focus_idx] : null;
+  if(f){ $("focus").innerHTML=`focus: <b style="color:${outColor(f)}">${f.label}</b> `+
+      `<span class="muted">(${f.outcome}${f.is_leaf?", leaf":""})</span>`; highlightTree(f); }
   else { $("focus").innerHTML='<span class="muted">no object in focus</span>'; clearTree(); }
 }
+
+// Draw boxes + labels on the canvas over the frame image. Labels are toggleable:
+// hierarchical (safe abstracted/leaf/unknown) and/or flat (arg-max leaf or drop).
+function draw(){
+  const img=$("frame"), cv=$("cv");
+  if(!cur || !img.clientWidth){ return; }
+  const W=img.clientWidth,H=img.clientHeight,dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const ctx=cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const sx=W/cur.w, sy=H/cur.h;
+  const showHier=$("hierChk").checked, showFlat=$("flatChk").checked;
+  const marks=(META&&META.seg_marks)||{};
+  ctx.font="12px system-ui,sans-serif";
+  cur.detections.forEach((d,i)=>{
+    const [x1,y1,x2,y2]=d.box, x=x1*sx,y=y1*sy,w=(x2-x1)*sx,h=(y2-y1)*sy;
+    const col=outColor(d), focus=i===cur.focus_idx;
+    ctx.setLineDash(d.rejected?[6,4]:[]); ctx.lineWidth=focus?3.5:2; ctx.strokeStyle=col;
+    ctx.strokeRect(x,y,w,h);
+    const lines=[];
+    if(showHier){ const m=marks[d.seg_status]||""; lines.push(
+      {t:(d.rejected?"⛔ ":"")+d.label+(m?" "+m:""), bg:col, fg:"#04121f"}); }
+    if(showFlat){ const fl=d.flat; lines.push(
+      {t:"flat: "+(fl.accepted?`${fl.leaf} ${fl.prob.toFixed(2)}`:"drop"),
+       bg:"#20242e", fg:"#cdd6e2"}); }
+    let ly=Math.max(0, y - lines.length*16);
+    for(const L of lines){ const tw=ctx.measureText(L.t).width+8;
+      ctx.globalAlpha=.9; ctx.fillStyle=L.bg; ctx.fillRect(x,ly,tw,15);
+      ctx.globalAlpha=1; ctx.fillStyle=L.fg; ctx.fillText(L.t,x+4,ly+11); ly+=16; }
+  });
+}
+$("frame").addEventListener("load", draw);
+window.addEventListener("resize", draw);
+["ovlChk","hierChk","flatChk"].forEach(id=>$(id).addEventListener("change",()=>{ if(cur) onFrame(cur); }));
 
 /* ---- taxonomy tree (shared with the static demo) ---- */
 function renderTree(root){
@@ -219,17 +266,19 @@ function renderTree(root){
 function clearTree(){
   $("taxtree").querySelectorAll(".tnode").forEach(el=>{
     el.classList.remove("onpath","reported","hasmass");
+    const tl=el.querySelector(".tl"); tl.style.background=""; tl.style.color="";
     el.querySelector(".tbar>i").style.width="0"; el.querySelector(".tpct").textContent="";
   });
 }
 function highlightTree(d){
   clearTree();
   const names=new Set(d.path.map(n=>n.name));
-  const reported=d.path[d.path.length-1].name, mass=d.node_mass||{};
+  const reported=d.path[d.path.length-1].name, mass=d.node_mass||{}, rc=outColor(d);
   $("taxtree").querySelectorAll(".tnode").forEach(el=>{
     const nm=el.dataset.name;
     if(names.has(nm)) el.classList.add("onpath");
-    if(nm===reported) el.classList.add("reported");
+    if(nm===reported){ el.classList.add("reported");
+      const tl=el.querySelector(".tl"); tl.style.background=rc; tl.style.color="#04121f"; }
     if(mass[nm]!==undefined){ const pct=Math.round(mass[nm]*100);
       el.classList.add("hasmass"); el.querySelector(".tbar>i").style.width=pct+"%";
       el.querySelector(".tpct").textContent=pct+"%"; }
