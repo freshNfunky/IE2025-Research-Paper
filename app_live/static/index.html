@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Hierarchical Perception</title>
+<style>
+  :root{
+    --bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--line:#2a2f3a;--fg:#e7ecf3;
+    --muted:#9aa4b2;--accent:#4aa3ff;
+    --identified:#2ecc71;--abstracted:#f39c12;--unknown:#e74c3c;--rejected:#7f8c8d;
+    --confirm:#2ecc71;--flag:#f39c12;--conflict:#e74c3c;--neutral:#95a5a6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:16px 20px 6px;max-width:1400px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 2px}
+  header p{color:var(--muted);margin:0;max-width:80ch;font-size:13px}
+  .dash{max-width:1400px;margin:0 auto;padding:12px 20px 30px;
+        display:grid;grid-template-columns:1fr 390px;gap:16px}
+  @media(max-width:900px){.dash{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+  .pad{padding:12px 14px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 10px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .btn{background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:8px;
+       padding:6px 11px;cursor:pointer;font-size:13px}
+  .btn:hover{border-color:var(--accent)} .btn:disabled{opacity:.5;cursor:default}
+  .btn.primary{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:600}
+  .btn.stop{background:#3a1e22;border-color:#7a3b42;color:#ffb4b4}
+  select,input[type=file]{background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+       border-radius:8px;padding:5px 8px;font-size:13px}
+  label.inl{font-size:12px;color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+  .stage{position:relative;background:#000;border-radius:0 0 12px 12px;overflow:hidden;min-height:220px;
+         display:flex;align-items:center;justify-content:center}
+  .stage img{width:100%;height:auto;display:block}
+  .stage .placeholder{color:var(--muted);padding:60px 20px;text-align:center}
+  .statusline{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px;color:var(--muted);font-size:12px;
+              border-top:1px solid var(--line)}
+  .statusline b{color:var(--fg)}
+  .demos{display:flex;flex-wrap:wrap;gap:8px}
+  .demo{flex:1 1 auto;text-align:left;min-width:150px}
+  .demo small{display:block;color:var(--muted);font-weight:400;margin-top:2px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center}
+  .kpi .n{font-size:20px;font-weight:700} .kpi .l{font-size:11px;color:var(--muted)}
+  .kpi.identified .n{color:var(--identified)} .kpi.abstracted .n{color:var(--abstracted)}
+  .kpi.unknown .n{color:var(--unknown)} .kpi.rejected .n{color:var(--rejected)}
+  .segrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px}
+  .segrow .p{display:inline-flex;gap:6px;align-items:center}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .focus{font-size:13px;margin:0 0 8px} .focus b{color:var(--accent)}
+  .taxtree{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;max-height:460px;overflow:auto;padding-top:2px}
+  .tnode{display:flex;align-items:center;gap:8px;padding:1px 0}
+  .tkids{margin-left:9px;padding-left:12px;border-left:1px solid #3d4657}
+  .tkids>.tbranch{position:relative}
+  .tkids>.tbranch::before{content:"";position:absolute;left:-12px;top:11px;width:9px;height:1px;background:#3d4657}
+  .tnode .tl{display:inline-block;padding:1px 7px;border-radius:5px;white-space:nowrap}
+  .tnode.onpath .tl{background:#2c3e50;color:#fff}
+  .tnode.reported .tl{background:var(--accent);color:#04121f;font-weight:700}
+  .tnode .tfloor{color:var(--abstracted)}
+  .tnode .tbar{flex:1;height:7px;max-width:130px;background:var(--panel2);border-radius:4px;overflow:hidden;opacity:0}
+  .tnode.hasmass .tbar{opacity:1} .tnode .tbar>i{display:block;height:100%;background:var(--accent)}
+  .tnode .tpct{width:34px;text-align:right;color:var(--muted)}
+  footer{max-width:1400px;margin:0 auto;padding:0 20px 26px;color:var(--muted);font-size:12px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Live Hierarchical Perception — video</h1>
+  <p>Run the two independent perception paths (YOLO+CLIP hierarchical abstraction +
+  CLIPSeg cross-validation) on video, frame by frame. Try a public warm-up clip,
+  or load your own footage. Left: the annotated video. Right: live KPIs and the
+  taxonomy descent of the most important object in frame.</p>
+</header>
+
+<div class="dash">
+  <div class="card">
+    <div class="toolbar">
+      <button class="btn primary" id="startBtn" disabled>▶ Start</button>
+      <button class="btn stop" id="stopBtn" disabled>■ Stop</button>
+      <label class="inl"><input type="checkbox" id="segChk" checked> segmentation</label>
+      <label class="inl">every
+        <select id="stride"><option>1</option><option>2</option><option selected>3</option>
+        <option>5</option><option>10</option></select> frames</label>
+      <span style="margin-left:auto"></span>
+      <label class="inl">own video: <input type="file" id="file" accept="video/*"></label>
+    </div>
+    <div class="stage" id="stage">
+      <div class="placeholder" id="ph">Pick a warm-up clip below, or load your own video, then press Start.</div>
+      <img id="frame" style="display:none" alt="frame">
+    </div>
+    <div class="statusline">
+      <span>source: <b id="src">—</b></span>
+      <span>frame <b id="fidx">0</b></span>
+      <span><b id="fps">0</b> fps</span>
+      <span id="lic" class="">&nbsp;</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="card pad">
+      <h2>Warm-up clips (public)</h2>
+      <div class="demos" id="demos"><span class="muted">loading…</span></div>
+    </div>
+    <div class="card pad" style="margin-top:14px">
+      <h2>Live KPIs</h2>
+      <div class="kpis">
+        <div class="kpi identified"><div class="n" id="k-identified">0</div><div class="l">identified</div></div>
+        <div class="kpi abstracted"><div class="n" id="k-abstracted">0</div><div class="l">abstracted</div></div>
+        <div class="kpi unknown"><div class="n" id="k-unknown">0</div><div class="l">unknown</div></div>
+        <div class="kpi rejected"><div class="n" id="k-rejected">0</div><div class="l">rejected</div></div>
+      </div>
+      <div class="segrow" id="segrow"></div>
+    </div>
+    <div class="card pad" style="margin-top:14px">
+      <h2>Taxonomy — descent path</h2>
+      <div class="focus" id="focus"><span class="muted">no object in focus</span></div>
+      <div class="taxtree" id="taxtree"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  F. Schaller, “Hierarchical Taxonomic Abstraction for the Safe Handling of Novel
+  Objects in Autonomous Driving Perception,” Zenodo, 2026,
+  <a href="https://doi.org/10.5281/zenodo.21593472">doi:10.5281/zenodo.21593472</a>.
+  Warm-up clips are public (Wikimedia Commons); credits shown per clip.
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SEGCOL={confirm:"--confirm",flag:"--flag",conflict:"--conflict",neutral:"--neutral"};
+let META=null, es=null, loaded=null;
+
+async function boot(){
+  META=await (await fetch("meta")).json();
+  renderTree(META.taxonomy);
+  const {demos}=await (await fetch("demos")).json();
+  $("demos").innerHTML = demos.map(d=>
+    `<button class="btn demo" data-id="${d.id}">${d.name}
+       <small>${d.license} · ${d.credit}${d.cached?" · cached":""}</small></button>`).join("");
+  $("demos").querySelectorAll("button").forEach(b=>
+    b.onclick=()=>loadDemo(b.dataset.id, b));
+}
+
+async function loadDemo(id, btn){
+  stop();
+  const demo=(await (await fetch("demos")).json()).demos.find(d=>d.id===id);
+  $("src").textContent=demo?demo.name:id;
+  $("lic").innerHTML=demo?`${demo.license} · ${demo.credit}`:"";
+  if(btn){ btn.disabled=true; const t=btn.innerHTML; btn.innerHTML="downloading…";
+           await post({demo:id}); btn.innerHTML=t; btn.disabled=false; }
+  else await post({demo:id});
+  loaded=id; $("startBtn").disabled=false; start();
+}
+
+$("file").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  stop(); $("src").textContent=f.name; $("lic").textContent="your video";
+  const fd=new FormData(); fd.append("file", f);
+  await fetch("load",{method:"POST",body:fd});
+  loaded="file"; $("startBtn").disabled=false; start();
+};
+
+async function post(obj){
+  const fd=new FormData();
+  for(const k in obj) fd.append(k, obj[k]);
+  return fetch("load",{method:"POST",body:fd});
+}
+
+function start(){
+  if(!loaded) return;
+  stop();
+  const stride=$("stride").value, seg=$("segChk").checked?1:0;
+  $("ph").style.display="none"; $("frame").style.display="block";
+  $("startBtn").disabled=true; $("stopBtn").disabled=false;
+  es=new EventSource(`stream?stride=${stride}&segment=${seg}&seg_every=3`);
+  es.onmessage=ev=>{ if(ev.data) onFrame(JSON.parse(ev.data)); };
+  es.addEventListener("end",()=>{ stop(); });
+  es.onerror=()=>{ stop(); };
+}
+function stop(){
+  if(es){ es.close(); es=null; }
+  $("startBtn").disabled=!loaded; $("stopBtn").disabled=true;
+}
+$("startBtn").onclick=start; $("stopBtn").onclick=stop;
+
+function onFrame(d){
+  $("frame").src="data:image/jpeg;base64,"+d.frame;
+  $("fidx").textContent=d.frame_idx; $("fps").textContent=d.fps;
+  const k=d.kpis;
+  for(const key of ["identified","abstracted","unknown","rejected"])
+    $("k-"+key).textContent=k[key]||0;
+  if(k.seg_on){
+    const s=k.seg||{};
+    $("segrow").innerHTML=["confirm","neutral","flag","conflict"].map(v=>
+      `<span class="p"><span class="dot" style="background:${cssv(SEGCOL[v])}"></span>${s[v]||0} ${v}</span>`).join("");
+  } else $("segrow").innerHTML='<span class="muted">segmentation off</span>';
+  if(d.focus){ $("focus").innerHTML=`focus: <b>${d.focus.label}</b> `+
+      `<span class="muted">(${d.focus.outcome})</span>`; highlightTree(d.focus); }
+  else { $("focus").innerHTML='<span class="muted">no object in focus</span>'; clearTree(); }
+}
+
+/* ---- taxonomy tree (shared with the static demo) ---- */
+function renderTree(root){
+  function node(n){
+    const kids=(n.children||[]).map(node).join("");
+    return `<div class="tbranch"><div class="tnode" data-name="${n.name}">
+      <span class="tl">${n.name}${n.floor?' <span class="tfloor" title="safety floor">◆</span>':''}</span>
+      <span class="tbar"><i></i></span><span class="tpct"></span></div>
+      ${kids?`<div class="tkids">${kids}</div>`:""}</div>`;
+  }
+  $("taxtree").innerHTML=node(root);
+}
+function clearTree(){
+  $("taxtree").querySelectorAll(".tnode").forEach(el=>{
+    el.classList.remove("onpath","reported","hasmass");
+    el.querySelector(".tbar>i").style.width="0"; el.querySelector(".tpct").textContent="";
+  });
+}
+function highlightTree(d){
+  clearTree();
+  const names=new Set(d.path.map(n=>n.name));
+  const reported=d.path[d.path.length-1].name, mass=d.node_mass||{};
+  $("taxtree").querySelectorAll(".tnode").forEach(el=>{
+    const nm=el.dataset.name;
+    if(names.has(nm)) el.classList.add("onpath");
+    if(nm===reported) el.classList.add("reported");
+    if(mass[nm]!==undefined){ const pct=Math.round(mass[nm]*100);
+      el.classList.add("hasmass"); el.querySelector(".tbar>i").style.width=pct+"%";
+      el.querySelector(".tpct").textContent=pct+"%"; }
+  });
+}
+
+boot();
+</script>
+</body>
+</html>

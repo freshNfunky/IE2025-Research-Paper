@@ -1,0 +1,5 @@
+# Standalone live-video dashboard — on top of the repo's requirements.txt.
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9   # required by FastAPI for file upload / form fields
+# opencv-python is already pulled in by ultralytics (cv2) for video decoding.

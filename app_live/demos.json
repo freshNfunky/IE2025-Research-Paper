@@ -1,0 +1,29 @@
+{
+  "_note": "Public, freely-licensed warm-up clips (Wikimedia Commons). Downloaded on demand to _uploads/ and cached. URLs use Special:FilePath, which redirects to the media file. Frames are downscaled at inference time.",
+  "demos": [
+    {
+      "id": "daylight-dashcam",
+      "name": "Daylight dashcam — street driving",
+      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Dashcam%20recording%20example%20-%20Panorama%20II%20BlackBox%20Dashcam%20daylight.mp4.ogv",
+      "ext": ".ogv",
+      "credit": "Fernost, Wikimedia Commons",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "nairobi-rush",
+      "name": "Nairobi rush hour — dense traffic",
+      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Rush%20hour%20in%20Nairobi.webm",
+      "ext": ".webm",
+      "credit": "New York-air, Wikimedia Commons",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "id": "night-highway",
+      "name": "Highway at night",
+      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cars%20driving%20at%20night.webm",
+      "ext": ".webm",
+      "credit": "“Editor”, Wikimedia Commons",
+      "license": "CC BY 3.0"
+    }
+  ]
+}
