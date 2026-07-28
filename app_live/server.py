@@ -39,10 +39,18 @@ from hpercept.pipeline import get_pipeline                       # noqa: E402
 from hpercept.abstraction import flat_classify, AbstractionConfig  # noqa: E402
 from hpercept.viz import COLORS, REJECTED_COLOR, segmentation_overlay  # noqa: E402
 
-HERE = Path(__file__).resolve().parent
+import os
+# When frozen by PyInstaller the bundle is read-only: static assets and config
+# live under sys._MEIPASS, while uploads/downloads must go to a writable dir.
+if getattr(sys, "frozen", False):
+    HERE = Path(sys._MEIPASS) / "app_live"          # bundled data root
+    _HOME = Path(os.environ.get("HPERCEPT_HOME", Path.home() / ".hpercept-live"))
+    UPLOADS = _HOME / "_uploads"
+else:
+    HERE = Path(__file__).resolve().parent
+    UPLOADS = HERE / "_uploads"
 STATIC = HERE / "static"
-UPLOADS = HERE / "_uploads"
-UPLOADS.mkdir(exist_ok=True)
+UPLOADS.mkdir(parents=True, exist_ok=True)
 MAX_W = 900
 
 app = FastAPI(title="Live Hierarchical Perception")

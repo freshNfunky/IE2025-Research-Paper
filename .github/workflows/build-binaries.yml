@@ -1,0 +1,62 @@
+name: Build standalone binaries (optional)
+
+# OPTIONAL, manual-only. The primary distribution is the lean source zip plus
+# `pip install -r requirements.txt` (nothing pretrained is bundled; models are
+# fetched from the net on first run). A standalone PyInstaller bundle is large
+# (it packs the PyTorch + OpenCV runtime), so it is only built on demand here,
+# for end users who cannot install Python. It is NOT attached to releases.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14        # Apple Silicon (arm64)
+            asset: hpercept-live-macos-arm64
+          - os: macos-13        # Intel (x86_64)
+            asset: hpercept-live-macos-x86_64
+          - os: ubuntu-22.04
+            asset: hpercept-live-linux-x86_64
+          - os: windows-latest
+            asset: hpercept-live-windows-x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r app_live/requirements-app.txt
+          pip install pyinstaller
+
+      - name: Fetch YOLO weights (bundled into the app)
+        run: python -c "from ultralytics import YOLO; YOLO('yolov8s.pt')"
+
+      - name: Build
+        run: pyinstaller --noconfirm --log-level WARN hpercept-live.spec
+
+      - name: Package (zip the one-dir bundle)
+        shell: bash
+        run: |
+          cd dist
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            7z a -tzip "../${{ matrix.asset }}.zip" hpercept-live >/dev/null
+          else
+            zip -rqy "../${{ matrix.asset }}.zip" hpercept-live
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}.zip

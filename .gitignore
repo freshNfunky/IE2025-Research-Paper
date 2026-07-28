@@ -42,3 +42,8 @@ paper/*.out
 demo/.env
 app_live/_uploads/
 app_live/__pycache__/
+
+# PyInstaller build output (optional DIY binary; never commit the bundle)
+build/
+dist/
+*.spec.bak
