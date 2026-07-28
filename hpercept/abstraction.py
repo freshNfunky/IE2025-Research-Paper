@@ -146,7 +146,8 @@ class FlatResult:
 
     leaf: Node
     prob: float           # softmax probability of the winning leaf
-    accepted: bool        # prob >= reject threshold (else the flat system drops)
+    sim: float            # max cosine similarity to any leaf prompt (CLIP score)
+    accepted: bool        # passed the reject option (else the flat system drops)
 
 
 def flat_classify(
@@ -155,12 +156,22 @@ def flat_classify(
     clip: ClipClassifier,
     temperature: float = 0.06,
     reject_threshold: float = 0.5,
+    accept_sim: float | None = None,
 ) -> FlatResult:
     """Flat classifier over taxonomy leaves -- the baseline with NO abstraction.
 
     It can only ever output a specific leaf (or, with a reject option, drop the
     object). It has no way to say "some kind of vehicle" or "unknown obstacle".
-    """
+
+    Two reject options are supported. The default thresholds the softmax
+    probability of the winning leaf (``reject_threshold``); this is what the
+    benchmark sweeps. A fairer, temperature-independent option thresholds the
+    raw CLIP cosine score of the winning leaf (``accept_sim``) -- the way a real
+    zero-shot classifier with a reject option is usually gated. When
+    ``accept_sim`` is given it takes precedence. A softmax-probability threshold
+    over dozens of leaves rejects almost everything, which would understate the
+    flat baseline; the cosine option lets it keep the confident true positives
+    (its real weakness is the missing abstraction, not a blanket drop)."""
     leaves = [n for n in taxonomy.iter_nodes() if n.is_leaf]
     sims = np.array([float(np.dot(image_feat, clip._text_feats[l.name])) for l in leaves])
     z = sims / max(temperature, 1e-6)
@@ -168,8 +179,11 @@ def flat_classify(
     p = np.exp(z)
     p /= p.sum()
     i = int(p.argmax())
+    top_sim = float(sims[i])
+    accepted = (top_sim >= accept_sim) if accept_sim is not None \
+        else (float(p[i]) >= reject_threshold)
     return FlatResult(leaf=leaves[i], prob=round(float(p[i]), 4),
-                      accepted=bool(p[i] >= reject_threshold))
+                      sim=round(top_sim, 3), accepted=bool(accepted))
 
 
 def _resolve_outcome(node: Node, taxonomy: Taxonomy, cfg: AbstractionConfig) -> Outcome:

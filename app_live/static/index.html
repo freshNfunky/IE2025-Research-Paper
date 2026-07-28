@@ -281,7 +281,7 @@ function draw(){
     if(showHier){ const m=marks[d.seg_status]||""; lines.push(
       {t:(d.rejected?"⛔ ":"")+d.label+(m?" "+m:""), bg:col, fg:"#04121f"}); }
     if(showFlat){ const fl=d.flat; lines.push(
-      {t:"flat: "+(fl.accepted?`${fl.leaf} ${fl.prob.toFixed(2)}`:"drop"),
+      {t:"flat: "+(fl.accepted?`${fl.leaf} ${(fl.sim??0).toFixed(2)}`:"drop"),
        bg:"#20242e", fg:"#cdd6e2"}); }
     let ly=Math.max(0, y - lines.length*16);
     for(const L of lines){ const tw=ctx.measureText(L.t).width+8;

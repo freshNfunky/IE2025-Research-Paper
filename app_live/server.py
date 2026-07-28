@@ -213,10 +213,14 @@ def _stream_gen(stride: int, segment: bool, seg_every: int,
                 d = _detection(p, 1.0)
                 # Flat baseline on the same CLIP features (arg-max leaf + reject).
                 feat = pipe.clip.image_features(p.box.crop(rgb))
-                fl = flat_classify(feat, pipe.taxonomy, pipe.clip,
-                                   reject_threshold=0.5)
+                # Fair flat baseline: a real zero-shot classifier with a reject
+                # option gates on the CLIP cosine score, not a softmax prob over
+                # dozens of leaves (which would drop almost everything). It keeps
+                # the confident true positives; its weakness is the missing
+                # abstraction, not a blanket drop. Calibrated on the demo clips.
+                fl = flat_classify(feat, pipe.taxonomy, pipe.clip, accept_sim=0.25)
                 d["flat"] = {"leaf": fl.leaf.name, "prob": round(fl.prob, 2),
-                             "accepted": bool(fl.accepted)}
+                             "sim": round(fl.sim, 3), "accepted": bool(fl.accepted)}
                 d["novel"] = pipe.taxonomy.by_coco(p.box.coco_name) is None
                 dets.append(d)
 
