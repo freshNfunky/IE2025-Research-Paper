@@ -145,12 +145,15 @@ def main():
         dets = []
         for p in scene.predictions:
             d = detection_dict(p, scale, pipe, cfg)
-            # Flat baseline on the same CLIP features (arg-max leaf + reject option).
+            # Flat baseline on the same CLIP features (arg-max leaf + reject
+            # option). Gate on the CLIP cosine score, not a softmax prob over
+            # dozens of leaves (which would drop almost everything); this keeps
+            # the confident true positives so the comparison is not a strawman.
             feat = pipe.clip.image_features(p.box.crop(s.image))
             flat = flat_classify(feat, pipe.taxonomy, pipe.clip,
-                                 temperature=cfg.temperature, reject_threshold=0.5)
+                                 temperature=cfg.temperature, accept_sim=0.25)
             d["flat"] = {"leaf": flat.leaf.name, "prob": round(flat.prob, 2),
-                         "accepted": bool(flat.accepted)}
+                         "sim": round(flat.sim, 3), "accepted": bool(flat.accepted)}
             dets.append(d)
         scenes.append({
             "id": sid,

@@ -39,10 +39,18 @@ from hpercept.pipeline import get_pipeline                       # noqa: E402
 from hpercept.abstraction import flat_classify, AbstractionConfig  # noqa: E402
 from hpercept.viz import COLORS, REJECTED_COLOR, segmentation_overlay  # noqa: E402
 
-HERE = Path(__file__).resolve().parent
+import os
+# When frozen by PyInstaller the bundle is read-only: static assets and config
+# live under sys._MEIPASS, while uploads/downloads must go to a writable dir.
+if getattr(sys, "frozen", False):
+    HERE = Path(sys._MEIPASS) / "app_live"          # bundled data root
+    _HOME = Path(os.environ.get("HPERCEPT_HOME", Path.home() / ".hpercept-live"))
+    UPLOADS = _HOME / "_uploads"
+else:
+    HERE = Path(__file__).resolve().parent
+    UPLOADS = HERE / "_uploads"
 STATIC = HERE / "static"
-UPLOADS = HERE / "_uploads"
-UPLOADS.mkdir(exist_ok=True)
+UPLOADS.mkdir(parents=True, exist_ok=True)
 MAX_W = 900
 
 app = FastAPI(title="Live Hierarchical Perception")
@@ -213,10 +221,14 @@ def _stream_gen(stride: int, segment: bool, seg_every: int,
                 d = _detection(p, 1.0)
                 # Flat baseline on the same CLIP features (arg-max leaf + reject).
                 feat = pipe.clip.image_features(p.box.crop(rgb))
-                fl = flat_classify(feat, pipe.taxonomy, pipe.clip,
-                                   reject_threshold=0.5)
+                # Fair flat baseline: a real zero-shot classifier with a reject
+                # option gates on the CLIP cosine score, not a softmax prob over
+                # dozens of leaves (which would drop almost everything). It keeps
+                # the confident true positives; its weakness is the missing
+                # abstraction, not a blanket drop. Calibrated on the demo clips.
+                fl = flat_classify(feat, pipe.taxonomy, pipe.clip, accept_sim=0.25)
                 d["flat"] = {"leaf": fl.leaf.name, "prob": round(fl.prob, 2),
-                             "accepted": bool(fl.accepted)}
+                             "sim": round(fl.sim, 3), "accepted": bool(fl.accepted)}
                 d["novel"] = pipe.taxonomy.by_coco(p.box.coco_name) is None
                 dets.append(d)
 

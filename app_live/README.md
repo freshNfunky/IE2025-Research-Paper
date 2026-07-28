@@ -53,26 +53,34 @@ segmentation on it is a slideshow-paced demonstration, not real-time.
 
 The **specificity** selector maps to the abstraction operating point:
 
-- **Safe (paper)** — the calibrated default (`temperature=0.06`,
+- **Safe (paper)**: the calibrated default (`temperature=0.06`,
   `commit_mass=0.40`). When leaf probability mass is split across similar
   categories (Sedan / SUV / Bus …) it abstracts to the common ancestor
   (orange "Vehicle") rather than guess, so a concrete green *identified*
   leaf is deliberately rare on real footage. This is the paper's result.
-- **Balanced / Specific (demo)** — sharpen the softmax and lower the commit
+- **Balanced / Specific (demo)**: sharpen the softmax and lower the commit
   bar so more objects descend to a leaf (green). This trades a little safety
   for specificity and exists to *show* that trade-off live; it does not
   change the pipeline defaults (the presets are passed as `/stream` args).
 
-## Packaging for a GitHub Release (TODO)
+## Optional: standalone binary (DIY)
 
-The intended distribution is a downloadable standalone build. Sketch:
+The recommended way to run is the lean route above: nothing pretrained is
+shipped, `pip install -r requirements.txt` pulls the stack from PyPI, and the
+models download on first run. That keeps the download tiny.
+
+If you need a no-Python bundle (for an end user who cannot install Python), you
+can build one with PyInstaller. Note it is **large** (~900 MB): it packs the
+PyTorch and OpenCV runtime, which the lean route would otherwise install once
+via pip. From the repo root, inside the project venv:
 
 ```bash
 pip install pyinstaller
-pyinstaller --name hpercept-live --add-data "app_live/static:static" \
-  --add-data "app_live/demos.json:." --collect-all ultralytics \
-  --collect-all open_clip --collect-all transformers app_live/run.py
+pyinstaller --noconfirm hpercept-live.spec     # -> dist/hpercept-live/
 ```
 
-Torch/transformers make the bundle large; a per-OS build in CI is the practical
-path. Tracked in issue #4.
+`.github/workflows/build-binaries.yml` can build per-OS bundles (macOS arm64/x86,
+Linux, Windows) on demand (manual `workflow_dispatch`); they are intentionally
+**not** attached to releases. On macOS the binary is unsigned, so Gatekeeper
+blocks it the first time: right-click the executable and choose **Open**, or run
+`xattr -dr com.apple.quarantine hpercept-live`.
