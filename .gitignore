@@ -40,3 +40,5 @@ paper/*.out
 # demo assets are part of the deliverable (not the dataset cache)
 !demo/data/
 demo/.env
+app_live/_uploads/
+app_live/__pycache__/
