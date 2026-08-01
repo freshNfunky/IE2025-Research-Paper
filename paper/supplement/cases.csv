@@ -1,0 +1,55 @@
+image,det,x1,y1,x2,y2,area_frac,importance,yolo_class,yolo_conf,population,true_node,hier_outcome,hier_node,hier_confidence,top_leaf_cosine,nearest_floor,below_floor,flat_leaf,flat_prob,flat_leaf_cosine,flat_accepted,kpi_verdict
+0,0,575,201,1056,702,0.261,1.0,sheep,0.537,in_taxonomy,Large Livestock,abstracted,Living Being,0.425,0.2477,Living Being,True,Pedestrian,0.1016,0.248,False,useful
+1,0,572,121,984,690,0.2546,1.0,giraffe,0.954,out_of_taxonomy,,abstracted,Living Being,0.419,0.2573,Living Being,True,Pedestrian,0.1007,0.257,False,safe
+2,0,583,55,967,665,0.2543,1.0,giraffe,0.953,out_of_taxonomy,,abstracted,Living Being,0.406,0.2501,Living Being,True,Pedestrian,0.0947,0.25,False,safe
+2,1,377,415,395,450,0.0007,0.052,person,0.722,in_taxonomy,Pedestrian,unknown,Moving Object,0.671,0.2404,,False,Fire Hydrant,0.0835,0.24,False,unknown
+3,0,278,168,1170,642,0.4589,1.0,airplane,0.591,out_of_taxonomy,,abstracted,Vehicle,0.413,0.2202,Vehicle,True,Sedan,0.0775,0.22,False,safe
+3,1,633,284,664,316,0.0011,0.066,person,0.226,in_taxonomy,Pedestrian,unknown,Moving Object,0.656,0.2338,,False,Fire Hydrant,0.0768,0.234,False,unknown
+4,0,229,58,1195,682,0.6534,1.0,truck,0.725,in_taxonomy,Truck,abstracted,Vehicle,0.442,0.2769,Vehicle,True,Bus,0.1019,0.277,False,useful
+4,1,242,308,290,336,0.0015,0.077,car,0.341,in_taxonomy,Passenger Car,unknown,Moving Object,0.702,0.2698,,False,Sedan,0.0954,0.27,False,unknown
+4,2,10,305,62,344,0.0022,0.093,car,0.327,in_taxonomy,Passenger Car,abstracted,Vehicle,0.413,0.282,Vehicle,True,MAN Truck,0.0825,0.282,False,useful
+4,3,0,272,58,344,0.0046,0.136,truck,0.309,in_taxonomy,Truck,abstracted,Vehicle,0.412,0.2673,Vehicle,True,MAN Truck,0.0839,0.267,False,useful
+4,4,189,307,259,338,0.0024,0.097,car,0.306,in_taxonomy,Passenger Car,abstracted,Vehicle,0.432,0.2454,Vehicle,True,Sedan,0.0856,0.245,False,useful
+5,0,913,360,950,409,0.002,0.089,car,0.574,in_taxonomy,Passenger Car,abstracted,Vehicle,0.408,0.2544,Vehicle,True,Parking Meter,0.088,0.254,False,useful
+5,1,816,364,899,405,0.0037,0.121,car,0.445,in_taxonomy,Passenger Car,abstracted,Vehicle,0.441,0.2724,Vehicle,True,Sedan,0.1242,0.272,False,useful
+5,2,614,366,651,389,0.0009,0.061,car,0.31,in_taxonomy,Passenger Car,unknown,Moving Object,0.657,0.2507,,False,Parking Meter,0.0662,0.251,False,unknown
+5,3,670,366,710,394,0.0012,0.069,car,0.287,in_taxonomy,Passenger Car,unknown,Moving Object,0.646,0.2387,,False,Traffic Light,0.0725,0.239,False,unknown
+5,4,816,365,858,405,0.0018,0.085,car,0.282,in_taxonomy,Passenger Car,abstracted,Vehicle,0.431,0.2474,Vehicle,True,Sedan,0.127,0.247,False,useful
+6,0,97,388,581,607,0.1152,0.679,dog,0.652,in_taxonomy,Dog,abstracted,Living Being,0.465,0.2374,Living Being,True,Dog,0.1051,0.237,False,useful
+7,0,184,223,982,665,0.3834,1.0,truck,0.659,in_taxonomy,Truck,abstracted,Vehicle,0.438,0.2303,Vehicle,True,Sedan,0.0847,0.23,False,useful
+7,1,984,457,1049,660,0.0144,0.24,person,0.608,in_taxonomy,Pedestrian,abstracted,Living Being,0.444,0.2534,Living Being,True,Large Livestock,0.0861,0.253,False,useful
+8,0,133,390,344,521,0.0302,0.347,car,0.893,in_taxonomy,Passenger Car,abstracted,Vehicle,0.474,0.2707,Vehicle,True,Sedan,0.1439,0.271,False,useful
+8,1,208,245,1229,686,0.4879,1.0,truck,0.731,in_taxonomy,Truck,abstracted,Vehicle,0.476,0.245,Vehicle,True,SUV,0.0994,0.245,False,useful
+8,2,589,263,675,377,0.0106,0.206,person,0.641,in_taxonomy,Pedestrian,unknown,Moving Object,0.703,0.2586,,False,Rider,0.0929,0.259,False,unknown
+8,3,708,250,790,382,0.0118,0.217,person,0.386,in_taxonomy,Pedestrian,abstracted,Living Being,0.464,0.2658,Living Being,True,Pedestrian,0.1057,0.266,False,useful
+9,0,528,458,611,533,0.0068,0.165,bird,0.83,in_taxonomy,Bird,abstracted,Living Being,0.484,0.2812,Living Being,True,Bird,0.1273,0.281,False,useful
+9,1,193,415,299,529,0.0133,0.23,bird,0.789,in_taxonomy,Bird,abstracted,Living Being,0.471,0.2859,Living Being,True,Pedestrian,0.1569,0.286,False,useful
+9,2,782,467,866,538,0.0065,0.161,bird,0.778,in_taxonomy,Bird,abstracted,Living Being,0.498,0.2905,Living Being,True,Bird,0.1551,0.29,False,useful
+9,3,376,490,423,539,0.0025,0.101,bird,0.71,in_taxonomy,Bird,abstracted,Living Being,0.526,0.269,Living Being,True,Bird,0.1315,0.269,False,useful
+9,4,277,472,364,526,0.0051,0.143,bird,0.695,in_taxonomy,Bird,abstracted,Living Being,0.518,0.2838,Living Being,True,Bird,0.1297,0.284,False,useful
+9,5,983,480,1071,569,0.0085,0.184,bird,0.624,in_taxonomy,Bird,abstracted,Living Being,0.49,0.2839,Living Being,True,Bird,0.1301,0.284,False,useful
+9,6,85,469,147,529,0.004,0.127,bird,0.617,in_taxonomy,Bird,abstracted,Living Being,0.523,0.2698,Living Being,True,Bird,0.1128,0.27,False,useful
+14,0,1064,448,1279,549,0.0236,0.307,umbrella,0.484,out_of_taxonomy,,unknown,Moving Object,0.698,0.2649,,False,Bird,0.0762,0.265,False,safe
+15,0,3,460,490,714,0.1346,0.734,airplane,0.834,out_of_taxonomy,,unknown,Moving Object,0.698,0.2706,,False,Traffic Sign,0.0784,0.271,False,safe
+15,1,1066,449,1279,548,0.023,0.303,umbrella,0.385,out_of_taxonomy,,unknown,Moving Object,0.705,0.2648,,False,Bird,0.082,0.265,False,safe
+16,0,345,543,669,637,0.0331,0.364,umbrella,0.383,out_of_taxonomy,,unknown,Moving Object,0.726,0.2384,,False,SUV,0.0632,0.238,False,safe
+17,0,52,86,1254,655,0.7416,1.0,airplane,0.502,out_of_taxonomy,,abstracted,Vehicle,0.404,0.2415,Vehicle,True,SUV,0.0915,0.242,False,safe
+19,0,131,150,236,234,0.0095,0.195,traffic light,0.646,in_taxonomy,Traffic Light,unknown,Moving Object,0.73,0.2343,,False,Large Livestock,0.0639,0.234,False,unknown
+21,0,543,329,558,345,0.0003,0.033,kite,0.544,out_of_taxonomy,,unknown,Moving Object,0.719,0.2317,,False,Large Livestock,0.0686,0.232,False,safe
+21,1,943,181,1148,685,0.1121,0.67,snowboard,0.233,out_of_taxonomy,,unknown,Moving Object,0.655,0.264,,False,Traffic Cone,0.1086,0.264,False,safe
+23,0,99,388,581,609,0.1154,0.679,airplane,0.481,out_of_taxonomy,,abstracted,Living Being,0.451,0.2479,Living Being,True,Large Livestock,0.0839,0.248,False,safe
+23,1,1084,151,1279,365,0.0453,0.426,person,0.268,in_taxonomy,Pedestrian,abstracted,Living Being,0.406,0.2631,Living Being,True,Large Livestock,0.0775,0.263,False,useful
+24,0,493,1,555,234,0.0157,0.25,tie,0.45,out_of_taxonomy,,unknown,Moving Object,0.672,0.2619,,False,Traffic Cone,0.0823,0.262,False,safe
+25,0,1183,330,1218,390,0.0022,0.094,kite,0.57,out_of_taxonomy,,abstracted,Living Being,0.4,0.241,Living Being,True,Large Livestock,0.0706,0.241,False,safe
+25,1,235,80,397,249,0.0297,0.345,kite,0.505,out_of_taxonomy,,abstracted,Living Being,0.401,0.238,Living Being,True,Traffic Sign,0.0728,0.238,False,safe
+25,2,1035,378,1081,418,0.002,0.09,kite,0.362,out_of_taxonomy,,unknown,Moving Object,0.699,0.2316,,False,Traffic Sign,0.0696,0.232,False,safe
+25,3,211,181,1037,664,0.4329,1.0,airplane,0.283,out_of_taxonomy,,unknown,Moving Object,0.73,0.2511,,False,Traffic Cone,0.0768,0.251,False,safe
+27,0,351,145,388,277,0.0054,0.146,traffic light,0.454,in_taxonomy,Traffic Light,unknown,Moving Object,0.717,0.2343,,False,Traffic Sign,0.0676,0.234,False,unknown
+29,0,778,466,866,546,0.0076,0.175,bird,0.858,in_taxonomy,Bird,abstracted,Living Being,0.478,0.2664,Living Being,True,Bird,0.1262,0.266,False,useful
+29,1,979,481,1072,569,0.0088,0.188,bird,0.796,in_taxonomy,Bird,abstracted,Living Being,0.475,0.2656,Living Being,True,Bird,0.1369,0.266,False,useful
+29,2,523,455,614,536,0.008,0.179,bird,0.673,in_taxonomy,Bird,abstracted,Living Being,0.488,0.2452,Living Being,True,Cat,0.0917,0.245,False,useful
+29,3,371,484,423,539,0.0031,0.112,bird,0.313,in_taxonomy,Bird,abstracted,Living Being,0.479,0.2485,Living Being,True,Cat,0.1058,0.249,False,useful
+29,4,193,414,365,535,0.0228,0.302,airplane,0.294,out_of_taxonomy,,abstracted,Living Being,0.404,0.2301,Living Being,True,Traffic Cone,0.071,0.23,False,safe
+32,0,780,456,919,554,0.0066,0.162,umbrella,0.618,out_of_taxonomy,,unknown,Moving Object,0.693,0.2069,,False,Dog,0.0617,0.207,False,safe
+35,0,1,118,86,155,0.0015,0.078,frisbee,0.325,out_of_taxonomy,,abstracted,Living Being,0.405,0.2328,Living Being,True,Bird,0.0776,0.233,False,safe
+39,0,682,823,739,880,0.0016,0.08,sports ball,0.468,out_of_taxonomy,,unknown,Moving Object,0.713,0.2357,,False,Bird,0.0818,0.236,False,safe

@@ -1,0 +1,69 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\pagestyle{empty}
+
+\begin{document}
+
+{\large\bfseries Supplementary evidence table}\\
+{\itshape Hierarchical Taxonomic Abstraction for the Safe Handling of Novel
+Objects in Autonomous Driving Perception} (v1, doi:10.5281/zenodo.21593472)
+
+Accompanies the review exchange. Per-detection data: \texttt{cases.csv}
+(54 rows). This sheet reports aggregates with explicit denominators.
+
+\textbf{Evaluation set.} SegmentMeIfYouCan Road Anomaly, 40 images, 54
+detections. Detector: YOLOv8s, class-agnostic NMS, confidence $\geq 0.20$.
+CLIP: ViT-B/32. No training or fine-tuning.
+
+\textbf{Population split (novelty is a proxy).} A detection is labelled
+\emph{out-of-taxonomy} when the detector's COCO class has no node in our
+taxonomy (e.g.\ giraffe, airplane). The detector already recognizes these
+objects; this is a \emph{label-space gap}, not open-world novelty. It is
+distinct from genuine, scale-dependent undecidability (the ``shampoo-bottle''
+regime), which is not tested here. Out-of-taxonomy $n=20$; in-taxonomy $n=34$.
+
+\textbf{Thresholds.} Leaf-softmax temperature $\tau=0.06$; commit-mass
+$\theta=0.40$ (minimum subtree probability mass to descend one level); minimum
+best-leaf cosine $\sigma=0.20$ (below this: immediate \textsc{unknown}). Safety
+floors: Living Being, Vehicle, Static Object.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Population & Metric & Flat (argmax) & Flat (reject@0.5) & \textbf{Hierarchical} \\
+\midrule
+Out-of-taxonomy & \textbf{safe-handled} & $0/20$ & $0/20$ & $\mathbf{20/20}$ \\
+($n=20$) & \ \ (abstracted / \textsc{unknown}) & --- & --- & $9\ /\ 11$ \\
+ & importance-weighted safe & $0\%$ & $0\%$ & $\mathbf{100\%}$ \\
+ & confident wrong leaf & $20/20$ & $0/20$ & $0/20$ \\
+ & dropped (missed) & $0/20$ & $20/20$ & $0/20$ \\
+\midrule
+In-taxonomy & \textbf{useful category} & $16/34$ & --- & $\mathbf{26/34}$ \\
+($n=34$) & honest \textsc{unknown} & --- & --- & $8/34$ \\
+ & wrong branch & --- & --- & $0/34$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Definitions.} \emph{Safe-handled} (out-of-taxonomy): the detection is
+neither given a specific leaf nor dropped; it is abstracted to a category at or
+below a safety floor, or flagged \textsc{unknown}. \emph{Useful category}
+(in-taxonomy): outcome is not \textsc{unknown}, the reported node is below a
+floor and on the correct root-to-leaf branch. The flat baseline's $0/20$ is
+defined by the comparison rule (arg-max can only emit a leaf; the reject variant
+drops), not yet by a fully equivalent empirical open-set baseline.
+
+\textbf{Scope and caveats.} (i) Novelty is a label-space proxy, not open-world
+novelty. (ii) No box-level ground truth: object-level false negatives and missed
+objects are outside the evaluation; the KPI scores only detected objects.
+(iii) Sensor degradation and broader domain shift are not evaluated.
+(iv) The taxonomy provides bounded semantic \emph{evidence}; authorization of any
+manoeuvre is a separate (execution-governance) decision.
+
+\end{document}
