@@ -40,6 +40,7 @@ Population & Metric & Flat (argmax) & Flat (reject@0.5) & \textbf{Hierarchical} 
 \midrule
 Out-of-taxonomy & \textbf{safe-handled} & $0/20$ & $0/20$ & $\mathbf{20/20}$ \\
 ($n=20$) & \ \ (abstracted / \textsc{unknown}) & --- & --- & $9\ /\ 11$ \\
+ & \ \ of which \emph{plausibly} abstracted/flagged & --- & --- & $15/20$ \\
  & importance-weighted safe & $0\%$ & $0\%$ & $\mathbf{100\%}$ \\
  & confident wrong leaf & $20/20$ & $0/20$ & $0/20$ \\
  & dropped (missed) & $0/20$ & $20/20$ & $0/20$ \\
@@ -58,6 +59,16 @@ below a safety floor, or flagged \textsc{unknown}. \emph{Useful category}
 floor and on the correct root-to-leaf branch. The flat baseline's $0/20$ is
 defined by the comparison rule (arg-max can only emit a leaf; the reject variant
 drops), not yet by a fully equivalent empirical open-set baseline.
+
+\textbf{Plausibility (stricter than safe-handled).} \emph{Safe-handled} only
+requires that a detection is not given a confident leaf and not dropped. A
+stricter check, \emph{plausibly abstracted / flagged}, additionally requires the
+coarse category to be semantically correct: $15/20$ pass ($11$ flagged
+\textsc{unknown}, $4$ abstracted to the correct floor), while $5$ abstract to an
+implausible branch (airplane, kite and frisbee to \emph{Living Being}). Those are
+out-of-ODD classes with no correct branch in the taxonomy, which is precisely the
+gap a genuine open-world novelty test must target. See the \texttt{plausible}
+column in \texttt{cases.csv}.
 
 \textbf{Scope and caveats.} (i) Novelty is a label-space proxy, not open-world
 novelty. (ii) No box-level ground truth: object-level false negatives and missed

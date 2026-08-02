@@ -37,6 +37,31 @@ def on_same_path(a: Node, b: Node) -> bool:
     return a is b or a in b.ancestors() or b in a.ancestors()
 
 
+# Expected coarse category (safety floor) for out-of-taxonomy COCO classes, used
+# only for a semantic-plausibility check. None = no clean coarse category exists
+# in our taxonomy (an out-of-ODD object such as a kite or a tie), so abstracting
+# it to a specific branch is a semantic overreach; only an UNKNOWN flag is
+# plausible there.
+EXPECTED_FLOOR = {
+    "giraffe": "Living Being", "zebra": "Living Being", "elephant": "Living Being",
+    "bear": "Living Being",
+    "airplane": "Vehicle", "boat": "Vehicle",
+    # umbrella, kite, snowboard, tie, frisbee, sports ball, ... -> None (no fit)
+}
+
+
+def is_plausible(population, outcome, node, true_node, below_floor, coco):
+    """Is the reported category semantically plausible (not just 'not-a-leaf')?"""
+    if outcome == "unknown":
+        return True                       # an honest flag is never a wrong claim
+    if population == "in_taxonomy":
+        return bool(below_floor and on_same_path(node, true_node))
+    exp = EXPECTED_FLOOR.get(coco)         # out-of-taxonomy, abstracted / identified
+    if exp is None:
+        return False                       # no correct coarse branch -> overreach
+    return exp in {a.name for a in node.ancestors(include_self=True)}
+
+
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 40
     tau = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
@@ -99,6 +124,8 @@ def main():
                 "flat_leaf_cosine": flat.sim,
                 "flat_accepted": flat.accepted,
                 "kpi_verdict": verdict,
+                "plausible": is_plausible(population, hier.outcome.value, hier.node,
+                                          true_node, below_floor, box.coco_name),
             })
         print(f"    [{si+1}/{len(samples)}] out_of_taxonomy={n_out} in_taxonomy={n_in}",
               flush=True)
@@ -114,8 +141,10 @@ def main():
                and r["kpi_verdict"] == "safe")
     useful = sum(1 for r in rows if r["population"] == "in_taxonomy"
                  and r["kpi_verdict"] == "useful")
+    oot_plaus = sum(1 for r in rows if r["population"] == "out_of_taxonomy" and r["plausible"])
     print(f"\n>>> wrote {path} ({len(rows)} rows)", flush=True)
-    print(f">>> out_of_taxonomy safe-handled: {safe}/{n_out}", flush=True)
+    print(f">>> out_of_taxonomy safe-handled: {safe}/{n_out} "
+          f"(of which plausibly abstracted/flagged: {oot_plaus}/{n_out})", flush=True)
     print(f">>> in_taxonomy useful: {useful}/{n_in}", flush=True)
 
 
