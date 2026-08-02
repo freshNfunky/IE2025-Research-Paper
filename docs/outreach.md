@@ -2,7 +2,7 @@
 
 NOTE: the HF link below is the free **model repo** (card + runnable code, run
 locally). An interactive Gradio Space needs HF PRO; swap in the Space URL once live.
-positioning throughout: the novelty is the taxonomic abstraction layer and the
+Positioning throughout: the novelty is the taxonomic abstraction layer and the
 safety behaviour, not closed-set accuracy.
 
 ---
@@ -61,7 +61,7 @@ errors and abstains about 24% of the time, versus a flat head's 53% off-branch
 errors; on out-of-taxonomy objects it stays safe 100% of the time (abstract or
 flag) versus 0% for flat.
 
-Demo: https://huggingface.co/freshNfunky/yolo-plus-perception . Paper (open access): https://doi.org/10.5281/zenodo.21593472 .
+Code + run it yourself: https://huggingface.co/freshNfunky/yolo-plus-perception . Paper (open access): https://doi.org/10.5281/zenodo.21593472 .
 Code: https://github.com/freshNfunky/IE2025-Research-Paper .
 
 Feedback welcome, especially on the open-world detection front-end: class-agnostic
@@ -92,7 +92,7 @@ off-branch for a flat arg-max head. On out-of-taxonomy objects: 100% safe-handle
 (abstract or flag) vs 0% flat. Honest limits are in the writeup (novelty is a
 label-space proxy; no box GT).
 
-Demo https://huggingface.co/freshNfunky/yolo-plus-perception · paper https://doi.org/10.5281/zenodo.21593472 · code
+Code + card: https://huggingface.co/freshNfunky/yolo-plus-perception · paper https://doi.org/10.5281/zenodo.21593472 · code
 https://github.com/freshNfunky/IE2025-Research-Paper
 
 ### r/SelfDrivingCars
@@ -108,6 +108,6 @@ type, it falls back to the most specific safe category (down to just "vehicle" o
 "living being"), or flags an explicit unknown obstacle, with a safety floor so it
 never degrades into a meaningless "object". Think trapeze safety net, with
 multiple levels. It is a SOTIF-oriented, semantic safety argument for statistical
-perception, with measured results and an interactive demo.
+perception, with measured results and runnable code.
 
-Demo https://huggingface.co/freshNfunky/yolo-plus-perception · paper https://doi.org/10.5281/zenodo.21593472
+Code + card: https://huggingface.co/freshNfunky/yolo-plus-perception · paper https://doi.org/10.5281/zenodo.21593472
