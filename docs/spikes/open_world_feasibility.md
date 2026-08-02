@@ -119,6 +119,27 @@ appearance score cannot resolve it, which is exactly the empirical case for C
 documented negative result. (min-abs-sim tuning was also checked and overlaps
 similarly.)
 
+## 6c. Spike C result (monocular depth flatness): promising, not finished
+
+Implemented depth + a per-box flatness/foreground test
+(`hpercept/openworld/depth.py`, `scripts/depth3d_spike.py`), depth source =
+monocular (Depth-Anything) as a LiDAR stand-in that runs on our images.
+
+Positive: the depth map cleanly separates foreground from background
+(`figures/depth3d_04.png`), and with an **assessability gate** large upright
+objects read `3d` (giraffe 0.235, truck 0.231, airplane 0.197) while small /
+distant ones are held `n/a` instead of falsely flagged (16 detections: 4 `3d`,
+1 `flat`, the rest `n/a`).
+
+Limits: relief is **shape-sensitive** (a compact sheep read `flat`, a false
+positive), monocular depth is **relative** not metric, and the dataset has no
+billboard for a true `flat` demonstration. So the flatness-as-billboard test is
+not yet reliable. Consistent with B, the recurring confound is **scale**:
+structure is only measurable above a size, which is exactly where **metric
+LiDAR** would help. Verdict: real capability (depth/foreground signal per
+detection), promising for the billboard case, but needs metric depth to be
+dependable.
+
 ## 7. Verdict
 Feasible and mostly additive. The high-value, low-cost path is **B + C**: a
 principled OOD reject plus LiDAR depth foreground. That alone converts several of
