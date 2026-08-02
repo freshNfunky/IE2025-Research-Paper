@@ -155,6 +155,31 @@ dataset has no billboard to demonstrate a true `flat` rejection. A reliable
 billboard/flatness test needs **metric** depth (LiDAR) and better geometry. This
 is a promising capability, not a finished one.
 
+### YOLO+ : open-world proposals + hierarchical classification
+
+The product idea is **YOLO+**: extend a detector with the hierarchical taxonomic
+classifier so untrained objects still get a safe coarse label or an explicit
+UNKNOWN. A class-agnostic proposer (MobileSAM via ultralytics) supplies boxes for
+things the closed set misses:
+
+```bash
+python scripts/yoloplus_spike.py 8    # YOLO vs MobileSAM + hierarchical labels
+```
+
+**Findings (honest).** MobileSAM hugely increases recall (19 YOLO detections vs
+148 extra regions on 8 images) but over-proposes background (sky, grass, walls).
+The UNKNOWN gate filters ~76% as UNKNOWN; the rest is still noisy (vegetation
+labelled `Living Being`). Class-agnostic proposals therefore need an objectness /
+**geometry filter** (the depth mode above) to be usable. Synthesis of the three
+open-world spikes: recall (SAM) + precision (depth/geometry) + semantics
+(hierarchy) are complementary; the hierarchy is the differentiator and already
+works. See [docs/spikes/open_world_feasibility.md](docs/spikes/open_world_feasibility.md).
+
+**HuggingFace.** The stack is HF-publishable as-is (CLIP, Depth-Anything,
+MobileSAM/YOLO are all Hub/ultralytics-hosted, fetched lazily). Intended: a HF
+Space demoing YOLO+ and a model card whose novelty is the *taxonomic abstraction
+layer* over open-vocabulary features, not new detector weights.
+
 ## Status
 
 Early rough rig — end-to-end pipeline, taxonomy, abstraction floor, constraints,

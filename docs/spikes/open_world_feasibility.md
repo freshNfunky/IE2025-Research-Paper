@@ -140,10 +140,59 @@ LiDAR** would help. Verdict: real capability (depth/foreground signal per
 detection), promising for the billboard case, but needs metric depth to be
 dependable.
 
-## 7. Verdict
-Feasible and mostly additive. The high-value, low-cost path is **B + C**: a
-principled OOD reject plus LiDAR depth foreground. That alone converts several of
-the current "safe but implausible" abstractions (airplane/kite -> Living Being)
-into either a confident geometric rejection or a well-founded UNKNOWN, and it is
-the concrete answer to the reviewer's open-world point. Full open-vocabulary
-detection and multi-sensor fusion are a larger, separate investment (issue #8).
+## 6d. Spike A2 result ("YOLO+" via MobileSAM): recall up, precision down
+
+Class-agnostic proposals (`hpercept/openworld/segment.py`, MobileSAM via
+ultralytics) feeding the hierarchical classifier (`scripts/yoloplus_spike.py`),
+8 Road Anomaly images:
+
+- YOLO (closed set): **19** detections total.
+- MobileSAM regions YOLO missed: **148**. The hierarchical UNKNOWN gate filters
+  **112** as UNKNOWN (its value as a filter), leaving **36** with a category.
+- But the 36 are mostly **background** (trees/bushes labelled "Living Being",
+  see `figures/yoloplus_01.png`): huge recall, poor precision.
+
+MobileSAM segments *everything* (sky, grass, walls, object parts), so as an
+open-world detector it needs an objectness / foreground filter to be usable. The
+hierarchy removes the gross background (UNKNOWN) but not vegetation. This is the
+DETECTION-side confirmation of the same lesson.
+
+## 7. Verdict (synthesis across A2, B, C)
+
+The three spikes converge on one conclusion: **no single 2D signal is enough**,
+and the pieces are complementary rather than competing.
+
+- **A2 (MobileSAM):** open-world *recall* -- boxes for untrained objects -- but
+  massively over-proposes (precision collapses).
+- **C (depth/geometry):** the natural *precision filter* for A2 -- foreground vs
+  background, flat vs solid -- but monocular relative depth is scale-limited;
+  needs metric LiDAR.
+- **B (appearance OOD):** does not separate on its own; the ambiguity is
+  scale/undersampling, not lexical.
+
+So a real **"YOLO+"** (the product idea: YOLO extended with hierarchical
+taxonomic classification for unknown objects) is: class-agnostic proposals
+(recall) + a geometry/depth filter (precision) + the hierarchical abstraction
+(semantics + the UNKNOWN safety net). The hierarchy is the differentiator and
+already works; the open-world front-end is feasible but only with the geometry
+filter. Effort estimate unchanged (section 3): MVP ~1.5-2 weeks once metric depth
+is available.
+
+## 8. HuggingFace publishing path
+
+The whole thing is HF-publishable with no exotic dependencies: CLIP (open_clip),
+Depth-Anything (transformers), and MobileSAM/YOLO (ultralytics) are all
+HF/ultralytics-hosted and fetched lazily. Plan:
+
+1. Package the pipeline (`hpercept/`) as a small library with a `pipeline()` entry.
+2. A **HF Space** (Gradio, reuse `app_live/`) demoing "YOLO+": upload an image,
+   get YOLO + class-agnostic proposals, each with a hierarchical taxonomic label
+   or UNKNOWN, plus the decision path. Models pulled from the Hub at runtime.
+3. A **model card** framing the novelty: not new weights, but a *taxonomic
+   abstraction head* over open-vocabulary features that stays safe on untrained
+   objects (abstract to a floor, or flag UNKNOWN). Link the paper + this spike.
+4. Optionally publish the taxonomy + prompts as a small dataset/config artifact.
+
+Novelty for the Hub is the **hierarchical taxonomic classification layer** ("YOLO+"),
+not the base detectors.
+
