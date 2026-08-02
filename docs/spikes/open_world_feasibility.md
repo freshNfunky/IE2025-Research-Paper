@@ -94,6 +94,31 @@ No change to the taxonomy or the abstraction core. Risk of regressing v1: low.
 - **Risks:** model/download footprint (disk-limited machine), LiDAR-camera
   calibration/sync correctness, KITTI domain vs. our anomaly focus.
 
+## 6b. Spike B result (appearance-only OOD): negative, and informative
+
+Implemented an ODD gate via negative / background prompts
+(`hpercept/classifier.py: NEGATIVE_PROMPTS`, `negatives_max_sim`) and evaluated
+`ood_margin = best_leaf_cosine - best_negative_cosine` on the Road Anomaly set
+(`scripts/ood_spike.py`). Ground truth = the `plausible` label.
+
+It does **not** separate. The margins overlap almost entirely:
+- implausible (n=5): min -0.018, median -0.014, max +0.008
+- plausible out-of-tax (n=15): min -0.067, median -0.008, max +0.033
+- in-tax good (n=26): min -0.014, median +0.028, max +0.050
+
+The best threshold that catches all 5 implausible cases (t=+0.02) also breaks
+11 of 30 good cases: a net loss. Tellingly, the implausible cases match
+"a plain textureless background" rather than "an aircraft" or "sky" -- even the
+full-frame airplane. CLIP on the 2D crop cannot reliably tell that it is an
+aircraft in the first place.
+
+**Conclusion:** the ambiguity is not lexical or appearance-based; it is the
+undersampling / scale-dependent regime (the shampoo-bottle paradox). A 2D
+appearance score cannot resolve it, which is exactly the empirical case for C
+(geometry / LiDAR). We therefore do **not** wire the OOD gate in; we keep it as a
+documented negative result. (min-abs-sim tuning was also checked and overlaps
+similarly.)
+
 ## 7. Verdict
 Feasible and mostly additive. The high-value, low-cost path is **B + C**: a
 principled OOD reject plus LiDAR depth foreground. That alone converts several of

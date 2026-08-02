@@ -16,6 +16,24 @@ import numpy as np
 from .taxonomy import Node, Taxonomy
 
 
+# Out-of-ODD and background prompts for an open-set reject (spike B).
+# The idea is an ODD gate: before taxonomic classification, ask "is this even a
+# road object?". If the crop matches one of these better than the best taxonomy
+# leaf, it is out-of-distribution for our operational design domain and should be
+# flagged, not forced into a leaf/floor. These are broad categories, not the exact
+# failure classes, so the check is a gate rather than an enumerated blocklist.
+NEGATIVE_PROMPTS = [
+    "the empty sky",
+    "an aircraft",
+    "a boat on the water",
+    "an indoor scene",
+    "a sports ball or flying toy",
+    "a plain textureless background",
+    "a blurry out-of-focus region",
+    "an unremarkable piece of the background",
+]
+
+
 class ClipClassifier:
     """Wraps open_clip and pre-computes text features for every taxonomy node."""
 
@@ -37,6 +55,8 @@ class ClipClassifier:
         self._preprocess = None
         self._tokenizer = None
         self._text_feats: dict[str, np.ndarray] = {}
+        self._neg_feats: Optional[np.ndarray] = None   # (K, D) negative prompts
+        self._neg_labels: list[str] = []
 
     # ---- lazy model ---------------------------------------------------- #
     def _ensure_model(self) -> None:
@@ -61,6 +81,25 @@ class ClipClassifier:
         self._preprocess = preprocess
         self._tokenizer = open_clip.get_tokenizer(self.model_name)
         self._encode_taxonomy_text()
+        self._encode_negatives()
+
+    def _encode_negatives(self) -> None:
+        import torch
+
+        prompts = [f"a photo of {p}" for p in NEGATIVE_PROMPTS]
+        tokens = self._tokenizer(prompts).to(self._device)
+        with torch.no_grad():
+            feats = self._model.encode_text(tokens)
+            feats = feats / feats.norm(dim=-1, keepdim=True)
+        self._neg_feats = feats.cpu().numpy()
+        self._neg_labels = list(NEGATIVE_PROMPTS)
+
+    def negatives_max_sim(self, image_feat: np.ndarray) -> tuple[float, str]:
+        """Best cosine to any out-of-ODD / background prompt, and its label."""
+        self._ensure_model()
+        sims = self._neg_feats @ image_feat
+        i = int(sims.argmax())
+        return float(sims[i]), self._neg_labels[i]
 
     def _encode_taxonomy_text(self) -> None:
         import torch
