@@ -21,7 +21,12 @@ set misses, a **geometry / depth** precision filter (flat vs. 3D, foreground
 isolation), and **multi-modal motion** cues (stereo, Doppler, LiDAR), all feeding
 the hierarchical abstraction and its UNKNOWN safety net.
 
-- Concept + honest benchmark: `docs/howc_concept.md`
+- Concept + honest benchmark: `docs/howc_concept.md`. Leave-classes-out
+  open-world benchmark on COCO GT (`scripts/v3_openworld_benchmark.py`,
+  `figures/v3_openworld_benchmark.png`): on out-of-vocabulary objects the flat
+  head gives a confident wrong specific label 100% of the time (44% in the wrong
+  super-branch); HOWC 0%, and safely handles 93% (24% correct super-category,
+  69% honest UNKNOWN).
 - Open-world feasibility spikes (A2 / B / C, with negative results kept honest):
   `docs/spikes/open_world_feasibility.md`
 - Tracking: #8 (multi-modal fusion + temporal), #10 (motion-mask indicator),
