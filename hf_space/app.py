@@ -75,4 +75,7 @@ with gr.Blocks(title="YOLO+ Hierarchical Perception") as demo:
     pick.change(highlight, pick, tree)
 
 if __name__ == "__main__":
-    demo.launch()
+    import sys
+    # `python app.py --share` -> a temporary public URL (~72h), for launch-day
+    # demand tests without hosting a Space.
+    demo.launch(share="--share" in sys.argv)

@@ -49,6 +49,7 @@ This repository is self-contained (code + taxonomy + a Gradio app):
 ```bash
 pip install -r requirements.txt
 python app.py            # Gradio UI: upload an image, see the taxonomy decision
+python app.py --share    # same, but also prints a temporary public URL (~72h)
 ```
 
 ## License
