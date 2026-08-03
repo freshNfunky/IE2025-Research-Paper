@@ -47,3 +47,9 @@ app_live/__pycache__/
 build/
 dist/
 *.spec.bak
+
+# Regeneratable open-world spike frames (the referenced ones stay committed)
+figures/depth3d_*.png
+!figures/depth3d_04.png
+figures/yoloplus_[0-9][0-9].png
+!figures/yoloplus_01.png
