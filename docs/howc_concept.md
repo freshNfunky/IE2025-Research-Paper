@@ -72,22 +72,22 @@ We ran exactly that protocol on **COCO val ground truth**: hold out
 `{truck, bus, horse, cow, sheep, elephant, bear}` from the taxonomy (their true
 super-category is known: Vehicle / Living Being), then classify the **real GT
 crops** of those now out-of-vocabulary objects with the flat head vs. HOWC.
-n = 99 GT objects. Figure: `figures/v3_openworld_benchmark.png`.
+n = 235 GT objects. Figure: `figures/v3_openworld_benchmark.png`.
 
 | Outcome on out-of-vocabulary GT objects | Flat / closed head | HOWC |
 |---|---|---|
 | confident **wrong specific** label | **100%** | **0%** |
-| — of which in the **wrong** super-branch (categorical error) | 44% | — |
-| correct super-category | — | 24% |
+| — of which in the **wrong** super-branch (categorical error) | 37% | — |
+| correct super-category | — | 26% |
 | honest **UNKNOWN** | — | 69% |
-| wrong super-branch | — | 7% |
-| **reliably / safely handled** | **0%** | **93%** |
+| wrong super-branch | — | 6% |
+| **reliably / safely handled** | **0%** | **94%** |
 
 Honest reading: HOWC's win is **safety, not specificity**. It never commits a
-confident wrong specific label (0% vs the flat head's 100%, of which 44% land in
+confident wrong specific label (0% vs the flat head's 100%, of which 37% land in
 the wrong super-category, e.g. an animal called a vehicle), and it stays safe on
-93% of out-of-vocabulary objects. But it earns the *correct* super-category only
-24% of the time; the other 69% it conservatively flags UNKNOWN rather than
+94% of out-of-vocabulary objects. But it earns the *correct* super-category only
+26% of the time; the other 69% it conservatively flags UNKNOWN rather than
 committing to "Vehicle / Living Being". That is the safety floor working as
 designed (a flagged unknown obstacle beats a confident wrong guess), not a claim
 of superior recognition accuracy.
