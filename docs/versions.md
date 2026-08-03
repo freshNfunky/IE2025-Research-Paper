@@ -14,20 +14,20 @@ the box detections, adding pixel-context corroboration and an importance signal.
 v2.1 folds in the reviewer response (`paper/reviews/response_ku.md`): precise
 denominators, the novelty-is-a-proxy caveat, and the honest limits. Issue #1.
 
-## v3 — Open-world hierarchical classifier  (working name: "YOLO+")
+## v3 — Open-world hierarchical classifier  (working name: "HOWC")
 The scope broadens from labelling a closed detector's boxes to **open-world
 perception**: class-agnostic region proposals (MobileSAM) for objects the closed
 set misses, a **geometry / depth** precision filter (flat vs. 3D, foreground
 isolation), and **multi-modal motion** cues (stereo, Doppler, LiDAR), all feeding
 the hierarchical abstraction and its UNKNOWN safety net.
 
-- Concept + honest benchmark: `docs/yoloplus_concept.md`
+- Concept + honest benchmark: `docs/howc_concept.md`
 - Open-world feasibility spikes (A2 / B / C, with negative results kept honest):
   `docs/spikes/open_world_feasibility.md`
 - Tracking: #8 (multi-modal fusion + temporal), #10 (motion-mask indicator),
-  #11 (YOLO-vs-YOLO+ leave-classes-out benchmark + publishing)
+  #11 (YOLO-vs-HOWC leave-classes-out benchmark + publishing)
 
-**Naming (open decision).** "YOLO+" is an internal working name only. YOLO is a
+**Naming (open decision).** "HOWC" is an internal working name only. YOLO is a
 trademark (Ultralytics); a public name must be distinct to avoid confusion and
 trademark issues. The HF model repo, model card, and outreach copy currently use
 the working name and will be renamed once a public name is chosen.

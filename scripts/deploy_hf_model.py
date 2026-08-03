@@ -1,4 +1,4 @@
-"""Assemble and upload the YOLO+ HuggingFace *model* repo (free, no Space needed).
+"""Assemble and upload the HOWC HuggingFace *model* repo (free, no Space needed).
 
 Bundles the model card (hf_model/README.md) + a runnable copy of the app and the
 hpercept package + taxonomy, so the repo is a self-contained landing page people
@@ -47,7 +47,7 @@ def main():
     api = HfApi()
     api.create_repo(repo_id, repo_type="model", private=private, exist_ok=True)
     api.upload_folder(folder_path=str(build), repo_id=repo_id, repo_type="model",
-                      commit_message="YOLO+ hierarchical perception: card + runnable code")
+                      commit_message="HOWC hierarchical perception: card + runnable code")
     print(f">>> done: https://huggingface.co/{repo_id}")
 
 

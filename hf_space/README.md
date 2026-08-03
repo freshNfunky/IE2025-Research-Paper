@@ -1,5 +1,5 @@
 ---
-title: YOLO+ Hierarchical Perception
+title: HOWC Hierarchical Perception
 emoji: 🚗
 colorFrom: indigo
 colorTo: green
@@ -16,7 +16,7 @@ tags:
   - neuro-symbolic
 ---
 
-# YOLO+ : hierarchical perception for novel road objects
+# HOWC : hierarchical perception for novel road objects
 
 Upload a road image. A detector proposes boxes, and each is classified by
 **hierarchical taxonomic abstraction**: the most specific level the evidence
@@ -31,7 +31,7 @@ Objects in Autonomous Driving Perception* (F. Schaller,
 
 A flat detector returns **one fixed class or nothing**. On an object it was not
 trained on (a horse-drawn carriage, an overloaded truck) it must mislabel it or
-drop it, both unsafe. YOLO+ instead **abstracts up a taxonomy** to a category
+drop it, both unsafe. HOWC instead **abstracts up a taxonomy** to a category
 that is still confident and *safety-useful* (… → Truck → Transport Vehicle →
 Vehicle), bounded by a per-branch **safety floor** so it never collapses into a
 useless "Object"; below the floor it emits an explicit **UNKNOWN OBSTACLE** with

@@ -9,7 +9,7 @@ tags:
 pipeline_tag: object-detection
 ---
 
-# YOLO+ : hierarchical taxonomic perception for novel road objects
+# HOWC : hierarchical taxonomic perception for novel road objects
 
 A training-free layer that turns a flat object detector into a hierarchical,
 open-set one. Each detection is classified by **taxonomic abstraction**: the most
@@ -25,7 +25,7 @@ Source & full history: <https://github.com/freshNfunky/IE2025-Research-Paper>.
 
 A flat detector returns one fixed class or nothing. On an untrained object (a
 horse-drawn carriage, an overloaded truck) it must mislabel it or drop it, both
-unsafe. YOLO+ abstracts up a taxonomy to a still-useful category
+unsafe. HOWC abstracts up a taxonomy to a still-useful category
 (… → Truck → Transport Vehicle → Vehicle), bounded by a per-branch **safety
 floor** so it never collapses into a useless "Object"; below the floor it flags an
 explicit **UNKNOWN OBSTACLE** with an inspectable decision path.

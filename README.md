@@ -124,7 +124,7 @@ python smoke_test.py     # offline logic check, no model download
 
 ## 3D mode (open-world spike)
 
-> Experimental, on branch `spike/open-world-classifier`. See
+> Experimental (v3, merged to main). See
 > [docs/spikes/open_world_feasibility.md](docs/spikes/open_world_feasibility.md).
 
 The 2D pipeline cannot tell a real object from a flat 2D depiction (a car on a
@@ -155,15 +155,15 @@ dataset has no billboard to demonstrate a true `flat` rejection. A reliable
 billboard/flatness test needs **metric** depth (LiDAR) and better geometry. This
 is a promising capability, not a finished one.
 
-### YOLO+ : open-world proposals + hierarchical classification
+### HOWC : open-world proposals + hierarchical classification
 
-The product idea is **YOLO+**: extend a detector with the hierarchical taxonomic
+The product idea is **HOWC**: extend a detector with the hierarchical taxonomic
 classifier so untrained objects still get a safe coarse label or an explicit
 UNKNOWN. A class-agnostic proposer (MobileSAM via ultralytics) supplies boxes for
 things the closed set misses:
 
 ```bash
-python scripts/yoloplus_spike.py 8    # YOLO vs MobileSAM + hierarchical labels
+python scripts/howc_spike.py 8    # YOLO vs MobileSAM + hierarchical labels
 ```
 
 **Findings (honest).** MobileSAM hugely increases recall (19 YOLO detections vs
@@ -177,7 +177,7 @@ works. See [docs/spikes/open_world_feasibility.md](docs/spikes/open_world_feasib
 
 **HuggingFace.** The stack is HF-publishable as-is (CLIP, Depth-Anything,
 MobileSAM/YOLO are all Hub/ultralytics-hosted, fetched lazily). Intended: a HF
-Space demoing YOLO+ and a model card whose novelty is the *taxonomic abstraction
+Space demoing HOWC and a model card whose novelty is the *taxonomic abstraction
 layer* over open-vocabulary features, not new detector weights.
 
 ## Status

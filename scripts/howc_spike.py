@@ -1,12 +1,12 @@
-"""Spike A2 / "YOLO+": open-world region proposals + hierarchical classification.
+"""Spike A2 / "HOWC": open-world region proposals + hierarchical classification.
 
 For each image: YOLO gives closed-set boxes; MobileSAM proposes class-agnostic
 regions; the regions YOLO missed are classified by the hierarchical abstraction.
 This measures how many extra objects a class-agnostic proposer surfaces and how
-they label -- the open-world detection front-end for "YOLO+".
+they label -- the open-world detection front-end for "HOWC".
 
-Usage: python scripts/yoloplus_spike.py [n_images]
-Outputs: figures/yoloplus_*.png and a summary.
+Usage: python scripts/howc_spike.py [n_images]
+Outputs: figures/howc_*.png and a summary.
 """
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ def render(image, yolo, novel, cls, path):
                                edgecolor=col, linewidth=2.4))
         ax.text(x1, max(0, y1 - 3), c.label, fontsize=7.5, color="white",
                 va="bottom", bbox=dict(boxstyle="round,pad=0.15", fc=col, ec="none"))
-    ax.set_title(f"YOLO+ : {len(yolo)} YOLO (blue dashed) + "
+    ax.set_title(f"HOWC : {len(yolo)} YOLO (blue dashed) + "
                  f"{len(novel)} class-agnostic regions YOLO missed (solid)")
     fig.tight_layout(); fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
 
@@ -73,7 +73,7 @@ def main():
         tot_yolo += len(yolo); tot_novel += len(novel)
         tot_labeled += labeled; tot_unknown += len(novel) - labeled
         if novel:
-            render(s.image, yolo, novel, cls, OUT / f"yoloplus_{i:02d}.png")
+            render(s.image, yolo, novel, cls, OUT / f"howc_{i:02d}.png")
         print(f"  img{i}: YOLO={len(yolo):2d}  SAM-only={len(novel):2d} "
               f"(labeled {labeled}, unknown {len(novel) - labeled})", flush=True)
 

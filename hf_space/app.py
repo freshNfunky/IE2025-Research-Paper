@@ -1,4 +1,4 @@
-"""YOLO+ hierarchical perception - HuggingFace Space (Gradio).
+"""HOWC hierarchical perception - HuggingFace Space (Gradio).
 
 Upload a road image; a detector proposes boxes and each is classified by
 hierarchical taxonomic abstraction: the most specific safe level, or an explicit
@@ -49,9 +49,9 @@ def highlight(sel: str):
     return taxonomy_html(TAX, scene.predictions[i])
 
 
-with gr.Blocks(title="YOLO+ Hierarchical Perception") as demo:
+with gr.Blocks(title="HOWC Hierarchical Perception") as demo:
     gr.Markdown(
-        "# YOLO+ : hierarchical perception for novel road objects\n"
+        "# HOWC : hierarchical perception for novel road objects\n"
         "Objects that fit no flat class are **abstracted up a taxonomy** to the "
         "most specific *safe* level (bounded by a 🛡 floor), or flagged as an "
         "explicit **UNKNOWN OBSTACLE** - never dropped, never a confident wrong "

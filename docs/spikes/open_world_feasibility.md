@@ -140,17 +140,17 @@ LiDAR** would help. Verdict: real capability (depth/foreground signal per
 detection), promising for the billboard case, but needs metric depth to be
 dependable.
 
-## 6d. Spike A2 result ("YOLO+" via MobileSAM): recall up, precision down
+## 6d. Spike A2 result ("HOWC" via MobileSAM): recall up, precision down
 
 Class-agnostic proposals (`hpercept/openworld/segment.py`, MobileSAM via
-ultralytics) feeding the hierarchical classifier (`scripts/yoloplus_spike.py`),
+ultralytics) feeding the hierarchical classifier (`scripts/howc_spike.py`),
 8 Road Anomaly images:
 
 - YOLO (closed set): **19** detections total.
 - MobileSAM regions YOLO missed: **148**. The hierarchical UNKNOWN gate filters
   **112** as UNKNOWN (its value as a filter), leaving **36** with a category.
 - But the 36 are mostly **background** (trees/bushes labelled "Living Being",
-  see `figures/yoloplus_01.png`): huge recall, poor precision.
+  see `figures/howc_01.png`): huge recall, poor precision.
 
 MobileSAM segments *everything* (sky, grass, walls, object parts), so as an
 open-world detector it needs an objectness / foreground filter to be usable. The
@@ -170,7 +170,7 @@ and the pieces are complementary rather than competing.
 - **B (appearance OOD):** does not separate on its own; the ambiguity is
   scale/undersampling, not lexical.
 
-So a real **"YOLO+"** (the product idea: YOLO extended with hierarchical
+So a real **"HOWC"** (the product idea: YOLO extended with hierarchical
 taxonomic classification for unknown objects) is: class-agnostic proposals
 (recall) + a geometry/depth filter (precision) + the hierarchical abstraction
 (semantics + the UNKNOWN safety net). The hierarchy is the differentiator and
@@ -185,7 +185,7 @@ Depth-Anything (transformers), and MobileSAM/YOLO (ultralytics) are all
 HF/ultralytics-hosted and fetched lazily. Plan:
 
 1. Package the pipeline (`hpercept/`) as a small library with a `pipeline()` entry.
-2. A **HF Space** (Gradio, reuse `app_live/`) demoing "YOLO+": upload an image,
+2. A **HF Space** (Gradio, reuse `app_live/`) demoing "HOWC": upload an image,
    get YOLO + class-agnostic proposals, each with a hierarchical taxonomic label
    or UNKNOWN, plus the decision path. Models pulled from the Hub at runtime.
 3. A **model card** framing the novelty: not new weights, but a *taxonomic
@@ -193,6 +193,6 @@ HF/ultralytics-hosted and fetched lazily. Plan:
    objects (abstract to a floor, or flag UNKNOWN). Link the paper + this spike.
 4. Optionally publish the taxonomy + prompts as a small dataset/config artifact.
 
-Novelty for the Hub is the **hierarchical taxonomic classification layer** ("YOLO+"),
+Novelty for the Hub is the **hierarchical taxonomic classification layer** ("HOWC"),
 not the base detectors.
 

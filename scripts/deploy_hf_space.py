@@ -1,4 +1,4 @@
-"""Assemble and upload the YOLO+ HuggingFace Space.
+"""Assemble and upload the HOWC HuggingFace Space.
 
 A Space needs the app files AND the hpercept package + taxonomy.yaml at its root.
 This copies them into a build folder and uploads it as a Gradio Space.
@@ -7,7 +7,7 @@ Prereq (once, in your terminal): huggingface-cli login   (paste your HF token)
 
 Usage:
     python scripts/deploy_hf_space.py <owner>/<space-name> [--private]
-    # e.g.  python scripts/deploy_hf_space.py XIXUM-ORG/yolo-plus-perception
+    # e.g.  python scripts/deploy_hf_space.py XIXUM-ORG/howc
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ def main():
     api.create_repo(repo_id, repo_type="space", space_sdk="gradio",
                     private=private, exist_ok=True)
     api.upload_folder(folder_path=str(build), repo_id=repo_id, repo_type="space",
-                      commit_message="Deploy YOLO+ hierarchical perception demo")
+                      commit_message="Deploy HOWC hierarchical perception demo")
     print(f">>> done: https://huggingface.co/spaces/{repo_id}")
 
 

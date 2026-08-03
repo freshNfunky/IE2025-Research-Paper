@@ -1,9 +1,9 @@
-"""Spike A2: class-agnostic region proposals (MobileSAM) for "YOLO+".
+"""Spike A2: class-agnostic region proposals (MobileSAM) for "HOWC".
 
 The closed-set detector only proposes boxes for classes it was trained on, so a
 genuinely untrained object may never be boxed. MobileSAM segments *everything*,
 appearance- and class-agnostic, giving candidate regions regardless of class.
-Feeding those regions into the hierarchical taxonomic classifier is the "YOLO+"
+Feeding those regions into the hierarchical taxonomic classifier is the "HOWC"
 idea: propose open-world, then label by abstraction, so unknown / untrained
 objects still receive a safe, coarse category or an explicit UNKNOWN.
 

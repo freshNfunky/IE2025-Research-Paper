@@ -1,12 +1,12 @@
-"""YOLO+ benchmark on the *right* axes (not closed-set mAP).
+"""HOWC benchmark on the *right* axes (not closed-set mAP).
 
 Reads paper/supplement/cases.csv (the per-detection dump) and compares the
 CLASSIFICATION arms that share the same YOLO boxes:
 
   FLAT : arg-max leaf (a flat closed-vocabulary head, the YOLO-style behaviour)
-  HIER : hierarchical abstraction with a safety floor (YOLO+)
+  HIER : hierarchical abstraction with a safety floor (HOWC)
 
-on the metrics YOLO+ is actually designed for:
+on the metrics HOWC is actually designed for:
 
   1. off-branch mistake rate  -- a categorical error (predicted category not on
      the root-to-truth path). Abstraction to an ancestor is NOT counted as a
@@ -17,13 +17,13 @@ on the metrics YOLO+ is actually designed for:
      coarser than the truth (specificity cost of playing safe).
 
 Honest scope: the "novel" objects here are a label-space proxy (COCO classes
-absent from our taxonomy), which YOLO itself recognizes; a true YOLO-vs-YOLO+
+absent from our taxonomy), which YOLO itself recognizes; a true YOLO-vs-HOWC
 comparison on novelty needs a GT-labelled leave-classes-out set (see the concept
 doc). This script quantifies the FLAT-vs-HIER (closed-flat vs hierarchical)
 trade-off on real detections.
 
-Usage: python scripts/yoloplus_benchmark.py
-Output: figures/yoloplus_benchmark.png + printed table.
+Usage: python scripts/howc_benchmark.py
+Output: figures/howc_benchmark.png + printed table.
 """
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ def main():
         return 100.0 * x / n
 
     print(f"\nIN-TAXONOMY objects (n={n}), same YOLO boxes:")
-    print(f"{'':16}{'FLAT (arg-max leaf)':>22}{'HIER (YOLO+)':>16}")
+    print(f"{'':16}{'FLAT (arg-max leaf)':>22}{'HIER (HOWC)':>16}")
     print(f"{'correct branch':16}{pct(flat_on):>20.0f}% {pct(hier_on):>14.0f}%")
     print(f"{'OFF branch (err)':16}{pct(flat_off):>20.0f}% {pct(hier_off):>14.0f}%")
     print(f"{'abstain (UNKNOWN)':16}{0:>20.0f}% {pct(hier_abst):>14.0f}%")
@@ -102,18 +102,18 @@ def main():
     x = range(len(cats))
     fig, ax = plt.subplots(figsize=(8, 4.6))
     ax.bar([i - 0.2 for i in x], flat, 0.4, label="FLAT (arg-max leaf)", color="#95a5a6")
-    ax.bar([i + 0.2 for i in x], hier, 0.4, label="HIER (YOLO+)", color="#2ecc71")
+    ax.bar([i + 0.2 for i in x], hier, 0.4, label="HIER (HOWC)", color="#2ecc71")
     ax.set_xticks(list(x)); ax.set_xticklabels(cats)
     ax.set_ylabel("% of known objects"); ax.set_ylim(0, 100)
-    ax.set_title("YOLO+ vs flat head on known objects: no categorical errors, "
+    ax.set_title("HOWC vs flat head on known objects: no categorical errors, "
                  "calibrated abstention")
     ax.legend()
     for i, (f, h) in enumerate(zip(flat, hier)):
         ax.text(i - 0.2, f + 1, f"{f:.0f}", ha="center", fontsize=8)
         ax.text(i + 0.2, h + 1, f"{h:.0f}", ha="center", fontsize=8)
     fig.tight_layout()
-    fig.savefig(REPO / "figures/yoloplus_benchmark.png", dpi=160, bbox_inches="tight")
-    print(">>> wrote figures/yoloplus_benchmark.png")
+    fig.savefig(REPO / "figures/howc_benchmark.png", dpi=160, bbox_inches="tight")
+    print(">>> wrote figures/howc_benchmark.png")
 
 
 if __name__ == "__main__":
