@@ -1,0 +1,7 @@
+# HuggingFace Space (Gradio SDK). Torch is the heavy dep; models download lazily.
+numpy>=1.24
+pyyaml>=6.0
+pillow>=10.0
+ultralytics>=8.2
+open_clip_torch>=2.24
+gradio>=4.44
