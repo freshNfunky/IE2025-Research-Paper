@@ -1,5 +1,9 @@
 # YOLO+ : concept and the honest benchmark
 
+> **v3** of the project (see `docs/versions.md`). "YOLO+" is an internal working
+> name; a distinct public name is needed (YOLO is a trademark). Naming is an open
+> decision.
+
 ## What it is
 
 Not a new detector. A **taxonomic abstraction layer** over open-vocabulary
