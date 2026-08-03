@@ -12,7 +12,7 @@ safety behaviour, not closed-set accuracy.
 **Title:** Hierarchical Taxonomic Abstraction for the Safe Handling of Novel
 Objects in Autonomous Driving Perception
 
-**Categories:** cs.CV (primary), cs.RO, cs.AI
+**Categories:** cs.AI (primary), cs.CV, cs.RO
 
 **Abstract.**
 Object detectors for autonomous driving classify against a flat list of
