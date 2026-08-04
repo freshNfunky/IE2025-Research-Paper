@@ -26,9 +26,11 @@ done
     >/dev/null 2>&1 ) && echo "compiles OK ($(grep -c . "$OUT/paper_v3.tex") tex lines, \
 $(cd "$OUT" && pdfinfo paper_v3.pdf 2>/dev/null | awk '/Pages/{print $2}') pages)"
 
-# keep source + the generated .bbl; drop the rest of the build artifacts
+# keep source + the generated .bbl (and the rendered PDF for local review); drop
+# the rest of the build artifacts. The PDF stays in the folder but is deliberately
+# NOT added to the tar below: arXiv builds its own PDF from the source.
 ( cd "$OUT" && rm -f paper_v3.aux paper_v3.log paper_v3.out paper_v3.fls \
-    paper_v3.fdb_latexmk paper_v3.synctex.gz paper_v3.blg paper_v3.pdf )
+    paper_v3.fdb_latexmk paper_v3.synctex.gz paper_v3.blg )
 
 tar czf "$R/build/arxiv_v3.tar.gz" -C "$OUT" \
     paper_v3.tex paper_v3.bbl bib.bib bib_v3.bib \
