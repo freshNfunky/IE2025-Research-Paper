@@ -36,9 +36,14 @@ explicit **UNKNOWN OBSTACLE** with an inspectable decision path.
   is more accurate. The contribution is the **taxonomic abstraction layer** over
   open-vocabulary (CLIP) features.
 - Where it wins: on known objects, **0% categorical (off-branch) errors** with
-  ~24% calibrated abstention, vs a flat head's ~53% off-branch errors; on novel
-  objects, a safe coarse label or a flagged UNKNOWN instead of a confident wrong
-  leaf.
+  ~24% calibrated abstention, vs a flat head's ~53% off-branch errors.
+- On **out-of-vocabulary** objects (v3, ground-truth leave-classes-out on COCO,
+  n=235): a flat closed head gives a confident **wrong specific label 100%** of the
+  time (37% in the wrong super-category); this layer gives **0%** confident wrong
+  specific labels and **safely handles 94%** (a correct super-category, or an
+  explicit UNKNOWN). Honest caveat: the win is **safety, not specificity**, it
+  recovers the correct super-category only 26% of the time and conservatively flags
+  the rest (69%) as UNKNOWN.
 - Training-free (pretrained YOLO + CLIP zero-shot). First run downloads weights
   (~360 MB).
 

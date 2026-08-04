@@ -5,36 +5,49 @@ locally). An interactive Gradio Space needs HF PRO; swap in the Space URL once l
 Positioning throughout: the novelty is the taxonomic abstraction layer and the
 safety behaviour, not closed-set accuracy.
 
+UPDATE (v3, open-world): the v1/v2 "100% safe on novel objects" numbers came from
+a **label-space proxy** (COCO classes left out of the taxonomy, which YOLO itself
+recognizes). v3 closes that with a **ground-truth leave-classes-out** benchmark on
+real annotated objects (n=235): the flat head is confidently wrong 100% of the
+time (37% in the wrong super-category); HOWC is confidently wrong 0% of the time
+and safely handles 94% (26% correct super-category, 69% honest UNKNOWN). The win
+is safety, not specificity, and we say so.
+
 ---
 
 ## 1. arXiv
 
-**Title:** Hierarchical Taxonomic Abstraction for the Safe Handling of Novel
-Objects in Autonomous Driving Perception
+**Title (v3):** Open-World Hierarchical Perception: Taxonomic Abstraction over
+Class-Agnostic Proposals for the Safe Handling of Out-of-Vocabulary Road Objects
 
 **Categories:** cs.AI (primary), cs.CV, cs.RO
 
 **Abstract.**
-Object detectors for autonomous driving classify against a flat list of
-categories. When a scene contains an object that fits none of them, an overloaded
-rural truck, a horse trailer, a horse-drawn carriage, a flat classifier must
-either force a confident but wrong label or drop the object entirely, and both are
-unsafe. We replace the flat list with a hierarchical taxonomy and add a runtime
-abstraction mechanism: each detection descends the taxonomy only as far as the
-visual evidence justifies and otherwise falls back to a coarser, still
-safety-relevant category. A per-branch safety floor bounds this fallback so the
-system never collapses into a useless generic label; below the floor it emits an
-explicit, localized UNKNOWN OBSTACLE with an inspectable decision path. Using a
-pretrained detector and CLIP zero-shot scoring over the taxonomy leaves
-(training-free), we run a fair head-to-head against a flat baseline on a
-real-world corner-case set. On out-of-taxonomy objects the hierarchy is handled
-safely in 100% of cases (abstracted or flagged) versus 0% for the flat baseline;
-on known objects it makes zero categorical (off-branch) errors with calibrated
-abstention, where a flat head is off-branch 53% of the time. We frame the method
-as a semantic safety argument for perception in the SOTIF regime, state its
-limitations honestly (novelty is a label-space proxy, no box-level ground truth,
-monocular/appearance signals are scale-limited), and outline extensions via
-semantic segmentation, LiDAR geometry, and Doppler/motion cues.
+A closed-set detector for autonomous driving must assign every object one of a
+fixed set of labels. On an object outside that set (a horse-drawn carriage, road
+debris, livestock on a rural road) it can only force a confident but wrong specific
+label or drop the object. Prior work in this series replaced the flat label set
+with a hierarchical taxonomy and a runtime abstraction rule, but evaluated it only
+on the boxes a closed detector already produces. This paper takes the layer
+open-world: we place taxonomic abstraction on top of class-agnostic region
+proposals so objects the closed detector never boxes can still be classified or
+flagged; we report a feasibility study of three open-world signals (class-agnostic
+segmentation, appearance-based out-of-distribution scoring, monocular depth) that
+shows why no single 2D cue suffices and how they compose; and we run the evaluation
+the earlier papers could not, a ground-truth leave-classes-out benchmark on real
+annotated objects. Holding out seven COCO classes and classifying their 235
+ground-truth crops, a flat closed head emits a confident wrong specific label 100%
+of the time (37% of them in the wrong super-category, e.g. an animal named as a
+vehicle), whereas the hierarchical layer emits zero confident wrong specific labels
+and safely handles 94% of the objects (a correct super-category, or an explicit
+UNKNOWN OBSTACLE). We are explicit that this is a safety result, not a specificity
+one: the correct super-category is recovered only 26% of the time and the remaining
+69% are conservatively flagged unknown. The contribution is an open-world
+perception layer that never makes a confident categorical mistake on an
+out-of-vocabulary object, together with an honest account of its cost.
+
+(v1 abstract, the closed-box evaluation, remains archived at
+doi:10.5281/zenodo.21593472.)
 
 ---
 
@@ -56,10 +69,16 @@ flagged UNKNOWN if it cannot commit. A per-branch "safety floor" stops it from
 over-abstracting into a useless "it is an object".
 
 Honest results: we do not beat YOLO on COCO accuracy (CLIP zero-shot is weaker,
-and slower). The point is the tail. On known objects it makes 0% categorical
-errors and abstains about 24% of the time, versus a flat head's 53% off-branch
-errors; on out-of-taxonomy objects it stays safe 100% of the time (abstract or
-flag) versus 0% for flat.
+and slower). The point is the tail. The clean test is a ground-truth
+leave-classes-out benchmark: remove classes from the taxonomy, then classify their
+real annotated crops. On 235 such out-of-vocabulary objects the flat head is
+confidently wrong 100% of the time (37% in the wrong super-category, e.g. an animal
+called a vehicle); ours is confidently wrong 0% of the time and stays safe on 94%.
+The catch, which we state plainly: most of that safety is abstention (69% flagged
+UNKNOWN), and it only recovers the correct super-category 26% of the time. The win
+is not making a confident categorical mistake, not superior accuracy. On known
+in-taxonomy objects it makes 0% off-branch errors with ~24% abstention, versus a
+flat head's 53% off-branch.
 
 Code + run it yourself: https://huggingface.co/freshNfunky/howc . Paper (open access): https://doi.org/10.5281/zenodo.21593472 .
 Code: https://github.com/freshNfunky/IE2025-Research-Paper .
@@ -86,11 +105,16 @@ holds enough mass; otherwise it stops at a coarser node. A per-branch safety flo
 turns over-abstraction into an explicit UNKNOWN rather than a useless "object".
 
 We benchmark on the axes that matter for this, not COCO mAP (where a trained YOLO
-wins): off-branch categorical-error rate and calibrated abstention. On known
-objects: 0% off-branch errors and ~24% abstention for the hierarchy, vs 53%
-off-branch for a flat arg-max head. On out-of-taxonomy objects: 100% safe-handled
-(abstract or flag) vs 0% flat. Honest limits are in the writeup (novelty is a
-label-space proxy; no box GT).
+wins): off-branch categorical-error rate, calibrated abstention, and out-of-
+vocabulary handling. The headline test is ground-truth leave-classes-out: hold
+classes out of the taxonomy, classify their real annotated crops. On 235 such
+objects the flat head is confidently wrong 100% of the time (37% in the wrong
+super-branch); the hierarchy is 0% confidently-wrong and safe on 94%. We are
+explicit that this is a safety result, not a specificity one: 69% of that is
+honest UNKNOWN and only 26% is a recovered correct super-category. On in-taxonomy
+objects: 0% off-branch and ~24% abstention, vs 53% off-branch for a flat arg-max
+head. (This closes the earlier label-space-proxy caveat; remaining limits, the 69%
+abstention and the 2D-only proposal front-end, are in the writeup.)
 
 Code + card: https://huggingface.co/freshNfunky/howc · paper https://doi.org/10.5281/zenodo.21593472 · code
 https://github.com/freshNfunky/IE2025-Research-Paper
