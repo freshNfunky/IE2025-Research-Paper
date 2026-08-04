@@ -1,8 +1,11 @@
 # Zenodo deposit metadata, v3 (HOWC open-world paper)
 
-Fallback publication after arXiv moderation declined the submission (scope
-judgment, not peer review). Files to upload live in `build/zenodo_v3/`:
-`paper_v3.pdf` (main) and `paper_v3_source.zip` (LaTeX source + figures).
+Prepared as a fallback in case arXiv declines the v3 submission (as of writing it
+is still "on hold" / under moderation; no decision yet). The account had an earlier
+paper declined by arXiv in 2024 on a scope judgment, so this deposit is staged and
+ready. Files to upload live in `build/zenodo_v3/`: `paper_v3.pdf` (main) and
+`paper_v3_source.zip` (LaTeX source + figures). Do NOT publish while arXiv is still
+pending, use it only if arXiv declines.
 
 ## Form fields
 
