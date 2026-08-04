@@ -70,11 +70,61 @@ out-of-ODD classes with no correct branch in the taxonomy, which is precisely th
 gap a genuine open-world novelty test must target. See the \texttt{plausible}
 column in \texttt{cases.csv}.
 
+\textbf{Selection rule (manifest).} SegmentMeIfYouCan Road Anomaly, validation
+split, the first 40 samples in Hugging Face streaming order (deterministic, no
+shuffle). The \texttt{image} column in \texttt{cases.csv} (0..39) is the stream
+position; each row is one detection. Per-image content hashes can be provided on
+request for exact identification.
+
+\textbf{Revised results statement.} Across 40 images, YOLOv8s produced 54
+detections; 20 were out-of-taxonomy (the predicted COCO class has no taxonomy
+node). All 20 satisfied the predefined fallback rule (9 abstracted, 11
+\textsc{unknown}): \emph{20/20 fallback-rule coverage for detected
+label-space-gap proxies}. This is not novelty-detection accuracy and not
+demonstrated driving safety. Both the population assignment and the reference
+class derive from the YOLO prediction, so the test shows internal behaviour
+relative to a proxy label, not independent semantic correctness.
+
+\textbf{Fallback breakdown (out-of-taxonomy, $n=20$).}
+\begin{center}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Category & Count \\
+\midrule
+Conservative \textsc{unknown} (honest flag) & $11$ \\
+Proxy-consistent branch abstraction (correct floor) & $4$ \\
+Cross-branch proxy inconsistency (airplane, kite, frisbee $\to$ Living Being) & $5$ \\
+Detection-stage misses & unmeasured (no box GT) \\
+\midrule
+Fallback coverage & $20/20$ \\
+Semantic-branch plausibility & $15/20$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Preliminary evidence-to-envelope mapping} (design intent, \emph{not}
+evaluated; authorization is execution-governance-owned). Perception evidence does
+not authorize action; it is one input to an action-specific decision.
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Perception output (with residual uncertainty) & Permissible envelope \\
+\midrule
+\textsc{identified}, leaf below floor, channels agree & class-specific manoeuvre \\
+\textsc{abstracted} to a plausible floor & class-level caution only (decel., separation) \\
+\textsc{unknown}, or cross-branch / low confidence & restricted operation / Review / Safe-Hold \\
+cross-channel disagreement or high uncertainty & down-rank the envelope one step \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \textbf{Scope and caveats.} (i) Novelty is a label-space proxy, not open-world
-novelty. (ii) No box-level ground truth: object-level false negatives and missed
-objects are outside the evaluation; the KPI scores only detected objects.
-(iii) Sensor degradation and broader domain shift are not evaluated.
-(iv) The taxonomy provides bounded semantic \emph{evidence}; authorization of any
-manoeuvre is a separate (execution-governance) decision.
+novelty. (ii) Population and reference class both derive from the YOLO
+prediction, not independent object-level ground truth. (iii) No box-level ground
+truth: object-level false negatives and missed objects are outside the
+evaluation; the KPI scores only detected objects. (iv) Sensor degradation and
+broader domain shift are not evaluated. (v) The taxonomy provides bounded
+semantic \emph{evidence}; authorization of any manoeuvre is a separate
+(execution-governance) decision.
 
 \end{document}
