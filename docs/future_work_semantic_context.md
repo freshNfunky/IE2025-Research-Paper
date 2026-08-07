@@ -35,15 +35,32 @@ conclusions follow from logical inference rules over semantic structure, not fro
 learned likelihood. HOWC's taxonomy and safety floors are an early, narrow instance
 of such structure (what an object *can safely be said to be* given the evidence).
 
-## Direction 2: 3D perception and digital twins
+## Direction 2: one semantic model over a semantic world and a physics-bounded twin
 
 The perception substrate is to be extended with **3D perception** (the feasibility
 study in the paper shows why 2D cues alone are scale-limited and why metric geometry
-is the missing piece) and with **digital twins** of the driving world. The intended
-end state is a convergence: the **digital twin of the autonomous-driving world** and
-a **purely semantic world model** (working name: *xixum*) merge, one supplying
-grounded geometry and dynamics, the other supplying meaning. (3D/motion model
-tracked abstractly in issue #2; its source is confidential.)
+is the missing piece) and with a **digital twin** of the driving world.
+
+The key structural idea: a **single, identical semantic model** spans two coupled
+worlds rather than two separate models being fused:
+
+- **XIXUM**, a pure-semantic *reasoning OS*, the meaning side; and
+- a **physics-grounded digital-twin open-world reasoning**, the geometry/dynamics
+  side.
+
+The same semantic model annotates both, so the open-world ODD context becomes
+semantically and cognitively graspable through that shared annotation, which *is*
+the reasoning layer.
+
+**Simulation running simultaneously with reality.** The digital twin is a simulation
+that runs in parallel to the real world, not a snapshot recomputed each frame.
+Because it obeys physical rules, it is already **bounded**: it does not admit all
+degrees of freedom, so the space of plausible next states is constrained and
+behavior becomes **predictable to a degree**. This is the qualitative departure from
+today's driving functions, which largely *live in the moment*, snapshot machines
+that re-perceive instant by instant with little running physical model of what must
+happen next. (3D/motion model tracked abstractly in issue #2; its source is
+confidential.)
 
 ## Direction 3: context as the resolving principle
 
