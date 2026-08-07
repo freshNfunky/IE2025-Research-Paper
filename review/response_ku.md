@@ -102,6 +102,6 @@ and, most importantly, **separating a label-space gap from genuine pattern-level
 novelty** and testing the latter directly.
 
 ## Deliverables for the exchange
-- `paper/supplement/cases.csv` — per-detection breakdown of all detections.
-- `paper/supplement/supplement.pdf` — one-page summary table with denominators
+- `review/cases.csv` — per-detection breakdown of all detections.
+- `review/supplement.pdf` — one-page summary table with denominators
   and thresholds.

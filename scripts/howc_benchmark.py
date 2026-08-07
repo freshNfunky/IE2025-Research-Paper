@@ -1,6 +1,6 @@
 """HOWC benchmark on the *right* axes (not closed-set mAP).
 
-Reads paper/supplement/cases.csv (the per-detection dump) and compares the
+Reads review/cases.csv (the per-detection dump) and compares the
 CLASSIFICATION arms that share the same YOLO boxes:
 
   FLAT : arg-max leaf (a flat closed-vocabulary head, the YOLO-style behaviour)
@@ -55,7 +55,7 @@ def hops(a, b):
 
 
 def main():
-    rows = list(csv.DictReader((REPO / "paper/supplement/cases.csv").open()))
+    rows = list(csv.DictReader((REPO / "review/cases.csv").open()))
     it = [r for r in rows if r["population"] == "in_taxonomy"]
     n = len(it)
 

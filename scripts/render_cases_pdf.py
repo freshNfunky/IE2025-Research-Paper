@@ -1,10 +1,10 @@
-"""Render paper/supplement/cases.csv as a print-friendly one-page PDF table.
+"""Render review/cases.csv as a print-friendly one-page PDF table.
 
 Keeps a readable subset of the columns (the full data stays in cases.csv) so the
 per-detection breakdown can be attached as a PDF alongside the CSV.
 
 Usage: python scripts/render_cases_pdf.py
-Output: paper/supplement/cases.pdf
+Output: review/cases.pdf
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 REPO = Path(__file__).resolve().parent.parent
-SUP = REPO / "paper" / "supplement"
+SUP = REPO / "review"
 
 # (csv column, header shown)
 COLS = [
@@ -39,7 +39,7 @@ def main():
 
     fig, ax = plt.subplots(figsize=(13, 0.22 * len(rows) + 1.2))
     ax.axis("off")
-    ax.set_title("Per-detection breakdown (paper/supplement/cases.csv)",
+    ax.set_title("Per-detection breakdown (review/cases.csv)",
                  fontsize=10, loc="left")
     tbl = ax.table(cellText=table, colLabels=headers, loc="upper center",
                    cellLoc="left")

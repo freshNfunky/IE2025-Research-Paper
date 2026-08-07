@@ -11,7 +11,7 @@ label set, not open-world novelties. The column is named `population` with value
 `out_of_taxonomy` / `in_taxonomy` to avoid overclaiming.
 
 Usage: python scripts/dump_cases.py [n_images] [reject_tau]
-Output: paper/supplement/cases.csv
+Output: review/cases.csv
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from hpercept.detector import get_detector                       # noqa: E402
 from hpercept.pipeline import get_pipeline, importance_of        # noqa: E402
 from hpercept.taxonomy import Node                               # noqa: E402
 
-OUT = REPO / "paper" / "supplement"
+OUT = REPO / "review"
 OUT.mkdir(parents=True, exist_ok=True)
 
 
