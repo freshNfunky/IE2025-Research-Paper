@@ -12,6 +12,12 @@ venv/
 data/
 !data/samples/.gitkeep
 
+# RESTRICTED: AVL / SafeWahr recordings are internal-only, public-release rights
+# unknown. Never commit the data OR anything derived from it. See docs/data_licensing.md
+data/avl_safewahr/
+avl_safewahr/
+*_avl_safewahr*
+
 # HF / torch caches that may land locally
 .cache/
 *.log
