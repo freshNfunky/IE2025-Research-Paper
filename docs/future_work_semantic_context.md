@@ -70,12 +70,20 @@ resolves through a context**. Meaning is not intrinsic to a pattern; it is fixed
 the context the pattern is read in (the shampoo-bottle paradox: the same appearance
 means different things at different scales/contexts).
 
-The formal backbone is a reading of Goedel's incompleteness: **a system cannot
-verify itself**, because a system cannot be its own purpose (*Selbstzweck*), that is
-consistent and logical. But **against a context**, sense emerges, and with it, at the
-end, cognition. Self-reference fails; context-reference succeeds. This is why the
-reasoning layer above is defined relative to an annotated context (the semantic ODD),
-not as a self-contained prover.
+The formal backbone is the author's paper *Goedel's Incompleteness Theorem and the
+Power of Context* (2026, the theoretical closure of `schaller_patterns`). Its
+reading: incompleteness, semantic undecidability (Rice), truth-undefinability
+(Tarski), and reference-underdetermination (Loewenheim-Skolem) are four projections
+of one fact, **a context-free system has no internal access to its own semantics**.
+A system cannot verify itself; a semantic verdict is conferred only by an external
+**validation space M** / bounded context, along the chain
+**Context -> Meaning -> Function -> Cognition**. Reality escapes the vacuum because
+it is physically **sub-complex** (latency, state diffusion, the event horizon bound
+the variance), and safety engineering already works by manufacturing that
+sub-complexity artificially (bounding the ODD). This is why the reasoning layer above
+is defined relative to an annotated context (the semantic ODD), not as a
+self-contained prover, and why the physics-bounded digital twin
+(`docs/spikes/digital_twin_feasibility.md`) is the concrete validation space.
 
 ## Long-term: a formal-semantic, context-grounded cognitive AI
 

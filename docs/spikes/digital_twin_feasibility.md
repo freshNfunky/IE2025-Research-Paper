@@ -6,18 +6,52 @@ that a physics-bounded running twin constrains degrees of freedom and makes beha
 predictable, unlike today's snapshot-machine driving functions. See the vision note
 `docs/future_work_semantic_context.md`.
 
-## 0. Theoretical basis (already abstract in the Goedel paper)
+## 0. Theoretical basis (from the Goedel/Context paper)
 
-The abstract foundation is in the companion paper on decidability and the semantic
-crisis (`schaller_patterns`, doi:10.5281/zenodo.20562409): a system cannot verify
-itself (it cannot be its own *Selbstzweck*), but meaning and decidability resolve
-**against a context**. The digital twin operationalizes that abstract "context": it
-is a physics-bounded, semantically annotated running world model that supplies the
-context against which perception and prediction become decidable. The same semantic
-model is meant to span the pure-semantic reasoning OS (**XIXUM**) and this
-physics-grounded twin (one identical model, not two fused). This note is the
-engineering feasibility of that operationalization only; the formalism lives in the
-paper.
+The foundation is the author's paper *Goedel's Incompleteness Theorem and the Power
+of Context* (v1, 2026; the theoretical closure of `schaller_patterns`,
+doi:10.5281/zenodo.20562409). It is a non-peer-reviewed preprint and its physical
+synthesis is the author's position, so it is cited here as a **framework**, not as
+established fact. The load-bearing claims for the twin:
+
+- **Contextlessness** is a single failure mode: a context-free system has no
+  internal access to its own semantics (Goedel, Rice, Tarski, Loewenheim-Skolem as
+  four projections). The resolving move is to supply an external **validation space
+  M** / bounded context; the cognition chain is
+  **Context -> Meaning -> Function -> Cognition**.
+- **Reality does not hallucinate because it is physically sub-complex.** Feedback
+  requires latency (an imaginary restoring term); state diffusion and the event
+  horizon (c) truncate and blur the variance. So prediction does not collapse to
+  "anything goes": it degrades gradually, and the future is "the low-resolution
+  projection of a present already underway". An event **announces itself: abstractly
+  at a distance, sharply up close.**
+- **Safety = manufacturing sub-complexity artificially** by bounding context (ODD,
+  interlocks, monitors, redundancy) so that within the boundary the output is
+  trustworthy. Safety is produced by bounding context, not by perfecting the
+  algorithm (paper Sec. VII-F).
+
+**Why the twin is the concrete instrument, not a side quest:**
+
+1. The physics-bounded, semantically annotated running twin **is a constructed
+   validation space M / bounded context** for the driving ODD. It manufactures the
+   sub-complexity the paper says safety requires, explicitly and in software.
+2. The paper's **footnote 1 (Sec. V) defers exactly this**: it flags that classical
+   control theory under-uses the imaginary mapping space, that this recurs "including
+   simulation", and that "a full treatment of the simulation case lies beyond this
+   paper and warrants separate work". This spike **is** that deferred simulation
+   case: a simulation that runs with latency (a real forward model), not a
+   feed-forward snapshot y(t)=f(x(t)) but a feedback system y'(t)=g(y,x) with a
+   state of its own.
+3. **HOWC already realizes the semantic-resolution half.** The taxonomy resolution
+   gradient (coarse/uncertain far, specific/certain near) instantiates "an event
+   announces itself abstractly at a distance, sharply up close"; the safety floor /
+   UNKNOWN is the bounded-context reject. The twin adds the *physical*-boundedness
+   half (the running, conserved, horizon-capped world model).
+
+One identical semantic model is meant to span the pure-semantic reasoning OS
+(**XIXUM**) and this physics-grounded twin (one model, not two fused). This note
+scopes the engineering feasibility of that operationalization only; the formalism
+lives in the paper.
 
 ## 1. What the voxel twin actually requires (decomposition)
 
