@@ -139,3 +139,21 @@ multiple levels. It is a SOTIF-oriented, semantic safety argument for statistica
 perception, with measured results and runnable code.
 
 Code + card: https://huggingface.co/freshNfunky/howc · paper https://arxiv.org/abs/2608.07577
+
+---
+
+## 4. LinkedIn (announcement)
+
+Single-line paragraphs (no wrapping), honest framing, links kept.
+
+Proud to announce that my new paper is live on arXiv: "Open-World Hierarchical Perception: Taxonomic Abstraction over Class-Agnostic Proposals for the Safe Handling of Out-of-Vocabulary Road Objects" → https://arxiv.org/abs/2608.07577
+
+A closed-set detector must label every object from a fixed set. Meet something outside it (a horse-drawn carriage, road debris, livestock) and it forces a confident wrong label or drops the object. Both are unsafe.
+
+The idea: a hierarchical taxonomy over the detector. Each object descends only as far as the evidence justifies, to a safe super-category (Vehicle, Living Being) or an explicit UNKNOWN OBSTACLE. Never a confident wrong specific label.
+
+Honest result: on 235 ground-truth out-of-vocabulary objects, a flat head is confidently wrong 100% of the time; the hierarchical layer 0%, safely handling 94%. This is a safety result, not a specificity one (69% is an honest "unknown"), and I would rather report that than oversell it.
+
+Paper: https://arxiv.org/abs/2608.07577 · Code: https://github.com/freshNfunky/IE2025-Research-Paper
+
+#AutonomousDriving #ComputerVision #AISafety #FunctionalSafety
