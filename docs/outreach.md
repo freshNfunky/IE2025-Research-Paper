@@ -20,7 +20,11 @@ is safety, not specificity, and we say so.
 **Title (v3):** Open-World Hierarchical Perception: Taxonomic Abstraction over
 Class-Agnostic Proposals for the Safe Handling of Out-of-Vocabulary Road Objects
 
-**Categories:** cs.AI (primary), cs.CV, cs.RO
+**Live:** arXiv:2608.07577 , <https://arxiv.org/abs/2608.07577> (announced)
+
+**Categories (submitted):** cs.AI (primary), cs.CV, cs.RO. As announced, arXiv lists
+cs.CV first (it appears as the primary), a likely moderator reclassification; fine to
+leave for a CV-heavy perception paper.
 
 **Abstract.**
 A closed-set detector for autonomous driving must assign every object one of a
@@ -80,7 +84,7 @@ is not making a confident categorical mistake, not superior accuracy. On known
 in-taxonomy objects it makes 0% off-branch errors with ~24% abstention, versus a
 flat head's 53% off-branch.
 
-Code + run it yourself: https://huggingface.co/freshNfunky/howc . Paper (open access): https://doi.org/10.5281/zenodo.21593472 .
+Code + run it yourself: https://huggingface.co/freshNfunky/howc . Paper (open access): https://arxiv.org/abs/2608.07577 (v1 archived at Zenodo, doi:10.5281/zenodo.21593472).
 Code: https://github.com/freshNfunky/IE2025-Research-Paper .
 
 Feedback welcome, especially on the open-world detection front-end: class-agnostic
@@ -116,7 +120,7 @@ objects: 0% off-branch and ~24% abstention, vs 53% off-branch for a flat arg-max
 head. (This closes the earlier label-space-proxy caveat; remaining limits, the 69%
 abstention and the 2D-only proposal front-end, are in the writeup.)
 
-Code + card: https://huggingface.co/freshNfunky/howc · paper https://doi.org/10.5281/zenodo.21593472 · code
+Code + card: https://huggingface.co/freshNfunky/howc · paper https://arxiv.org/abs/2608.07577 · code
 https://github.com/freshNfunky/IE2025-Research-Paper
 
 ### r/SelfDrivingCars
@@ -134,4 +138,4 @@ never degrades into a meaningless "object". Think trapeze safety net, with
 multiple levels. It is a SOTIF-oriented, semantic safety argument for statistical
 perception, with measured results and runnable code.
 
-Code + card: https://huggingface.co/freshNfunky/howc · paper https://doi.org/10.5281/zenodo.21593472
+Code + card: https://huggingface.co/freshNfunky/howc · paper https://arxiv.org/abs/2608.07577

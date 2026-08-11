@@ -23,6 +23,8 @@ the hierarchical abstraction and its UNKNOWN safety net.
 
 - Paper: `paper/paper_v3.tex` (+ `paper/paper_v3.pdf`), a standalone open-world
   paper (major scope change: open-world classifier, not an extension of v2).
+  Published on arXiv: [arXiv:2608.07577](https://arxiv.org/abs/2608.07577)
+  (announced; cs.CV/cs.AI/cs.RO, CC BY-NC-SA 4.0).
 - Concept + honest benchmark: `docs/howc_concept.md`. Leave-classes-out
   open-world benchmark on COCO GT (`scripts/v3_openworld_benchmark.py`,
   `figures/v3_openworld_benchmark.png`): on out-of-vocabulary objects the flat

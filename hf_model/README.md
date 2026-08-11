@@ -16,8 +16,11 @@ open-set one. Each detection is classified by **taxonomic abstraction**: the mos
 specific level the evidence safely supports, or an explicit **UNKNOWN OBSTACLE**,
 never a confident wrong leaf.
 
-Paper (open access): *Hierarchical Taxonomic Abstraction for the Safe Handling of
-Novel Objects in Autonomous Driving Perception*, F. Schaller,
+Open-world paper (v3): *Open-World Hierarchical Perception: Taxonomic Abstraction
+over Class-Agnostic Proposals for the Safe Handling of Out-of-Vocabulary Road
+Objects*, F. Schaller, [arXiv:2608.07577](https://arxiv.org/abs/2608.07577).
+Foundational paper (v1): *Hierarchical Taxonomic Abstraction for the Safe Handling of
+Novel Objects in Autonomous Driving Perception*,
 [doi:10.5281/zenodo.21593472](https://doi.org/10.5281/zenodo.21593472).
 Source & full history: <https://github.com/freshNfunky/IE2025-Research-Paper>.
 
